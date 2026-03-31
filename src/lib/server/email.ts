@@ -57,7 +57,7 @@ const generateOrderTable = (items) => {
 	return `
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-family: sans-serif;">
             <thead>
-                <tr style="background-color: #bc3d00; color: white;">
+                <tr style="background-color: #2596be; color: white;">
                     <th style="padding: 10px; text-align: left;">Item</th>
                     <th style="padding: 10px; text-align: center;">Qty</th>
                     <th style="padding: 10px; text-align: right;">Price</th>
@@ -71,22 +71,22 @@ const generateOrderTable = (items) => {
 };
 
 export const customerCheckoutTemplate = (orderId, items, total) => ({
-	subject: `Order Confirmed - Lalo Bakery Solutions (#${orderId})`,
+	subject: `Order Confirmed - Lalo Fixtec (#${orderId})`,
 	html: `
         <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
-            <div style="background-color: #bc3d00; padding: 20px; text-align: center;">
-                <img src="https://lalobakerysolutions.com/logo192.png" alt="Lalo Bakery Logo" width="80" style="display: block; margin: 0 auto 10px;">
+            <div style="background-color: #2596be; padding: 20px; text-align: center;">
+                <img src="https://lalofixtec.com/logo192.png" alt="Lalo Fixtec Logo" width="80" style="display: block; margin: 0 auto 10px;">
                 <h1 style="color: white; margin: 0; font-size: 20px;">Order Confirmed!</h1>
             </div>
             <div style="padding: 20px; color: #333;">
-                <p>We’ve received your order <strong>#${orderId}</strong>. Our team is now preparing your fresh selection.</p>
+                <p>We've received your order <strong>#${orderId}</strong>. Our team is now processing your request.</p>
                 ${generateOrderTable(items)}
                 <div style="text-align: right; margin-top: 15px; font-weight: bold; font-size: 1.2em;">
                     Total: ${total} ETB
                 </div>
             </div>
             <div style="background: #f9f9f9; padding: 15px; text-align: center; color: #777; font-size: 12px;">
-                Lalo Bakery Solutions | Quality you can taste.
+                Lalo Fixtec | Quality you can trust.
             </div>
         </div>
     `
@@ -96,12 +96,12 @@ export const adminCheckoutTemplate = (orderId, items, total) => ({
 	subject: `New Order Alert: #${orderId}`,
 	html: `
         <div style="font-family: sans-serif; color: #333;">
-            <h2 style="color: #bc3d00;">New Order Received</h2>
+            <h2 style="color: #2596be;">New Order Received</h2>
             <p>A new order has been placed on the website. <strong>Order ID: #${orderId}</strong></p>
             ${generateOrderTable(items)}
             <p style="font-size: 18px;"><strong>Total Revenue: ${total} ETB</strong></p>
-            <a href="lalobakerysolutions.com/dashboard/orders"
-               style="background: #bc3d00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            <a href="lalofixtec.com/dashboard/orders"
+               style="background: #2596be; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
                View in Dashboard
             </a>
         </div>
@@ -109,18 +109,18 @@ export const adminCheckoutTemplate = (orderId, items, total) => ({
 });
 
 export const customerWelcomeTemplate = (name: string) => ({
-	subject: `Welcome to Lalo Bakery Solutions, ${name}! 🎉`,
+	subject: `Welcome to Lalo Fixtec, ${name}! 🎉`,
 	html: `
         <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
 
             <!-- Header -->
-            <div style="background-color: #bc3d00; padding: 20px; text-align: center;">
-                <img src="https://lalobakerysolutions.com/logo192.png"
-                     alt="Lalo Bakery Logo"
+            <div style="background-color: #2596be; padding: 20px; text-align: center;">
+                <img src="https://lalofixtec.com/logo192.png"
+                     alt="Lalo Fixtec Logo"
                      width="80"
                      style="display: block; margin: 0 auto 10px;">
                 <h1 style="color: white; margin: 0; font-size: 20px;">
-                    Welcome to Lalo Bakery Solutions!
+                    Welcome to Lalo Fixtec!
                 </h1>
             </div>
 
@@ -129,34 +129,34 @@ export const customerWelcomeTemplate = (name: string) => ({
                 <p>Hi <strong>${name}</strong>,</p>
 
                 <p>
-                    We’re excited to have you join <strong>Lalo Bakery Solutions</strong> 🎂.
-                    You’re now part of a community that values fresh, high-quality baked goods.
+                    We're excited to have you join <strong>Lalo Fixtec</strong> 🔧.
+                    You're now part of a community that values reliable, high-quality technical solutions.
                 </p>
 
                 <p>
-                    You can now browse our products, place orders, and enjoy a seamless bakery experience.
+                    You can now browse our products, place orders, and enjoy a seamless service experience.
                 </p>
 
                 <div style="text-align: center; margin: 25px 0;">
-                    <a href="https://lalobakerysolutions.com"
-                       style="background: #bc3d00; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                    <a href="https://lalofixtec.com"
+                       style="background: #2596be; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
                         Start Shopping
                     </a>
                 </div>
 
                 <p>
-                    If you have any questions, feel free to reply to this email — we’re happy to help!
+                    If you have any questions, feel free to reply to this email — we're happy to help!
                 </p>
 
                 <p style="margin-top: 20px;">
                     Warm regards,<br/>
-                    <strong>Lalo Bakery Team</strong>
+                    <strong>Lalo Fixtec Team</strong>
                 </p>
             </div>
 
             <!-- Footer -->
             <div style="background: #f9f9f9; padding: 15px; text-align: center; color: #777; font-size: 12px;">
-                Lalo Bakery Solutions | Quality you can taste.
+                Lalo Fixtec | Quality you can trust.
             </div>
         </div>
     `
@@ -168,9 +168,9 @@ export const customerDeliveredTemplate = (orderId, items, total) => ({
         <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
 
             <!-- Header -->
-            <div style="background-color: #bc3d00; padding: 20px; text-align: center;">
-                <img src="https://lalobakerysolutions.com/logo192.png"
-                     alt="Lalo Bakery Logo"
+            <div style="background-color: #2596be; padding: 20px; text-align: center;">
+                <img src="https://lalofixtec.com/logo192.png"
+                     alt="Lalo Fixtec Logo"
                      width="80"
                      style="display: block; margin: 0 auto 10px;">
                 <h1 style="color: white; margin: 0; font-size: 20px;">
@@ -182,7 +182,7 @@ export const customerDeliveredTemplate = (orderId, items, total) => ({
             <div style="padding: 20px; color: #333;">
                 <p>Your order <strong>#${orderId}</strong> has been successfully delivered.</p>
 
-                <p>We hope you enjoy your fresh bakery items! 😋</p>
+                <p>We hope you're satisfied with your items! 😊</p>
 
                 ${generateOrderTable(items)}
 
@@ -191,13 +191,13 @@ export const customerDeliveredTemplate = (orderId, items, total) => ({
                 </div>
 
                 <p style="margin-top: 20px;">
-                    Thank you for choosing <strong>Lalo Bakery Solutions</strong>. We look forward to serving you again!
+                    Thank you for choosing <strong>Lalo Fixtec</strong>. We look forward to serving you again!
                 </p>
             </div>
 
             <!-- Footer -->
             <div style="background: #f9f9f9; padding: 15px; text-align: center; color: #777; font-size: 12px;">
-                Lalo Bakery Solutions | Quality you can taste.
+                Lalo Fixtec | Quality you can trust.
             </div>
         </div>
     `
@@ -207,7 +207,7 @@ export const adminDeliveredTemplate = (orderId, items, total) => ({
 	subject: `Order Delivered: #${orderId}`,
 	html: `
         <div style="font-family: sans-serif; color: #333;">
-            <h2 style="color: #bc3d00;">Order Marked as Delivered</h2>
+            <h2 style="color: #2596be;">Order Marked as Delivered</h2>
 
             <p>
                 The following order has been successfully delivered.
@@ -220,8 +220,8 @@ export const adminDeliveredTemplate = (orderId, items, total) => ({
                 <strong>Total Value: ${total} ETB</strong>
             </p>
 
-            <a href="https://lalobakerysolutions.com/dashboard/orders"
-               style="background: #bc3d00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            <a href="https://lalofixtec.com/dashboard/orders"
+               style="background: #2596be; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
                View in Dashboard
             </a>
         </div>
@@ -240,7 +240,7 @@ export const adminContactTemplate = (data: {
         <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee;">
 
             <!-- Header -->
-            <div style="background-color: #bc3d00; padding: 20px; text-align: center;">
+            <div style="background-color: #2596be; padding: 20px; text-align: center;">
                 <h2 style="color: white; margin: 0;">New Contact Message</h2>
             </div>
 
@@ -260,7 +260,7 @@ export const adminContactTemplate = (data: {
 
                 <div style="margin-top: 20px;">
                     <a href="mailto:${data.email}"
-                       style="background: #bc3d00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                       style="background: #2596be; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
                         Reply to Customer
                     </a>
                 </div>
@@ -268,21 +268,21 @@ export const adminContactTemplate = (data: {
 
             <!-- Footer -->
             <div style="background: #f9f9f9; padding: 10px; text-align: center; font-size: 12px; color: #777;">
-                Lalo Bakery Solutions - Contact Form Notification
+                Lalo Fixtec - Contact Form Notification
             </div>
         </div>
     `
 });
 
 export const customerContactTemplate = (name: string, subject: string) => ({
-	subject: `We received your message - Lalo Bakery Solutions`,
+	subject: `We received your message - Lalo Fixtec`,
 	html: `
         <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
 
             <!-- Header -->
-            <div style="background-color: #bc3d00; padding: 20px; text-align: center;">
-                <img src="https://lalobakerysolutions.com/logo192.png"
-                     alt="Lalo Bakery Logo"
+            <div style="background-color: #2596be; padding: 20px; text-align: center;">
+                <img src="https://lalofixtec.com/logo192.png"
+                     alt="Lalo Fixtec Logo"
                      width="80"
                      style="display: block; margin: 0 auto 10px;">
                 <h1 style="color: white; margin: 0; font-size: 20px;">
@@ -295,8 +295,8 @@ export const customerContactTemplate = (name: string, subject: string) => ({
                 <p>Hi <strong>${name}</strong>,</p>
 
                 <p>
-                    Thank you for reaching out to <strong>Lalo Bakery Solutions</strong>.
-                    We’ve received your message regarding:
+                    Thank you for reaching out to <strong>Lalo Fixtec</strong>.
+                    We've received your message regarding:
                 </p>
 
                 <p style="font-weight: bold; margin: 10px 0;">
@@ -313,13 +313,13 @@ export const customerContactTemplate = (name: string, subject: string) => ({
 
                 <p style="margin-top: 20px;">
                     Best regards,<br/>
-                    <strong>Lalo Bakery Team</strong>
+                    <strong>Lalo Fixtec Team</strong>
                 </p>
             </div>
 
             <!-- Footer -->
             <div style="background: #f9f9f9; padding: 15px; text-align: center; color: #777; font-size: 12px;">
-                Lalo Bakery Solutions | Quality you can taste.
+                Lalo Fixtec | Quality you can trust.
             </div>
         </div>
     `

@@ -38,7 +38,32 @@
 </script>
 
 <svelte:head>
-	<title>Lalo Bakery</title>
+	<title>Products | Industrial & Construction Supply Solutions</title>
+
+	<meta
+		name="description"
+		content="Procure professional-grade mechanical hand tools, construction materials, and bulk industrial supplies. Fixtec provides high-capacity solutions for contractors and infrastructure projects."
+	/>
+	<meta
+		name="keywords"
+		content="industrial hand tools, construction bulk supply, mechanical tools distributor, infrastructure procurement, Fixtec tools, Lalo General Trading supply"
+	/>
+
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Fixtec: Strategic Supply Partner for Global Operations" />
+	<meta
+		property="og:description"
+		content="Secure your supply chain with Fixtec. Professional-grade tools and materials tailored for large-scale construction and industrial facilities."
+	/>
+	<meta property="og:image" content="/tools (1).webp" />
+
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:title" content="Fixtec | Professional Industrial & Construction Supply" />
+	<meta
+		property="twitter:description"
+		content="We do not simply sell tools; we secure supply chains. Explore our bulk solutions for contractors and industrial developers."
+	/>
+	<meta property="twitter:image" content="/tools (1).webp" />
 </svelte:head>
 
 <Hero />
