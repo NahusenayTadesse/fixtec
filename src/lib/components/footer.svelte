@@ -49,17 +49,17 @@
 			<!-- Company Info -->
 			<div>
 				<img src="/logo.webp" class="w-30" alt="Lalo Logo" />
-				<h4 class="mb-4 font-semibold">Lalo Bakery Solution</h4>
+				<h4 class="mb-4 font-semibold">Lalo Fixtec</h4>
 
 				<div class="flex flex-col gap-2 text-sm">
 					<a
-						href="https://maps.app.goo.gl/KMrgwGNNbsE2SAeV7"
+						href="https://maps.app.goo.gl/qdBiXLuEoQXwryer6"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="flex items-center gap-2 text-foreground/70"
 					>
 						<MapPinIcon class="size-4 shrink-0" />
-						<span>Diplomat Building, Mozambique St, Addis Ababa</span>
+						<span>Sengatera, In Front of Addis Ababa University, Addis Ababa</span>
 					</a>
 					<a
 						href="tel:+25152838383"
@@ -71,22 +71,22 @@
 						<span>+25152838383</span>
 					</a>
 					<a
-						href="tel:+251907353661"
+						href="tel:+251952838383"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="flex items-center gap-2 text-foreground/70"
 					>
 						<PhoneIcon class="size-4 shrink-0" />
-						<span>+251907353661</span>
+						<span>+2519 52 83 83 83</span>
 					</a>
 					<a
-						href="mailto:info@mohammedlaloie.com"
+						href="mailto:fixtec@mohammedlaloie.com"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="flex items-center gap-2 text-foreground/70"
 					>
 						<MailIcon class="size-4 shrink-0" />
-						<span>info@mohammedlaloie.com</span>
+						<span>fixtec@mohammedlaloie.com</span>
 					</a>
 				</div>
 			</div>
@@ -110,7 +110,7 @@
 				<h4 class="mb-4 flex gap-2 font-semibold"><MapPin /> Location</h4>
 				<section class="relative h-32 w-full">
 					<iframe
-						src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.6989163918774!2d38.74450221007991!3d8.999827389408697!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b8513494db273%3A0x88235dbe171c4224!2sDiplomat%20Building!5e0!3m2!1sen!2set!4v1772532021053!5m2!1sen!2set"
+						src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d985.1384495229566!2d38.74882050370965!3d9.01313956646654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b85c4825658a3%3A0xf3efdd57bb307c1e!2sAddis%20Ababa%20University%20School%20of%20Commerce!5e0!3m2!1sen!2set!4v1775076333145!5m2!1sen!2set"
 						style="border:0;"
 						class="w-full rounded-3xl"
 						loading="lazy"

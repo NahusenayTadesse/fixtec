@@ -42,8 +42,8 @@
 		{
 			icon: MailIcon,
 			label: 'Email',
-			value: 'info@mohammedlaloie.com',
-			href: 'mailto:info@mohammedlaloie.com'
+			value: 'fixtec@mohammedlaloie.com',
+			href: 'mailto:fixtec@mohammedlaloie.com'
 		},
 		{
 			icon: PhoneIcon,

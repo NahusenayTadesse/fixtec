@@ -20,8 +20,6 @@
 
 		{ label: 'About Us', href: '/about-us' },
 		{ label: 'Products and Solutions', href: '/shop' },
-		{ label: 'Industries', href: '/industries' },
-		{ label: 'New Arrivals', href: '/new-arrival' },
 
 		{ label: 'Orders', href: '/orders' },
 

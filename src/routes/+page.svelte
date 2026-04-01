@@ -38,7 +38,7 @@
 </script>
 
 <svelte:head>
-	<title>Products | Industrial & Construction Supply Solutions</title>
+	<title>Lalo Fixtec | Industrial & Construction Supply Solutions</title>
 
 	<meta
 		name="description"
