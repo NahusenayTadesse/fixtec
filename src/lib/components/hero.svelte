@@ -104,7 +104,7 @@
 					</Button>
 				</div>
 			</div>
-
+			<!--
 			<div class="relative hidden h-150 lg:col-span-5 lg:block">
 				{#each stats as stat, i (stat)}
 					<div
@@ -124,7 +124,7 @@
 						</div>
 					</div>
 				{/each}
-			</div>
+			</div> -->
 		</div>
 	</div>
 

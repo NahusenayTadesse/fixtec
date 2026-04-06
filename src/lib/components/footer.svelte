@@ -68,16 +68,16 @@
 						class="flex items-center gap-2 text-foreground/70"
 					>
 						<PhoneIcon class="size-4 shrink-0" />
-						<span>+25152838383</span>
+						<span>+251 52 83 83 83</span>
 					</a>
 					<a
-						href="tel:+251952838383"
+						href="tel:+2519 12 72 70 003"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="flex items-center gap-2 text-foreground/70"
 					>
 						<PhoneIcon class="size-4 shrink-0" />
-						<span>+2519 52 83 83 83</span>
+						<span>+2519 12 72 70 00</span>
 					</a>
 					<a
 						href="mailto:fixtec@mohammedlaloie.com"

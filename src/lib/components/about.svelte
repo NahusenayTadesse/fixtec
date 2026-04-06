@@ -77,7 +77,7 @@
 			<p class="max-w-3xl text-xl font-medium text-foreground/70">
 				Fixtec operates under <span
 					class="font-bold text-foreground underline decoration-primary underline-offset-4"
-					>Lalo General Trading</span
+					>Lalo Import and Export</span
 				>, a diversified group with established import channels and cross-sector distribution
 				expertise.
 			</p>

@@ -17,13 +17,12 @@
 
 	const menuItems = [
 		{ label: 'Home', href: '/' },
+		{ label: 'Products and Services', href: '/shop' },
 
 		{ label: 'About Us', href: '/about-us' },
-		{ label: 'Products and Solutions', href: '/shop' },
 
-		{ label: 'Orders', href: '/orders' },
-
-		{ label: 'Contact Us', href: '/contact-us' }
+		{ label: 'Contact Us', href: '/contact-us' },
+		{ label: 'Orders', href: '/orders' }
 	];
 </script>
 

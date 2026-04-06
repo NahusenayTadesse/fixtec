@@ -63,6 +63,7 @@
 			) ?? [0])
 		)
 	);
+	import { Cog, Building2, Factory, Landmark, Toolbox, Building } from '@lucide/svelte';
 
 	// Toggle category selection
 	const toggleCategory = (category: string) => {
@@ -86,6 +87,39 @@
 			maxPrice < maxProductPrice ||
 			selectedCategories.length > 0
 	);
+
+	const industries = [
+		{
+			name: 'Construction & Infrastructure',
+			description: 'Scalable solutions for large-scale urban development and civil engineering.',
+			icon: Building2
+		},
+		{
+			name: 'Manufacturing Plants',
+			description: 'Optimizing production lines with smart automation and industrial IoT.',
+			icon: Factory
+		},
+		{
+			name: 'Engineering Services',
+			description: 'Precision-driven consulting and technical design for complex systems.',
+			icon: Cog
+		},
+		{
+			name: 'Public Sector Projects',
+			description: 'Compliance-ready frameworks for governmental and community initiatives.',
+			icon: Landmark
+		},
+		{
+			name: 'Hardware Distribution',
+			description: 'Streamlined logistics and supply chain management for global hardware.',
+			icon: Toolbox
+		},
+		{
+			name: 'Facility Management',
+			description: 'Sustainable operations and maintenance for modern commercial spaces.',
+			icon: Building
+		}
+	];
 </script>
 
 <svelte:head>
@@ -116,6 +150,46 @@
 	/>
 	<meta property="twitter:image" content="/tools (1).webp" />
 </svelte:head>
+
+<section class="border-b px-6 py-16 lg:px-8">
+	<div class="mx-auto max-w-5xl">
+		<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Products & Solutions</h1>
+		<p class="mt-4 max-w-2xl text-lg text-muted-foreground">
+			Professional-grade equipment and structured procurement models designed to meet high-frequency
+			industrial demands.
+		</p>
+	</div>
+</section>
+
+<section class="mx-auto max-w-5xl justify-self-center px-6 py-20 lg:px-8">
+	<div class="text-center">
+		<h2 class="text-2xl font-bold tracking-tight">Industries We Serve</h2>
+		<p class="mt-2 text-muted-foreground">Specialized support across diverse industrial sectors.</p>
+	</div>
+
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+		{#each industries as indu (indu.name)}
+			<div
+				class="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-md"
+			>
+				<div class="flex items-center justify-between">
+					<!-- <span class="text-2xl">{icon}</span> -->
+					<indu.icon />
+					<div class="h-1.5 w-1.5 rounded-full bg-border group-hover:bg-primary" />
+				</div>
+
+				<div>
+					<h3 class="text-base font-semibold tracking-tight text-foreground">
+						{indu.name}
+					</h3>
+					<p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+						{indu.description}
+					</p>
+				</div>
+			</div>
+		{/each}
+	</div>
+</section>
 
 <div class="min-h-dvh bg-background pb-8 text-foreground transition-colors duration-300">
 	<!-- Header -->

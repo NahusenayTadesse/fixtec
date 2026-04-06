@@ -2,7 +2,18 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
-	import { HardHat, ShieldCheck, Timer, Scaling, Handshake } from '@lucide/svelte';
+	import {
+		HardHat,
+		ShieldCheck,
+		Timer,
+		Scaling,
+		Handshake,
+		Building2,
+		Factory,
+		Landmark,
+		Toolbox,
+		Building
+	} from '@lucide/svelte';
 	import { Separator } from '$lib/components/ui/separator';
 
 	const challenges = [
@@ -13,6 +24,7 @@
 	];
 
 	import { Wrench, Construction, LayoutGrid } from '@lucide/svelte';
+	import LayoutGridFilled from '@tabler/icons-svelte/icons/layout-grid-filled';
 
 	const productCategories = [
 		{
@@ -46,32 +58,32 @@
 		{
 			name: 'Construction & Infrastructure',
 			description: 'Scalable solutions for large-scale urban development and civil engineering.',
-			icon: '🏗️'
+			icon: Building2
 		},
 		{
 			name: 'Manufacturing Plants',
 			description: 'Optimizing production lines with smart automation and industrial IoT.',
-			icon: '🏭'
+			icon: Factory
 		},
 		{
 			name: 'Engineering Services',
 			description: 'Precision-driven consulting and technical design for complex systems.',
-			icon: '📐'
+			icon: LayoutGridFilled
 		},
 		{
 			name: 'Public Sector Projects',
 			description: 'Compliance-ready frameworks for governmental and community initiatives.',
-			icon: '🏛️'
+			icon: Landmark
 		},
 		{
 			name: 'Hardware Distribution',
 			description: 'Streamlined logistics and supply chain management for global hardware.',
-			icon: '📦'
+			icon: Toolbox
 		},
 		{
 			name: 'Facility Management',
 			description: 'Sustainable operations and maintenance for modern commercial spaces.',
-			icon: '🏢'
+			icon: Building
 		}
 	];
 </script>
@@ -85,7 +97,7 @@
 	/>
 	<meta
 		name="keywords"
-		content="industrial hand tools, construction bulk supply, mechanical tools distributor, infrastructure procurement, Fixtec tools, Lalo General Trading supply"
+		content="industrial hand tools, construction bulk supply, mechanical tools distributor, infrastructure procurement, Fixtec tools, Lalo Import and Export supply"
 	/>
 
 	<meta property="og:type" content="website" />
@@ -121,7 +133,7 @@
 			<div>
 				<h2 class="text-3xl font-bold tracking-tight">Our Mandate</h2>
 				<p class="mt-4 text-lg text-muted-foreground">
-					Operating under <span class="font-semibold text-foreground">Lalo General Trading</span>,
+					Operating under <span class="font-semibold text-foreground">Lalo Import and Export</span>,
 					we leverage decades of international trade and industrial distribution experience. Our
 					foundation is built on reliability, operational discipline, and long-term business
 					partnerships.
@@ -134,7 +146,7 @@
 			<Card.Root class="border-border bg-card">
 				<Card.Header>
 					<Card.Title>The FIXTEC Advantage</Card.Title>
-					<Card.Description>More than a vendor—a procurement partner.</Card.Description>
+					<Card.Description>More than a vendor and procurement partner.</Card.Description>
 				</Card.Header>
 				<Card.Content class="space-y-4">
 					<p class="text-sm leading-relaxed text-muted-foreground">
@@ -147,40 +159,61 @@
 		</div>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 py-20 md:py-28">
-		<div class="grid items-start gap-12 md:grid-cols-[1fr_2fr] md:gap-20">
-			<!-- Left label -->
-			<div class="flex flex-col gap-4">
-				<span class="text-xs tracking-[0.25em] text-muted-foreground uppercase"> Who We Are </span>
-				<Separator class="h-px w-12 bg-foreground" />
-				<p class="text-xs leading-relaxed text-muted-foreground">
-					Operating under<br />Lalo General Trading
-				</p>
+	<section class="mx-auto max-w-7xl px-6 py-24 md:py-40">
+		<div class="grid items-start gap-12 lg:grid-cols-[1.2fr_2fr] lg:gap-24">
+			<div class="flex flex-col gap-8 border-t-4 border-primary pt-8">
+				<h2 class="text-4xl font-bold tracking-tighter uppercase md:text-5xl lg:text-6xl">
+					Who <br />
+					We Are
+				</h2>
+
+				<div class="space-y-2">
+					<p class="text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
+						Corporate Structure
+					</p>
+					<p class="text-sm leading-relaxed font-medium text-foreground/80">
+						Operating under the strategic umbrella of<br />
+						<span class="font-semibold text-foreground">Lalo Imports and Exports</span>
+					</p>
+				</div>
 			</div>
 
-			<!-- Right content -->
-			<div class="flex flex-col gap-6">
-				<p class="text-2xl leading-snug font-semibold tracking-tight md:text-3xl">
-					We are not a vendor.<br />
-					We are a
-					<em class="not-italic underline decoration-muted-foreground/40 underline-offset-4"
-						>procurement partner</em
-					>.
-				</p>
+			<div class="flex flex-col gap-12">
+				<div class="space-y-6">
+					<p class="text-3xl leading-[1.1] font-medium tracking-tight text-foreground md:text-5xl">
+						We are not a vendor. <br />
+						<span class="text-muted-foreground">We are a</span>
+						<span class="relative">
+							procurement partner.
+							<span class="absolute -bottom-2 left-0 h-1 w-full bg-primary/10"></span>
+						</span>
+					</p>
+				</div>
 
-				<p class="text-base leading-relaxed text-muted-foreground">
-					Fixtec was established with a clear mandate: to provide dependable mechanical tools and
-					construction materials for large-scale professional operations. Leveraging years of
-					experience in international trade, import coordination, and industrial distribution, our
-					systems are designed to be structured, predictable, and scalable — aligned with our
-					clients' operational goals from day one.
-				</p>
+				<div class="grid gap-10 md:grid-cols-1">
+					<div class="space-y-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
+						<p>
+							<strong class="font-semibold text-foreground">Fixtec</strong> was established with a singular
+							mandate: to provide dependable mechanical tools and construction materials for large-scale
+							professional operations.
+						</p>
 
-				<p class="text-base leading-relaxed text-muted-foreground">
-					We understand the procurement challenges faced by large contractors and industrial
-					operators. Every solution we offer is built around addressing those realities with
-					discipline and transparency.
-				</p>
+						<p>
+							By leveraging decades of expertise in international trade and industrial distribution,
+							our systems are engineered to be <span class="text-foreground"
+								>structured, predictable, and scalable</span
+							>. We align with your operational goals from day one.
+						</p>
+					</div>
+
+					<div class="relative border-l-2 border-border py-2 pl-8">
+						<p class="text-base leading-relaxed text-muted-foreground italic">
+							"We understand the procurement challenges faced by large contractors and industrial
+							operators. Every solution we offer is built around addressing those realities with
+							discipline and transparency."
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -300,21 +333,22 @@
 		</div>
 
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-			{#each industries as { name, description, icon } (name)}
+			{#each industries as indu (indu.name)}
 				<div
 					class="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-md"
 				>
 					<div class="flex items-center justify-between">
-						<span class="text-2xl">{icon}</span>
+						<!-- <span class="text-2xl">{icon}</span> -->
+						<indu.icon />
 						<div class="h-1.5 w-1.5 rounded-full bg-border group-hover:bg-primary" />
 					</div>
 
 					<div>
 						<h3 class="text-base font-semibold tracking-tight text-foreground">
-							{name}
+							{indu.name}
 						</h3>
 						<p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-							{description}
+							{indu.description}
 						</p>
 					</div>
 				</div>
