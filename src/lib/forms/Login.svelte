@@ -34,8 +34,7 @@
 <Card.Root class="mx-auto flex w-full max-w-md flex-col justify-center justify-self-center ">
 	<Card.Header>
 		<div class="flex w-full flex-col items-center justify-center">
-			<img src="/logo.webp" class="block h-24 w-24 dark:hidden" alt="Logo" />
-			<img src="/logoWhite.webp" class="hidden h-24 w-24 dark:block" alt="Logo" />
+			<img src="/logo.webp" class="w-1/2" alt="Logo" />
 		</div>
 		<Card.Title class="flex flex-row justify-between text-2xl">Login <DarkMode /></Card.Title>
 		<Card.Description>Enter your email below to login to your account</Card.Description>
