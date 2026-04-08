@@ -1,18 +1,12 @@
 <script lang="ts">
-	import {
-		Card,
-		CardContent,
-		CardDescription,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import { Card, CardContent } from '$lib/components/ui/card';
 	import {
 		ShieldCheckIcon,
 		ZapIcon,
 		FactoryIcon,
 		ScaleIcon,
 		Building2Icon,
-		GanttChart
+		ChartArea
 	} from '@lucide/svelte';
 	import { fly, fade } from 'svelte/transition';
 
@@ -90,7 +84,7 @@
 						Specialized Sectors
 					</h3>
 					<ul class="space-y-4">
-						{#each targetSectors as sector}
+						{#each targetSectors as sector (sector)}
 							<li class="group flex items-center gap-3 font-semibold text-foreground/80">
 								<div
 									class="h-1.5 w-1.5 rounded-full bg-primary transition-all group-hover:w-4"
@@ -104,7 +98,7 @@
 
 			<div transition:fly={{ x: 20, duration: 600, delay: 200 }} class="lg:col-span-3">
 				<div class="grid gap-4 sm:grid-cols-2">
-					{#each highPerformanceDrivers as driver}
+					{#each highPerformanceDrivers as driver (driver)}
 						<Card class="border-primary/10 bg-card/50 transition-colors hover:border-primary/30">
 							<CardContent class="p-6">
 								<div
@@ -123,39 +117,46 @@
 
 		<div
 			transition:fade={{ duration: 800, delay: 400 }}
-			class="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 p-8 shadow-2xl lg:p-12"
+			class="relative overflow-hidden rounded-3xl border border-white/10 bg-black/70 p-8 shadow-2xl lg:p-12"
 		>
-			<div class="absolute top-0 right-0 h-full w-1/3 opacity-10 grayscale">
-				<GanttChart class="h-full w-full rotate-12" />
+			<!-- Background image: fades out toward the left where text lives -->
+			<div class="pointer-events-none absolute inset-0">
+				<img
+					src="/tools (1).webp"
+					alt=""
+					class="h-full w-full object-cover object-center opacity-20 mix-blend-luminosity"
+				/>
+				<!-- Gradient mask: solid on the left, transparent on the right -->
+				<!-- <div class="absolute inset-0 bg-linear-to-r from-black/20 via-black/70 to-black/20"></div> -->
 			</div>
 
 			<div class="relative z-10 grid gap-12 lg:grid-cols-2 lg:items-center">
 				<div>
 					<div
-						class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1 text-xs font-bold tracking-tighter text-primary uppercase"
+						class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10
+                 px-4 py-1 text-xs font-bold tracking-tighter text-primary uppercase"
 					>
 						Group Ecosystem
 					</div>
 					<h3 class="text-3xl font-black text-white sm:text-4xl">Integrated <br />Partnerships</h3>
-					<p class="mt-4 text-lg text-zinc-400">
+					<p class="mt-4 text-lg text-gray-50">
 						Our operational model is designed around reliability, volume capacity, and long-term
 						procurement partnerships that drive growth from the ground up.
 					</p>
 				</div>
-
 				<div class="grid gap-4">
 					{#each groupPartners as partner (partner)}
 						<div
-							class="group relative rounded-xl border border-white/5 bg-white/5 p-6 transition-all hover:bg-white/10"
+							class="group relative rounded-xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-white/10 hover:bg-white/10"
 						>
 							<div class="flex items-start justify-between">
 								<div>
-									<h4 class="font-bold text-white transition-colors group-hover:text-primary">
+									<h4 class="font-bold text-primary transition-colors group-hover:text-primary">
 										{partner.name}
 									</h4>
-									<p class="mt-1 text-sm leading-snug text-zinc-500">{partner.description}</p>
+									<p class="mt-1 text-sm leading-snug text-white">{partner.description}</p>
 								</div>
-								<Building2Icon class="size-5 text-zinc-700" />
+								<Building2Icon class="size-5 text-primary" />
 							</div>
 						</div>
 					{/each}

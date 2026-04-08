@@ -22,7 +22,7 @@
 		{ label: 'Logistics', value: '24/7', icon: TruckIcon, pos: 'bottom-[15%] right-[40%]' }
 	];
 
-	const images = ['/tools (1).webp', '/tools (2).webp', '/tools (3).webp'];
+	const images = ['/tools (1).webp', '/tools (2).webp', '/tools (3).webp', '/tools (4).webp'];
 	let currentIndex = $state(0);
 
 	onMount(() => {

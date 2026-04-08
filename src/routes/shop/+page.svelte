@@ -148,13 +148,30 @@
 		property="twitter:description"
 		content="We do not simply sell tools; we secure supply chains. Explore our bulk solutions for contractors and industrial developers."
 	/>
-	<meta property="twitter:image" content="/tools (1).webp" />
+	<meta property="twitter:image" content="/tools (4).webp" />
 </svelte:head>
 
-<section class="border-b px-6 py-16 lg:px-8">
+<!-- <section class="border-b px-6 py-16 lg:px-8">
 	<div class="mx-auto max-w-5xl">
 		<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Products & Solutions</h1>
 		<p class="mt-4 max-w-2xl text-lg text-muted-foreground">
+			Professional-grade equipment and structured procurement models designed to meet high-frequency
+			industrial demands.
+		</p>
+	</div>
+</section> -->
+
+<section
+	class="relative flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-contain bg-center px-6 py-20 lg:px-8"
+	style="background-image: url('/tools (3).webp')"
+>
+	<div class="backdrop-blur-xm absolute inset-0 bg-primary/60"></div>
+
+	<div class="relative mx-auto max-w-4xl text-center">
+		<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
+			Products & Solutions
+		</h1>
+		<p class="mt-6 text-2xl leading-8 font-bold text-gray-100 text-shadow-sm">
 			Professional-grade equipment and structured procurement models designed to meet high-frequency
 			industrial demands.
 		</p>

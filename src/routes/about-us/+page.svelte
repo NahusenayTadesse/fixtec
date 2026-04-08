@@ -14,7 +14,6 @@
 		Toolbox,
 		Building
 	} from '@lucide/svelte';
-	import { Separator } from '$lib/components/ui/separator';
 
 	const challenges = [
 		{ icon: Timer, text: 'Tight project timelines' },
@@ -114,15 +113,21 @@
 		property="twitter:description"
 		content="We do not simply sell tools; we secure supply chains. Explore our bulk solutions for contractors and industrial developers."
 	/>
-	<meta property="twitter:image" content="/tools (1).webp" />
+	<meta property="twitter:image" content="/tools (4).webp" />
 </svelte:head>
 
 <div class="min-h-screen bg-background text-foreground">
-	<section class="border-b bg-muted/30 px-6 py-20 lg:px-8">
-		<div class="mx-auto max-w-4xl text-center">
-			<Badge variant="outline" class="mb-4">Established Excellence</Badge>
-			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">FIXTEC</h1>
-			<p class="mt-6 text-xl leading-8 text-muted-foreground">
+	<section
+		class="relative flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-contain bg-center px-6 py-20 lg:px-8"
+		style="background-image: url('/tools (4).webp')"
+	>
+		<div class="backdrop-blur-xm absolute inset-0 bg-primary/60"></div>
+
+		<div class="relative mx-auto max-w-4xl text-center">
+			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
+				FIXTEC
+			</h1>
+			<p class="mt-6 text-2xl leading-8 font-bold text-gray-100 text-shadow-sm">
 				Providing dependable mechanical tools and construction materials for large-scale operations.
 			</p>
 		</div>
@@ -160,7 +165,9 @@
 	</section>
 
 	<section class="mx-auto max-w-7xl px-6 py-24 md:py-40">
-		<div class="grid items-start gap-12 lg:grid-cols-[1.2fr_2fr] lg:gap-24">
+		<div
+			class="grid items-center items-start justify-center gap-12 lg:grid-cols-[1.2fr_2fr] lg:gap-24"
+		>
 			<div class="flex flex-col gap-8 border-t-4 border-primary pt-8">
 				<h2 class="text-4xl font-bold tracking-tighter uppercase md:text-5xl lg:text-6xl">
 					Who <br />
@@ -176,6 +183,8 @@
 						<span class="font-semibold text-foreground">Lalo Imports and Exports</span>
 					</p>
 				</div>
+
+				<img src="/tools (2).webp" alt="Corporate structure" class="" />
 			</div>
 
 			<div class="flex flex-col gap-12">
@@ -199,8 +208,8 @@
 						</p>
 
 						<p>
-							By leveraging decades of expertise in international trade and industrial distribution,
-							our systems are engineered to be <span class="text-foreground"
+							By leveraging 8+ years of expertise in international trade and industrial
+							distribution, our systems are engineered to be <span class="text-foreground"
 								>structured, predictable, and scalable</span
 							>. We align with your operational goals from day one.
 						</p>
@@ -301,22 +310,41 @@
 		</div>
 	</section>
 
-	<section class="bg-muted/40 py-16">
-		<div class="mx-auto max-w-5xl px-6 lg:px-8">
-			<div class="flex flex-col gap-8 lg:flex-col lg:items-center">
-				<div class="lg:w-1/3">
-					<Badge variant="outline" class="mb-4">Procurement</Badge>
-					<h2 class="text-3xl font-bold tracking-tight">Structured Supply Models</h2>
-					<p class="mt-4 text-muted-foreground">
-						We move beyond simple transactions to provide supply chain integration that respects
-						your budget and timelines.
+	<section class="grid grid-cols-1 items-center gap-12 bg-muted/40 py-20 lg:grid-cols-2 lg:gap-16">
+		<div class="h-full min-h-[400px] w-full lg:h-[600px]">
+			<img
+				src="/tools (4).webp"
+				alt="Lalo Imports and Exports"
+				class="h-full w-full object-cover shadow-2xl lg:rounded-r-3xl"
+			/>
+		</div>
+
+		<div class="px-6 lg:pr-12 xl:pr-24">
+			<div class="flex flex-col gap-10">
+				<div>
+					<Badge variant="outline" class="mb-4 px-3 py-1 tracking-wider uppercase">
+						Procurement
+					</Badge>
+					<h2 class="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+						Structured Supply Models
+					</h2>
+					<p class="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+						We move beyond simple transactions to provide deep supply chain integration that
+						respects your budget, quality standards, and critical timelines.
 					</p>
 				</div>
-				<div class="grid flex-1 gap-4 sm:grid-cols-2">
+
+				<div class="grid gap-4 sm:grid-cols-2">
 					{#each supplySolutions as solution (solution)}
-						<div class="rounded-xl border border-border bg-background p-5 shadow-sm">
-							<h3 class="font-bold">{solution.title}</h3>
-							<p class="mt-1 text-sm text-muted-foreground">{solution.desc}</p>
+						<div
+							class="group rounded-2xl border border-border bg-background p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+						>
+							<h3 class="text-lg font-bold transition-colors group-hover:text-primary">
+								{solution.title}
+							</h3>
+							<p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+								{solution.desc}
+							</p>
 						</div>
 					{/each}
 				</div>
