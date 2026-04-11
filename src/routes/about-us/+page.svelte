@@ -121,7 +121,7 @@
 		class="relative flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-contain bg-center px-6 py-20 lg:px-8"
 		style="background-image: url('/tools (4).webp')"
 	>
-		<div class="backdrop-blur-xm absolute inset-0 bg-primary/60"></div>
+		<div class="backdrop-blur-xm absolute inset-0 bg-black/40"></div>
 
 		<div class="relative mx-auto max-w-4xl text-center">
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
@@ -208,8 +208,8 @@
 						</p>
 
 						<p>
-							By leveraging 8+ years of expertise in international trade and industrial
-							distribution, our systems are engineered to be <span class="text-foreground"
+							By leveraging decades of expertise in international trade and industrial distribution,
+							our systems are engineered to be <span class="text-foreground"
 								>structured, predictable, and scalable</span
 							>. We align with your operational goals from day one.
 						</p>

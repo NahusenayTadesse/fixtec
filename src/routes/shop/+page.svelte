@@ -165,7 +165,7 @@
 	class="relative flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-contain bg-center px-6 py-20 lg:px-8"
 	style="background-image: url('/tools (3).webp')"
 >
-	<div class="backdrop-blur-xm absolute inset-0 bg-primary/60"></div>
+	<div class="backdrop-blur-xm absolute inset-0 bg-black/40"></div>
 
 	<div class="relative mx-auto max-w-4xl text-center">
 		<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
@@ -178,7 +178,7 @@
 	</div>
 </section>
 
-<section class="mx-auto max-w-5xl justify-self-center px-6 py-20 lg:px-8">
+<!-- <section class="mx-auto max-w-5xl justify-self-center px-6 py-20 lg:px-8">
 	<div class="text-center">
 		<h2 class="text-2xl font-bold tracking-tight">Industries We Serve</h2>
 		<p class="mt-2 text-muted-foreground">Specialized support across diverse industrial sectors.</p>
@@ -190,7 +190,6 @@
 				class="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-md"
 			>
 				<div class="flex items-center justify-between">
-					<!-- <span class="text-2xl">{icon}</span> -->
 					<indu.icon />
 					<div class="h-1.5 w-1.5 rounded-full bg-border group-hover:bg-primary" />
 				</div>
@@ -206,9 +205,9 @@
 			</div>
 		{/each}
 	</div>
-</section>
+</section> -->
 
-<div class="min-h-dvh bg-background pb-8 text-foreground transition-colors duration-300">
+<div class="mt-6 min-h-dvh bg-background pb-8 text-foreground transition-colors duration-300">
 	<!-- Header -->
 	<header class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
 		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">

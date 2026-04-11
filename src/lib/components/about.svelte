@@ -114,55 +114,6 @@
 				</div>
 			</div>
 		</div>
-
-		<div
-			transition:fade={{ duration: 800, delay: 400 }}
-			class="relative overflow-hidden rounded-3xl border border-white/10 bg-black/70 p-8 shadow-2xl lg:p-12"
-		>
-			<!-- Background image: fades out toward the left where text lives -->
-			<div class="pointer-events-none absolute inset-0">
-				<img
-					src="/tools (1).webp"
-					alt=""
-					class="h-full w-full object-cover object-center opacity-20 mix-blend-luminosity"
-				/>
-				<!-- Gradient mask: solid on the left, transparent on the right -->
-				<!-- <div class="absolute inset-0 bg-linear-to-r from-black/20 via-black/70 to-black/20"></div> -->
-			</div>
-
-			<div class="relative z-10 grid gap-12 lg:grid-cols-2 lg:items-center">
-				<div>
-					<div
-						class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10
-                 px-4 py-1 text-xs font-bold tracking-tighter text-primary uppercase"
-					>
-						Group Ecosystem
-					</div>
-					<h3 class="text-3xl font-black text-white sm:text-4xl">Integrated <br />Partnerships</h3>
-					<p class="mt-4 text-lg text-gray-50">
-						Our operational model is designed around reliability, volume capacity, and long-term
-						procurement partnerships that drive growth from the ground up.
-					</p>
-				</div>
-				<div class="grid gap-4">
-					{#each groupPartners as partner (partner)}
-						<div
-							class="group relative rounded-xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-white/10 hover:bg-white/10"
-						>
-							<div class="flex items-start justify-between">
-								<div>
-									<h4 class="font-bold text-primary transition-colors group-hover:text-primary">
-										{partner.name}
-									</h4>
-									<p class="mt-1 text-sm leading-snug text-white">{partner.description}</p>
-								</div>
-								<Building2Icon class="size-5 text-primary" />
-							</div>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</div>
 	</div>
 </section>
 
