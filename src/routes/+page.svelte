@@ -87,8 +87,8 @@
 <About />
 
 <section
-	class="relative mx-auto max-w-full border-t border-border/50 bg-cover bg-center px-6 py-24 md:py-32"
-	style="background-image: url('/tools (2).webp');"
+	class="relative z-0 mx-auto max-w-full border-t border-border/50 bg-cover bg-center px-6 py-24 md:py-32"
+	style="background-image: url('/tools (4).webp');"
 >
 	<div class="absolute inset-0 -z-1 bg-black/70"></div>
 	<div class="mx-auto max-w-7xl">

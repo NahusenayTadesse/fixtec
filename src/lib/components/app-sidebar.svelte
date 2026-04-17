@@ -54,15 +54,6 @@
 		},
 
 		{
-			title: 'Recipes ',
-			url: '/dashboard/recipes',
-			icon: CookingPot,
-			items: [
-				{ title: 'All Recipes', url: '/dashboard/recipes', icon: Sheet },
-				{ title: 'Add Recipe', url: '/dashboard/recipes/add-recipes', icon: Plus }
-			]
-		},
-		{
 			title: 'Messages',
 			url: '/dashboard/messages',
 			icon: Mail,

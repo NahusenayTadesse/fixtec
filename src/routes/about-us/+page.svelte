@@ -12,6 +12,11 @@
 		Factory,
 		Landmark,
 		Toolbox,
+		Coffee,
+		Microwave,
+		Globe,
+		WashingMachine,
+		Utensils,
 		Building
 	} from '@lucide/svelte';
 
@@ -83,6 +88,51 @@
 			name: 'Facility Management',
 			description: 'Sustainable operations and maintenance for modern commercial spaces.',
 			icon: Building
+		}
+	];
+
+	let partners = [
+		{
+			name: 'Lalo Coffee Exports',
+			description:
+				'A premier global commodity partner specializing in vertical supply chain coordination. We manage complex international logistics and quality assurance protocols to deliver high-grade coffee from origin to global roasters.',
+			icon: Coffee,
+			short: 'LAL_EXP'
+		},
+		{
+			name: 'Fahem General Trading',
+			description:
+				'A diversified trade powerhouse managing cross-border operations for critical industrial materials and raw goods. We bridge international markets through strategic sourcing, risk management, and robust distribution networks.',
+			icon: Globe,
+			short: 'FAH_GEN'
+		},
+		{
+			name: 'Lalo Laundry',
+			description:
+				'Providing industrial-strength textile care and linen management solutions. We utilize high-capacity automation and eco-friendly processes to meet the rigorous hygiene and volume requirements of the hospitality and healthcare sectors.',
+			icon: WashingMachine,
+			short: 'LAL_LAU'
+		},
+		{
+			name: 'Lalo Bakery Solutions',
+			description:
+				'End-to-end support for the commercial baking industry, offering advanced machinery, premium ingredients, and optimized production workflows designed to scale output while maintaining artisanal quality.',
+			icon: Microwave,
+			short: 'LAL_BAK'
+		},
+		{
+			name: 'Lalo Cafe',
+			description:
+				'Specializing in the integration of premium food and beverage concepts within corporate ecosystems. We design and operate high-end social hubs that enhance workplace culture and provide superior hospitality experiences.',
+			icon: Utensils,
+			short: 'LAL_CAF'
+		},
+		{
+			name: 'Lalo Apartment',
+			description:
+				'A modern residential property management firm focused on asset optimization. We handle the full spectrum of operations, from strategic leasing and tenant retention to preventative maintenance and financial reporting.',
+			icon: Building,
+			short: 'LAL_APT'
 		}
 	];
 </script>
@@ -237,7 +287,7 @@
 			</div>
 
 			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-				{#each challenges as challenge}
+				{#each challenges as challenge (challenge.text)}
 					<div
 						class="flex flex-col items-center rounded-lg border border-border bg-background p-6 text-center shadow-sm"
 					>
@@ -384,7 +434,65 @@
 		</div>
 	</section>
 
-	<section class="mx-auto mb-8 max-w-5xl px-6 pb-20 lg:px-8">
+	<section
+		class="relative z-0 mx-auto max-w-full border-t border-border/50 bg-contain bg-center px-6 py-24 md:py-32"
+		style="background-image: url('/tools (6).webp');"
+	>
+		<div class="absolute inset-0 -z-1 bg-black/70"></div>
+		<div class="mx-auto max-w-7xl">
+			<div class="mb-16 md:mb-20">
+				<div class="inline-flex items-center gap-3">
+					<span class="text-xs font-bold tracking-[0.25em] text-white uppercase"
+						>Strategic Ecosystem</span
+					>
+					<div class="h-px w-12 bg-border"></div>
+				</div>
+
+				<h3
+					class="mt-4 max-w-4xl text-4xl font-semibold tracking-tighter text-primary sm:text-5xl lg:text-6xl"
+				>
+					The Lalo Global <span class="text-white">Network</span>
+				</h3>
+
+				<p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/90">
+					Our procurement expertise is reinforced by a diverse and robust network of synergistic
+					operations, ensuring unparalleled logistical agility and market knowledge.
+				</p>
+			</div>
+
+			<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:gap-8">
+				{#each partners as p (p)}
+					<div
+						class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/30 hover:shadow-xl"
+					>
+						<div
+							class="absolute inset-x-0 top-0 h-1 bg-primary opacity-0 transition group-hover:opacity-100"
+						></div>
+
+						<div class="flex items-center justify-between">
+							<div
+								class="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary"
+							>
+								<p.icon class="size-7" />
+							</div>
+							<span class="text-xs font-bold tracking-widest text-muted-foreground/80 uppercase"
+								>{p.short}</span
+							>
+						</div>
+
+						<div class="grow space-y-2">
+							<p class="text-2xl font-semibold tracking-tight text-foreground">{p.name}</p>
+							<p class="text-sm leading-relaxed text-muted-foreground">
+								{p.description}
+							</p>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	</section>
+
+	<section class="mx-auto my-8 mt-16 max-w-5xl px-6 pb-20 lg:px-8">
 		<div
 			class="flex flex-col items-center justify-between gap-6 rounded-2xl bg-primary p-8 text-primary-foreground md:flex-row md:p-12"
 		>
