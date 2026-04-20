@@ -13,6 +13,7 @@
 		Landmark,
 		Toolbox,
 		Coffee,
+		Croissant,
 		Microwave,
 		Globe,
 		WashingMachine,
@@ -112,6 +113,14 @@
 				'Providing industrial-strength textile care and linen management solutions. We utilize high-capacity automation and eco-friendly processes to meet the rigorous hygiene and volume requirements of the hospitality and healthcare sectors.',
 			icon: WashingMachine,
 			short: 'LAL_LAU'
+		},
+
+		{
+			name: 'Lalo Bakery',
+			description:
+				'A bakery experience centered on handcrafted pastries, expertly brewed coffee, and thoughtfully sourced, high-quality ingredients—bringing together rich flavors, warm aromas, and a simple moment to slow down and enjoy.',
+			icon: Croissant,
+			short: 'LAL_BAK'
 		},
 		{
 			name: 'Lalo Bakery Solutions',

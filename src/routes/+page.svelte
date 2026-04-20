@@ -6,7 +6,15 @@
 	import Accordion from '$lib/components/accordion.svelte';
 	import Testimonial from '$lib/components/testimonial.svelte';
 
-	import { Coffee, Microwave, Globe, WashingMachine, Utensils, Building } from '@lucide/svelte';
+	import {
+		Coffee,
+		Microwave,
+		Croissant,
+		Globe,
+		WashingMachine,
+		Utensils,
+		Building
+	} from '@lucide/svelte';
 
 	let partners = [
 		{
@@ -35,6 +43,13 @@
 			description:
 				'Advanced commercial equipment, ingredients, and operational workflows for high-volume bakeries.',
 			icon: Microwave,
+			short: 'LAL_BAK'
+		},
+		{
+			name: 'Lalo Bakery',
+			description:
+				'A bakery experience focused on handcrafted pastries, expertly brewed coffee, and high-quality ingredients sourced with care.',
+			icon: Croissant,
 			short: 'LAL_BAK'
 		},
 		{

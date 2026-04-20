@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { ShoppingCartIcon, Cookie, TrashIcon } from '@lucide/svelte';
+	import { ShoppingCartIcon, TrashIcon } from '@lucide/svelte';
 	import CartItem from './cart-item.svelte';
 	import * as Popover from '$lib/components/ui/sheet/index.js';
 
