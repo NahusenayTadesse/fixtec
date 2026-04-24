@@ -68,6 +68,7 @@ export const productCategories = mysqlTable('product_categories', {
 	id: int('id').autoincrement().primaryKey(),
 	name: varchar('name', { length: 50 }).notNull().unique(),
 	description: varchar('description', { length: 255 }),
+	manual: varchar('manual', { length: 255 }),
 	...secureFields
 });
 
@@ -185,3 +186,7 @@ export const testimonials = mysqlTable('testimonials', {
 });
 
 export * from './auth.schema';
+export const gallery = mysqlTable('gallery', {
+	id: int('id').primaryKey().autoincrement(),
+	imageUrl: varchar('image_url', { length: 255 })
+});

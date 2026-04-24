@@ -13,8 +13,8 @@
 		CircleCheckBig,
 		OctagonMinus,
 		ListOrdered,
-		CookingPot,
-		Star
+		Star,
+		Building2
 	} from '@lucide/svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
@@ -58,6 +58,12 @@
 			url: '/dashboard/messages',
 			icon: Mail,
 			counter: messageNumber
+		},
+
+		{
+			title: 'Partner Logos  ',
+			url: '/dashboard/logos',
+			icon: Building2
 		},
 		{
 			title: 'Testimonials  ',

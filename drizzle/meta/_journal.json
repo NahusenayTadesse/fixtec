@@ -8,6 +8,20 @@
       "when": 1774996605334,
       "tag": "0000_dear_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1777019410418,
+      "tag": "0001_rainy_lionheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1777019597616,
+      "tag": "0002_black_karma",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@ import { db } from '$lib/server/db';
 import { productCategories as department } from '$lib/server/db/schema';
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types.js';
+import { saveUploadedFile } from '$lib/server/upload.js';
 
 export const load: PageServerLoad = async () => {
 	const form = await superValidate(zod4(add));
@@ -16,6 +17,7 @@ export const load: PageServerLoad = async () => {
 		.select({
 			id: department.id,
 			name: department.name,
+			manual: department.manual,
 			description: department.description,
 			status: department.isActive
 		})
@@ -36,15 +38,23 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Please check the form for Errors' });
 		}
 
-		const { name, description, status } = form.data;
+		const { name, description, status, manual } = form.data;
 
 		try {
-			await db.insert(department).values({
-				name,
+			let manualAddress: string = '';
 
-				description,
-				isActive: status,
-				createdBy: locals?.user?.id
+			if (manual) {
+				manualAddress = await saveUploadedFile(manual);
+			}
+
+			await db.transaction(async (tx) => {
+				await tx.insert(department).values({
+					name,
+					manual: manualAddress,
+					description,
+					isActive: status,
+					createdBy: locals?.user?.id
+				});
 			});
 
 			return message(form, { type: 'success', text: 'Department Successfully Added' });
@@ -65,13 +75,28 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		const { id, name, description, status } = form.data;
+		const { id, name, description, status, manual } = form.data;
 
 		try {
-			await db
-				.update(department)
-				.set({ name, description, isActive: status, updatedBy: locals?.user?.id })
-				.where(eq(department.id, Number(id)));
+			if (manual) {
+				const manualAddress = await saveUploadedFile(manual);
+
+				await db
+					.update(department)
+					.set({
+						name,
+						description,
+						manual: manualAddress,
+						isActive: status,
+						updatedBy: locals?.user?.id
+					})
+					.where(eq(department.id, Number(id)));
+			} else {
+				await db
+					.update(department)
+					.set({ name, description, isActive: status, updatedBy: locals?.user?.id })
+					.where(eq(department.id, Number(id)));
+			}
 			return message(form, { type: 'success', text: 'Category Successfully Updated' });
 		} catch (err: any) {
 			if (err.code === 'ER_DUP_ENTRY') return;

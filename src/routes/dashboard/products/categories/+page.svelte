@@ -2,11 +2,12 @@
 	import { renderComponent } from '$lib/components/ui/data-table/index.js';
 	import DataTable from '$lib/components/Table/data-table.svelte';
 	import DataTableSort from '$lib/components/Table/data-table-sort.svelte';
+	import DataTableLinks from '$lib/components/Table/data-table-links.svelte';
 	import Statuses from '$lib/components/Table/statuses.svelte';
 	import DialogComp from '$lib/formComponents/DialogComp.svelte';
 	import { Button } from '$lib/components/ui/button/index';
 	import Edit from './edit.svelte';
-	export const columns = [
+	const columns = [
 		{
 			accessorKey: 'index',
 			header: '#',
@@ -26,6 +27,7 @@
 				return renderComponent(Edit, {
 					id: row.original.id,
 					name: row.original.name,
+					manual: row.original.manual,
 					description: row.original.description,
 					action: '?/edit',
 					data: data?.editForm,
@@ -47,6 +49,22 @@
 		},
 
 		{
+			accessorKey: 'manual',
+			header: 'Manual',
+			sortable: true,
+			cell: ({ row }) => {
+				return renderComponent(DataTableLinks, {
+					id: row.original.manual,
+					name: row.original.manual ? 'View Manual' : 'No Manual',
+					link: '/files',
+					target: '_blank',
+					IconComp: row.original.manual ? Eye : X,
+					disabled: row.original.manual ? false : true
+				});
+			}
+		},
+
+		{
 			accessorKey: '',
 			header: 'Edit',
 			sortable: true,
@@ -55,6 +73,7 @@
 				return renderComponent(Edit, {
 					id: row.original.id,
 					name: row.original.name,
+					manual: row.original.manual,
 					description: row.original.description,
 					action: '?/edit',
 					data: data?.editForm,
@@ -68,7 +87,7 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import InputComp from '$lib/formComponents/InputComp.svelte';
 	import LoadingBtn from '$lib/formComponents/LoadingBtn.svelte';
-	import { Plus } from '@lucide/svelte';
+	import { Eye, Plus, X } from '@lucide/svelte';
 
 	const { form, errors, enhance, delayed, message } = superForm(data.form, {});
 
@@ -88,8 +107,15 @@
 	<title>Product Categories</title>
 </svelte:head>
 
-<DialogComp title="+ Add New Category" variant="default">
-	<form action="?/add" use:enhance id="main" class="flex flex-col gap-4" method="post">
+<DialogComp title="Add New Category" variant="default" IconComp={Plus}>
+	<form
+		action="?/add"
+		use:enhance
+		id="main"
+		class="flex flex-col gap-4"
+		method="post"
+		enctype="multipart/form-data"
+	>
 		<InputComp {form} {errors} label="name" type="text" name="name" required={true} />
 
 		<InputComp
@@ -101,6 +127,15 @@
 			placeholder="Enter Product Description"
 			required={true}
 			rows={10}
+		/>
+
+		<InputComp
+			label="Manual"
+			name="manual"
+			type="file"
+			{form}
+			{errors}
+			placeholder="Upload Manual for the category Max(100MB)"
 		/>
 		<InputComp
 			label="Status"
