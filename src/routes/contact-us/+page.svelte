@@ -9,7 +9,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 
-	import { MailIcon, Send, Linkedin, SendIcon, PhoneIcon } from '@lucide/svelte';
+	import { MailIcon, Send, Linkedin, SendIcon, PhoneIcon, Instagram } from '@lucide/svelte';
 
 	import { superForm } from 'sveltekit-superforms/client';
 	import { toast } from 'svelte-sonner';
@@ -20,8 +20,24 @@
 		dataType: 'json'
 	});
 
+	let Tiktok = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tiktok" viewBox="0 0 16 16">
+  <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/>
+</svg>`;
+
 	// Social links
 	const socialLinks = [
+		{
+			icon: Instagram,
+			name: 'Instagram',
+			value: 'Contact us on Instagram',
+			href: 'https://www.instagram.com/Fix@202016_lalo-instrgram'
+		},
+		{
+			icon: Tiktok,
+			name: 'TikTok',
+			value: 'Follow us on TikTok',
+			href: 'https://www.tiktok.com/@fixtechlalo'
+		},
 		{
 			name: 'LinkedIn',
 			url: 'https://www.linkedin.com/company/lalobakerysolution/',
@@ -49,7 +65,7 @@
 			icon: PhoneIcon,
 			label: 'WhatsApp',
 			value: 'Contact us on WhatsApp',
-			href: 'https://wa.me/'
+			href: 'https://wa.me/+251912727000'
 		}
 	];
 
@@ -154,6 +170,15 @@
 							<InputComp
 								{form}
 								{errors}
+								type="text"
+								name="address"
+								label="Address"
+								placeholder="Enter your address"
+							/>
+
+							<InputComp
+								{form}
+								{errors}
 								type="textarea"
 								name="contactMessage"
 								label="Message"
@@ -190,7 +215,22 @@
 								class="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-accent/10"
 							>
 								<div class="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-									<info.icon class="h-4 w-4 text-primary" />
+									{#if info.icon === Tiktok}
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											fill="currentColor"
+											class="h-4 w-4 text-primary"
+											viewBox="0 0 16 16"
+										>
+											<path
+												d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"
+											/>
+										</svg>
+									{:else}
+										<info.icon class="h-4 w-4 text-primary" />
+									{/if}
 								</div>
 								<div class="flex-1">
 									<p class="text-sm font-medium text-muted-foreground">{info.label}</p>
@@ -208,7 +248,7 @@
 					</CardHeader>
 					<CardContent>
 						<div class="grid grid-cols-2 gap-3">
-							{#each socialLinks as social (social.url)}
+							{#each socialLinks as social}
 								<a
 									href={social.url}
 									target="_blank"
@@ -219,7 +259,22 @@
 									]}
 									title={social.name}
 								>
-									<social.icon class="h-6 w-6" />
+									{#if social.icon === Tiktok}
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											fill="currentColor"
+											class="h-4 w-4 text-primary"
+											viewBox="0 0 16 16"
+										>
+											<path
+												d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"
+											/>
+										</svg>
+									{:else}
+										<social.icon class="h-4 w-4 text-primary" />
+									{/if}
 									<span class="text-xs font-medium">{social.name}</span>
 								</a>
 							{/each}

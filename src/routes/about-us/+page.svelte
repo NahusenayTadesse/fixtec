@@ -21,6 +21,8 @@
 		Building
 	} from '@lucide/svelte';
 
+	let { data } = $props();
+
 	const challenges = [
 		{ icon: Timer, text: 'Tight project timelines' },
 		{ icon: Scaling, text: 'Fluctuating material demand' },
@@ -30,6 +32,7 @@
 
 	import { Wrench, Construction, LayoutGrid } from '@lucide/svelte';
 	import LayoutGridFilled from '@tabler/icons-svelte/icons/layout-grid-filled';
+	import Slider from '$lib/components/slider.svelte';
 
 	const productCategories = [
 		{
@@ -500,7 +503,9 @@
 			</div>
 		</div>
 	</section>
-
+	{#if data?.imagesList?.length > 0}
+		<Slider imagesList={data?.imagesList} />
+	{/if}
 	<section class="mx-auto my-8 mt-16 max-w-5xl px-6 pb-20 lg:px-8">
 		<div
 			class="flex flex-col items-center justify-between gap-6 rounded-2xl bg-primary p-8 text-primary-foreground md:flex-row md:p-12"

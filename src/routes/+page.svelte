@@ -15,6 +15,7 @@
 		Utensils,
 		Building
 	} from '@lucide/svelte';
+	import Slider from '$lib/components/slider.svelte';
 
 	let partners = [
 		{
@@ -160,6 +161,10 @@
 		</div>
 	</div>
 </section>
+
+{#if data?.imagesList?.length > 0}
+	<Slider imagesList={data?.imagesList} />
+{/if}
 {#if data?.allPaymentMethods.length > 0}
 	<main class="flex flex-col items-center justify-center px-4 py-12 md:py-20">
 		<!-- Section Header -->

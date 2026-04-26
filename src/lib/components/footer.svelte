@@ -1,12 +1,17 @@
 <script lang="ts">
-	import { MailIcon, PhoneIcon, MapPinIcon, Linkedin, MapPin, Send } from '@lucide/svelte';
-	let email = $state('');
+	import {
+		MailIcon,
+		PhoneIcon,
+		MapPinIcon,
+		Linkedin,
+		MapPin,
+		Send,
+		Instagram
+	} from '@lucide/svelte';
 
-	const handleNewsletterSubmit = (e: Event) => {
-		e.preventDefault();
-		console.log('Newsletter signup:', email);
-		email = '';
-	};
+	let Tiktok = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tiktok" viewBox="0 0 16 16">
+  <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/>
+</svg>`;
 
 	const socialLinks = [
 		{
@@ -15,7 +20,18 @@
 			icon: Linkedin,
 			color: 'hover:text-black dark:hover:text-white'
 		},
-
+		{
+			icon: Instagram,
+			label: 'Instagram',
+			value: 'Contact us on Instagram',
+			href: 'https://www.instagram.com/Fix@202016_lalo-instrgram'
+		},
+		{
+			icon: '',
+			label: 'TikTok',
+			value: 'Follow us on TikTok',
+			href: 'https://www.tiktok.com/@fixtechlalo'
+		},
 		{
 			name: 'Telegram',
 			url: 'https://t.me/fixtectool',
@@ -124,7 +140,7 @@
 			<div class="flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
 				<p class="text-sm text-foreground/70">Follow us on social media</p>
 				<div class="grid grid-cols-4 gap-3">
-					{#each socialLinks as social (social.url)}
+					{#each socialLinks as social}
 						<a
 							href={social.url}
 							target="_blank"
@@ -135,7 +151,22 @@
 							]}
 							title={social.name}
 						>
-							<social.icon class="h-6 w-6" />
+							{#if social.icon === ''}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									fill="currentColor"
+									class="h-4 w-4 text-primary"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"
+									/>
+								</svg>
+							{:else}
+								<social.icon class="h-4 w-4 text-primary" />
+							{/if}
 						</a>
 					{/each}
 				</div>
