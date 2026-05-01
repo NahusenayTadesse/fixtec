@@ -25,13 +25,7 @@
 			icon: Coffee,
 			short: 'LAL_EXP'
 		},
-		{
-			name: 'Fahem General Trading',
-			description:
-				'Diversified international trade operations across key industrial and material sectors.',
-			icon: Globe,
-			short: 'FAH_GEN'
-		},
+
 		{
 			name: 'Lalo Laundry',
 			description:
@@ -61,11 +55,18 @@
 			short: 'LAL_CAF'
 		},
 		{
-			name: 'Lalo Apartment',
+			name: 'Lalo Apartments',
 			description:
 				'Comprehensive residential property management services encompassing leasing, maintenance, and daily administrative operations.',
 			icon: Building,
 			short: 'LAL_APT'
+		},
+		{
+			name: 'Fahem General Trading',
+			description:
+				'Diversified international trade operations across key industrial and material sectors.',
+			icon: Globe,
+			short: 'FAH_GEN'
 		}
 	];
 </script>
@@ -111,7 +112,7 @@
 		<div class="mb-16 md:mb-20">
 			<div class="inline-flex items-center gap-3">
 				<span class="text-xs font-bold tracking-[0.25em] text-white uppercase"
-					>Strategic Ecosystem</span
+					>Our Subsideries and Sister Companies</span
 				>
 				<div class="h-px w-12 bg-border" />
 			</div>
