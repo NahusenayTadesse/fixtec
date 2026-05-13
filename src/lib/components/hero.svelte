@@ -7,7 +7,9 @@
 		ConstructionIcon,
 		TruckIcon,
 		ShieldCheckIcon,
-		BoxesIcon
+		BoxesIcon,
+		User2,
+		User
 	} from '@lucide/svelte';
 	import { fly, fade } from 'svelte/transition';
 
@@ -18,8 +20,8 @@
 			icon: ShieldCheckIcon,
 			pos: 'top-[10%] right-[15%]'
 		},
-		{ label: 'Bulk Solutions', value: 'Global', icon: BoxesIcon, pos: 'top-[45%] right-[5%]' },
-		{ label: 'Logistics', value: '24/7', icon: TruckIcon, pos: 'bottom-[15%] right-[40%]' }
+		{ label: 'Products', value: '1000+', icon: BoxesIcon, pos: 'top-[45%] right-[5%]' },
+		{ label: 'Customers', value: '300+', icon: User, pos: 'bottom-[15%] right-[40%]' }
 	];
 
 	const images = ['/tools (1).webp', '/tools (2).webp', '/tools (3).webp', '/tools (4).webp'];
@@ -104,7 +106,7 @@
 					</Button>
 				</div>
 			</div>
-			<!--
+
 			<div class="relative hidden h-150 lg:col-span-5 lg:block">
 				{#each stats as stat, i (stat)}
 					<div
@@ -124,7 +126,7 @@
 						</div>
 					</div>
 				{/each}
-			</div> -->
+			</div>
 		</div>
 	</div>
 

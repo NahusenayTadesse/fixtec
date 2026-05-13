@@ -111,16 +111,14 @@
 	<div class="mx-auto max-w-7xl">
 		<div class="mb-16 md:mb-20">
 			<div class="inline-flex items-center gap-3">
-				<span class="text-xs font-bold tracking-[0.25em] text-white uppercase"
+				<!-- <span class="text-xs font-bold tracking-[0.25em] text-white uppercase"
 					>Our Subsideries and Sister Companies</span
-				>
-				<div class="h-px w-12 bg-border" />
+				> -->
+				<!-- <div class="h-px w-12 bg-border" /> -->
 			</div>
 
-			<h3
-				class="mt-4 max-w-4xl text-4xl font-semibold tracking-tighter text-primary sm:text-5xl lg:text-6xl"
-			>
-				The Lalo Global <span class="text-white">Network</span>
+			<h3 class="mt-4 text-4xl font-semibold tracking-tighter text-primary sm:text-5xl lg:text-6xl">
+				Our Subsidiaries and <span class="text-white">Sister Companies</span>
 			</h3>
 
 			<p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/90">

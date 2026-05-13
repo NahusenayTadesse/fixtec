@@ -76,7 +76,7 @@
 					src="/files/{image}"
 					alt={productName}
 					loading="lazy"
-					class="h-fu ll w-full object-cover transition-transform duration-500 group-hover:scale-110"
+					class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
 				/>
 			</a>
 		{:else}

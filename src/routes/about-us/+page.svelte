@@ -18,7 +18,10 @@
 		Globe,
 		WashingMachine,
 		Utensils,
-		Building
+		Building,
+		ShoppingBasket,
+		User,
+		User2
 	} from '@lucide/svelte';
 
 	let { data } = $props();
@@ -30,7 +33,7 @@
 		{ icon: HardHat, text: 'Equipment durability expectations' }
 	];
 
-	import { Wrench, Construction, LayoutGrid } from '@lucide/svelte';
+	import { Wrench, Construction, LayoutGrid, FileCog, Cog, ShoppingCart } from '@lucide/svelte';
 	import LayoutGridFilled from '@tabler/icons-svelte/icons/layout-grid-filled';
 	import Slider from '$lib/components/slider.svelte';
 
@@ -103,13 +106,7 @@
 			icon: Coffee,
 			short: 'LAL_EXP'
 		},
-		{
-			name: 'Fahem General Trading',
-			description:
-				'A diversified trade powerhouse managing cross-border operations for critical industrial materials and raw goods. We bridge international markets through strategic sourcing, risk management, and robust distribution networks.',
-			icon: Globe,
-			short: 'FAH_GEN'
-		},
+
 		{
 			name: 'Lalo Laundry',
 			description:
@@ -140,12 +137,24 @@
 			short: 'LAL_CAF'
 		},
 		{
-			name: 'Lalo Apartment',
+			name: 'Lalo Apartments',
 			description:
 				'A modern residential property management firm focused on asset optimization. We handle the full spectrum of operations, from strategic leasing and tenant retention to preventative maintenance and financial reporting.',
 			icon: Building,
 			short: 'LAL_APT'
+		},
+		{
+			name: 'Fahem General Trading',
+			description:
+				'A diversified trade powerhouse managing cross-border operations for critical industrial materials and raw goods. We bridge international markets through strategic sourcing, risk management, and robust distribution networks.',
+			icon: Globe,
+			short: 'FAH_GEN'
 		}
+	];
+
+	const stats = [
+		{ label: 'Customers', value: '300+', icon: User2 },
+		{ label: 'Quality Products', value: '1000+', icon: ShoppingCart }
 	];
 </script>
 
@@ -455,7 +464,7 @@
 			<div class="mb-16 md:mb-20">
 				<div class="inline-flex items-center gap-3">
 					<span class="text-xs font-bold tracking-[0.25em] text-white uppercase"
-						>Strategic Ecosystem</span
+						>Our Subsideries and Sister Companies</span
 					>
 					<div class="h-px w-12 bg-border"></div>
 				</div>
