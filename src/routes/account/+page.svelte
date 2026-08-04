@@ -32,7 +32,7 @@
 </script>
 
 <svelte:head>
-	<title>Account Overview - Lalo Fixtec</title>
+	<title>Account Overview - Lalo Bakery Solutions</title>
 </svelte:head>
 
 <div class="mx-auto min-h-screen max-w-7xl space-y-8 bg-background p-6 text-foreground">

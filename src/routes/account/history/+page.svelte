@@ -44,7 +44,7 @@
 </script>
 
 <svelte:head>
-	<title>Order History - Lalo Fixtec</title>
+	<title>Order History - Lalo Bakery Solutions</title>
 </svelte:head>
 
 <div class="mx-auto min-h-screen max-w-7xl space-y-8 bg-background p-6 text-foreground">

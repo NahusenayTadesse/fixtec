@@ -2,7 +2,6 @@ import { renderComponent } from '$lib/components/ui/data-table/index.js';
 import DataTableLinks from '$lib/components/Table/data-table-links.svelte';
 import DataTableActions from './data-table-actions.svelte';
 import DataTableSort from '$lib/components/Table/data-table-sort.svelte';
-import { formatEthiopianDate } from '$lib/global.svelte';
 
 export const columns = [
 	{
@@ -18,11 +17,9 @@ export const columns = [
 				name: 'Changed At',
 				onclick: column.getToggleSortingHandler()
 			}),
-		sortable: true,
-		cell: (info) => {
-			const n = info.getValue(); // number of days
-			return formatEthiopianDate(new Date(n));
-		}
+		// `date` already arrives pre-formatted from the server (DATE_FORMAT(...)),
+		// so it's rendered as-is — re-parsing it with `new Date(...)` produced "Invalid Date".
+		sortable: true
 	},
 
 	{
@@ -36,6 +33,8 @@ export const columns = [
 		sortable: true
 	},
 	{
+		// `damagedBy` is a freetext name entered on the damage form, not a user
+		// account — there's no id to link it to, so it's rendered as plain text.
 		accessorKey: 'damagedBy',
 		header: ({ column }) =>
 			renderComponent(DataTableSort, {
@@ -43,15 +42,7 @@ export const columns = [
 				onclick: column.getToggleSortingHandler()
 			}),
 
-		sortable: true,
-		cell: ({ row }) => {
-			return renderComponent(DataTableLinks, {
-				id: row.original.damagedById,
-				name: row.original.damagedBy,
-				link: `/dashboard/staff`,
-				target: '_blank'
-			});
-		}
+		sortable: true
 	},
 
 	{
@@ -70,26 +61,6 @@ export const columns = [
 				link: `/dashboard/users/${row.original.changedById}`,
 				target: '_blank'
 			});
-		}
-	},
-
-	{
-		accessorKey: 'reciept',
-		header: 'Reciept',
-		sortable: true,
-		cell: ({ row }) => {
-			// You can pass whatever you need from `row.original` to the component
-			//
-			if (row.original.reciept) {
-				return renderComponent(DataTableLinks, {
-					id: row.original.extraSettings,
-					name: 'View Reciept',
-					link: `/dashboard/files/${row.original.reciept}`,
-					target: '_blank'
-				});
-			} else {
-				return 'No Reciept';
-			}
 		}
 	}
 

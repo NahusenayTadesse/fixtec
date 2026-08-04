@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { user, roles, gallery } from '$lib/server/db/schema';
+import { user, roles, gallery, freeDelivery } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { LayoutServerLoad } from './$types';
 
@@ -22,9 +22,20 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 	const imagesList = images.map((img) => img.imageUrl);
 
+
+
+	const [freeData] = await db
+		.select({
+			threshold: freeDelivery.threshold,
+			suggestionThreshold: freeDelivery.suggestionThreshold
+		})
+		.from(freeDelivery)
+		.limit(1);
+
 	return {
 		roleName,
 		user: currentUser,
-		imagesList
+		imagesList,
+		freeData
 	};
 };

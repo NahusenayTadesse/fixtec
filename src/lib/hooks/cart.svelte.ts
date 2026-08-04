@@ -13,7 +13,7 @@ export interface ProductPrice {
 	price: string | number; // e.g., "ETB 500"
 }
 
-const CART_STORAGE_KEY = 'lalo_fixtec';
+const CART_STORAGE_KEY = 'lalo_bakery';
 
 class UseCart {
 	items: CartItem[] = $state([]);

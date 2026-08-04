@@ -5,11 +5,9 @@
 	import {
 		ShoppingCartIcon,
 		CreditCard,
-		ShieldCheck,
 		Package,
 		ArrowLeft,
 		UserRoundPlus,
-		User2,
 		User
 	} from '@lucide/svelte';
 	import CartItem from '$lib/components/floating-cart/cart-item.svelte';
@@ -21,6 +19,7 @@
 	import DialogComp from '$lib/formComponents/DialogComp.svelte';
 	import Signup from '$lib/forms/Signup.svelte';
 	import Login from '$lib/forms/Login.svelte';
+	import { onMount } from 'svelte';
 
 	const cart = useCart();
 	let { data } = $props();
@@ -31,16 +30,28 @@
 			currency: 'ETB'
 		}).format(price);
 	};
+		let saveInfo = $state(false);
+		let freeDelivery = $derived(cart.totalPrice >= Number(data?.freeData?.threshold));
+	const fee = $derived(freeDelivery ? 0 : data?.placeList?.find((item) => item.name === $form.address)?.fee);
+
 
 	const { form, errors, enhance, allErrors, delayed, message } = superForm(data.form, {
 		dataType: 'json',
 		resetForm: true,
+		onChange: (event) => {
+  	if (event.paths.includes('address') || event.paths.includes('deliveryAddress')) {
+				 saveInfo = true;
+           				 $form.fee = Number(fee) ?? 0;
+
+
+		}
+	},
 
 		onResult: ({ result }) => {
 			// 2. Only clear cart if the server actually says 'success'
 			if (result.type === 'success') {
 				cart.clearCart();
-				// Optional: Add a toast notification here
+				
 			}
 		}
 	});
@@ -62,6 +73,18 @@
 			}
 		}
 	});
+
+
+	onMount(() => {
+		if (data?.user) {
+			$form.address = data?.customerInfo?.address ?? '';
+			$form.deliveryAddress = data?.customerInfo?.deliveryAddress ?? '';
+			$form.fee = Number(fee) ?? 0;
+		}
+	});
+
+
+
 
 	$effect(() => {
 		$form.selectedProducts = formattedData;
@@ -93,7 +116,7 @@
 
 				{#if !data?.user}
 					<DialogComp title="Sign Up" variant="default" IconComp={UserRoundPlus}>
-						<Signup data={data?.signupForm} action="/signup/?/signup" />
+						<Signup data={data?.signupForm} action="/signup/?/signup" placeList={data?.placeList} />
 					</DialogComp>
 
 					<DialogComp title="Log In" variant="default" IconComp={User}>
@@ -108,6 +131,34 @@
 						enctype="multipart/form-data"
 					>
 						<Errors allErrors={$allErrors} />
+						<!-- <InputComp
+							label="Address"
+							name="address"
+							type="text"
+							{form}
+
+							{errors}
+							placeholder="Enter your address"
+							/>
+						<InputComp
+							label="Address"
+							name="deliveryAddress"
+							type="text"
+							{form}
+							{errors}
+							placeholder="Enter your delivery address"
+							/>
+
+							<InputComp
+							label="Delivery Fee"
+							name="fee"
+							type="text"
+							{form}
+							disabled
+							{errors}
+							placeholder="Enter delivery fee"
+							/> -->
+
 						<InputComp
 							label=""
 							name="selectedProducts"
@@ -141,6 +192,55 @@
 						method="post"
 						enctype="multipart/form-data"
 					>
+							
+						<InputComp
+							label="Address"
+							name="address"
+							type="select"
+							items={data?.placeList}
+							{form}
+							{errors}
+							placeholder="Enter your delivery address"
+							/>
+
+							<InputComp
+							label="Delivery Address"
+							name="deliveryAddress"
+							type="text"
+							{form}
+							{errors}
+							placeholder="Enter your specific delivery address"
+							/>
+
+							<InputComp
+							label="Delivery Fee"
+							name="fee"
+							type="text"
+							{form}
+							disabled
+							{errors}
+							placeholder="Enter delivery fee"
+							/>
+                         {#if saveInfo}
+							<InputComp
+							label="Save Information"
+							name="saveInfo"
+							type="checkboxSingle"
+							{form}
+							disabled
+							{errors}
+							placeholder="Save this information for future orders."
+							/>
+                        {/if}
+
+						<InputComp
+							label=""
+							name="selectedProducts"
+							type="hidden"
+							{form}
+							{errors}
+							placeholder=""
+						/>
 						<InputComp
 							label=""
 							name="selectedProducts"
@@ -210,7 +310,11 @@
 							</div>
 							<div class="flex justify-between text-sm">
 								<span class="text-muted-foreground">Shipping</span>
-								<span class="font-medium text-green-600">Free</span>
+								{#if data?.user && $form.fee !== undefined}
+	<span class="font-medium text-green-600">{$form.fee !== 0 ? formatPrice($form.fee) : 'Free'}</span>
+								 {:else}
+								  <span>Uncalculated.</span>
+{/if}
 							</div>
 							<div class="flex justify-between border-t pt-3 text-lg font-bold">
 								<span>Total</span>

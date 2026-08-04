@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "vite buil && tar -czvf build.tar.gz build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -62,6 +62,7 @@
 	"dependencies": {
 		"@tabler/icons-svelte": "^3.38.0",
 		"browser-image-compression": "^2.0.2",
+		"chart.js": "^4.5.1",
 		"embla-carousel-autoplay": "^8.6.0",
 		"jspdf": "^4.2.0",
 		"jspdf-autotable": "^5.0.7",

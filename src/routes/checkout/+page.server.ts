@@ -7,18 +7,48 @@ import { USER } from '$env/static/private';
 import { addUser, loginSchema } from '$lib/ZodSchema';
 import { add } from './schema';
 import { db } from '$lib/server/db';
-import { orders, orderItems, products, customers } from '$lib/server/db/schema';
+import { orders, orderItems, products, customers, placeNames } from '$lib/server/db/schema';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = async () => {
-	const form = await superValidate(zod4(add));
+export const load: PageServerLoad = async ( { locals }) => {
+
 	const signupForm = await superValidate(zod4(addUser));
 	const loginForm = await superValidate(zod4(loginSchema));
+	const placeList = await db
+		.select({
+			value: placeNames.name,
+			name: placeNames.name,
+			fee: placeNames.fee
+		})
+		.from(placeNames)
+		.where(eq(placeNames.isActive, true));
+
+	let customerInfo;
+	if (locals?.user) {
+		customerInfo = await db
+			.select({
+				id: customers.id,
+				name: customers.name,
+				phone: customers.phone,
+				email: customers.email,
+				address: customers.address,
+				deliveryAddress: customers.deliveryAddress
+			})
+			.from(customers)
+			.leftJoin(orders, eq(customers.id, orders.customerId))
+			.where(eq(customers.userId, locals?.user?.id))
+			.limit(1)
+			.then((rows) => rows[0]);
+	}
+
+		const form = await superValidate(zod4(add));
 
 	return {
 		form,
 		signupForm,
-		loginForm
+		loginForm,
+		placeList,
+		customerInfo
 	};
 };
 
@@ -30,22 +60,28 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Please check the form for Errors' });
 		}
 
-		const { selectedProducts } = form.data;
+		const { selectedProducts, address, deliveryAddress, fee, saveInfo } = form.data;
 		let customerInfo;
 		let newOrderId;
 
 		try {
 			await db.transaction(async (tx) => {
-				const customer = await tx
+				const [customer] = await tx
 					.select({ value: customers.id, email: customers.email })
 					.from(customers)
 					.where(eq(customers.userId, locals?.user?.id))
-					.then((rows) => rows[0]);
+					.limit(1)
 				customerInfo = customer;
+				if (saveInfo) {
+					await tx
+						.update(customers)
+						.set({ address, deliveryAddress })
+						.where(eq(customers.id, customer.value));
+				}
 
 				const [orderId] = await tx
 					.insert(orders)
-					.values({ customerId: customer.value, status: 'pending' })
+					.values({ customerId: customer.value, status: 'pending', address, deliveryAddress, fee })
 					.$returningId();
 				newOrderId = orderId.id;
 

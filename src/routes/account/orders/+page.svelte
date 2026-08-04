@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>Live Order Tracking - Lalo Fixtec</title>
+	<title>Live Order Tracking - Lalo Bakery Solutions</title>
 </svelte:head>
 
 <div class="mx-auto min-h-screen max-w-5xl space-y-8 bg-background p-6 text-foreground">
