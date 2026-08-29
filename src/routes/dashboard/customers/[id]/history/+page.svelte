@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { zod4Client } from 'sveltekit-superforms/adapters';
-	import { editCustomer } from '$lib/Zodschema';
 
 	let { data } = $props();
 
@@ -16,7 +14,7 @@
 	import OrderItems from '../../../orders/order-items.svelte';
 	import Statuses from '$lib/components/Table/statuses.svelte';
 	import FilterMenu from '$lib/components/Table/FilterMenu.svelte';
-	export const columns = [
+const columns = [
 		{
 			accessorKey: 'index',
 			header: '#',

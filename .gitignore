@@ -22,3 +22,9 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+build/
+build.tar.gz
+build.tar
+build.zip
+build*.tar.gz
+build*.zip

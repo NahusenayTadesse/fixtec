@@ -14,7 +14,10 @@
 		OctagonMinus,
 		ListOrdered,
 		Star,
-		Building2
+		Building2,
+
+		Truck
+
 	} from '@lucide/svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
@@ -46,6 +49,11 @@
 				{ title: 'Suppliers', url: '/dashboard/products/suppliers', icon: Sheet },
 				{ title: 'Add Supplier', url: '/dashboard/products/add-supplier', icon: Plus }
 			]
+		},
+				{
+			title: 'Delivery Address',
+			url: '/dashboard/delivery-address',
+			icon: Truck
 		},
 
 		{
