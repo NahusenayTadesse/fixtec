@@ -37,6 +37,24 @@ export const columns = [
 	},
 	{
 		accessorKey: 'email',
+		header: 'Email',
+		sortable: true,
+		cell: ({ row }) => renderComponent(Copy, { data: row.original.email })
+	},
+	{
+		accessorKey: 'address',
+		header: 'Address',
+		sortable: true,
+		cell: ({ row }) => renderComponent(Copy, { data: row.original.address })
+	},
+	{
+		accessorKey: 'deliveryAddress',
+		header: 'Delivery Address',
+		sortable: true,
+		cell: ({ row }) => renderComponent(Copy, { data: row.original.deliveryAddress })
+	},
+	{
+		accessorKey: 'email',
 		header: 'email',
 		sortable: true,
 		cell: ({ row }) => renderComponent(Copy, { data: row.original.email })
@@ -68,7 +86,8 @@ export const columns = [
 		accessorKey: 'orderCount',
 		header: ({ column }) =>
 			renderComponent(DataTableSort, {
-				name: 'Order Counts',
+				// Counts pending orders only — see the join in `+page.server.ts`.
+				name: 'Pending Orders',
 				onclick: column.getToggleSortingHandler()
 			}),
 		sortable: true,

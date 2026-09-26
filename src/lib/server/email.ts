@@ -1,20 +1,43 @@
 import nodemailer from 'nodemailer';
 
-import { HOST, USER, PASSWORD, PORT } from '$env/static/private';
+import { SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_PORT } from '$env/static/private';
+import { env } from '$env/dynamic/private';
+
+/**
+ * Where staff notifications (new order, contact message, delivery) are sent.
+ *
+ * This used to be `USER` from `$env/static/private` — never defined in `.env`, so
+ * it silently resolved to the OS login name of whoever ran the build and every
+ * admin email bounced. Falls back to the shop's own SMTP mailbox when unset.
+ */
+export const ADMIN_EMAIL = env.ADMIN_EMAIL || SMTP_USER;
+
+/**
+ * Escapes text for interpolation into an email's HTML. Every value that can come
+ * from a visitor (names, subjects, messages, variant labels) must go through this,
+ * or the contact form becomes a way to send arbitrary HTML in the shop's name.
+ */
+export const escapeHtml = (value: unknown) =>
+	String(value ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
 
 const transporter = nodemailer.createTransport({
-	host: HOST,
-	port: PORT,
+	host: SMTP_HOST,
+	port: SMTP_PORT,
 	secure: true,
 	auth: {
-		user: USER,
-		pass: PASSWORD
+		user: SMTP_USER,
+		pass: SMTP_PASSWORD
 	}
 });
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
 	await transporter.sendMail({
-		from: USER,
+		from: SMTP_USER,
 		to,
 		subject,
 		html
@@ -42,7 +65,7 @@ const generateOrderTable = (items) => {
 			return `
                  <tr style="border-bottom: 1px solid #eee;">
                      <td style="padding: 10px; text-align: left;">
-                         Product #${item.product} ${variation ? `(${variation})` : ''}
+                         ${escapeHtml(item.name ?? `Product #${item.product}`)} ${variation ? `(${escapeHtml(variation)})` : ''}
                      </td>
                      <td style="padding: 10px; text-align: center;">
                          ${item.quantity}
@@ -79,7 +102,7 @@ export const customerCheckoutTemplate = (orderId, items, total) => ({
                 <h1 style="color: white; margin: 0; font-size: 20px;">Order Confirmed!</h1>
             </div>
             <div style="padding: 20px; color: #333;">
-                <p>We've received your order <strong>#${orderId}</strong>. Our team is now processing your request.</p>
+                <p>We’ve received your order <strong>#${orderId}</strong>. Our team is now processing your request.</p>
                 ${generateOrderTable(items)}
                 <div style="text-align: right; margin-top: 15px; font-weight: bold; font-size: 1.2em;">
                     Total: ${total} ETB
@@ -126,10 +149,10 @@ export const customerWelcomeTemplate = (name: string) => ({
 
             <!-- Body -->
             <div style="padding: 20px; color: #333;">
-                <p>Hi <strong>${name}</strong>,</p>
+                <p>Hi <strong>${escapeHtml(name)}</strong>,</p>
 
                 <p>
-                    We're excited to have you join <strong>Lalo Fixtec</strong> 🔧.
+                    We’re excited to have you join <strong>Lalo Fixtec</strong> 🔧.
                     You're now part of a community that values reliable, high-quality technical solutions.
                 </p>
 
@@ -145,7 +168,7 @@ export const customerWelcomeTemplate = (name: string) => ({
                 </div>
 
                 <p>
-                    If you have any questions, feel free to reply to this email — we're happy to help!
+                    If you have any questions, feel free to reply to this email — we’re happy to help!
                 </p>
 
                 <p style="margin-top: 20px;">
@@ -246,20 +269,20 @@ export const adminContactTemplate = (data: {
 
             <!-- Body -->
             <div style="padding: 20px;">
-                <p><strong>Name:</strong> ${data.name}</p>
-                <p><strong>Email:</strong> ${data.email}</p>
-                <p><strong>Phone:</strong> ${data.phoneNumber}</p>
-                <p><strong>Subject:</strong> ${data.subject}</p>
+                <p><strong>Name:</strong> ${escapeHtml(data.name)}</p>
+                <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
+                <p><strong>Phone:</strong> ${escapeHtml(data.phoneNumber)}</p>
+                <p><strong>Subject:</strong> ${escapeHtml(data.subject)}</p>
 
                 <div style="margin-top: 15px;">
                     <strong>Message:</strong>
                     <div style="background: #f9f9f9; padding: 15px; margin-top: 5px; border-radius: 5px;">
-                        ${data.contactMessage || '<i>No message provided</i>'}
+                        ${data.contactMessage ? escapeHtml(data.contactMessage).replace(/\n/g, '<br/>') : '<i>No message provided</i>'}
                     </div>
                 </div>
 
                 <div style="margin-top: 20px;">
-                    <a href="mailto:${data.email}"
+                    <a href="mailto:${encodeURIComponent(data.email)}"
                        style="background: #2596be; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
                         Reply to Customer
                     </a>
@@ -274,7 +297,10 @@ export const adminContactTemplate = (data: {
     `
 });
 
-export const customerContactTemplate = (name: string, subject: string) => ({
+// Deliberately doesn't echo the visitor's subject or message: this goes to whatever
+// address was typed into a public form, so anything quoted back is content a
+// stranger can get delivered from the shop's mailbox.
+export const customerContactTemplate = (name: string) => ({
 	subject: `We received your message - Lalo Fixtec`,
 	html: `
         <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
@@ -292,15 +318,11 @@ export const customerContactTemplate = (name: string, subject: string) => ({
 
             <!-- Body -->
             <div style="padding: 20px; color: #333;">
-                <p>Hi <strong>${name}</strong>,</p>
+                <p>Hi <strong>${escapeHtml(name)}</strong>,</p>
 
                 <p>
                     Thank you for reaching out to <strong>Lalo Fixtec</strong>.
-                    We've received your message regarding:
-                </p>
-
-                <p style="font-weight: bold; margin: 10px 0;">
-                    "${subject}"
+                    We’ve received your message.
                 </p>
 
                 <p>
@@ -330,7 +352,7 @@ export const customerResetPasswordTemplate = (url: string) => ({
 	html: `
         <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
             <div style="background-color: #2596be; padding: 20px; text-align: center;">
-                <img src="https://lalofixtec.com/logo.png"
+                <img src="https://lalofixtec.com/logo192.png"
                      alt="Lalo Fixtec Logo"
                      width="80"
                      style="display: block; margin: 0 auto 10px;">
@@ -380,6 +402,40 @@ export const customerResetPasswordTemplate = (url: string) => ({
             <div style="background: #f9f9f9; padding: 15px; text-align: center; color: #777; font-size: 12px;">
                 Lalo Fixtec | Quality you can trust.
             </div>
+        </div>
+    `
+});
+
+export const customerPaymentReceivedTemplate = (orderId: number, amount: number) => ({
+	subject: `Payment Received - Lalo Fixtec (#${orderId})`,
+	html: `
+        <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
+            <div style="background-color: #2596be; padding: 20px; text-align: center;">
+                <img src="https://lalofixtec.com/logo192.png" alt="Lalo Fixtec Logo" width="80" style="display: block; margin: 0 auto 10px;">
+                <h1 style="color: white; margin: 0; font-size: 20px;">Payment Received</h1>
+            </div>
+            <div style="padding: 20px; color: #333;">
+                <p>We've received your online payment of <strong>${amount.toFixed(2)} ETB</strong> for order <strong>#${orderId}</strong>.</p>
+                <p>Your order is fully paid — nothing more is due on delivery or pickup.</p>
+            </div>
+            <div style="background: #f9f9f9; padding: 15px; text-align: center; color: #777; font-size: 12px;">
+                Lalo Fixtec | Quality you can trust.
+            </div>
+        </div>
+    `
+});
+
+export const adminPaymentReceivedTemplate = (orderId: number, amount: number, txRef: string) => ({
+	subject: `Online Payment Received: Order #${orderId}`,
+	html: `
+        <div style="font-family: sans-serif; color: #333;">
+            <h2 style="color: #2596be;">Chapa Payment Confirmed</h2>
+            <p>Order <strong>#${orderId}</strong> has been paid online: <strong>${amount.toFixed(2)} ETB</strong>.</p>
+            <p style="color: #777; font-size: 13px;">Chapa reference: ${escapeHtml(txRef)}</p>
+            <a href="https://lalofixtec.com/dashboard/orders"
+               style="background: #2596be; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+               View in Dashboard
+            </a>
         </div>
     `
 });

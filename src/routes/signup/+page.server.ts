@@ -1,9 +1,10 @@
 // import { encodeBase32LowerCase } from '@oslojs/encoding';
 
-import type { Actions, PageServerLoad } from './login/$types';
+import type { Actions, PageServerLoad } from './$types';
 import { message, setError, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { add } from './schema';
+import { normalizeEthiopianPhone } from '$lib/validators/phone';
 import { redirect } from 'sveltekit-flash-message/server';
 import { auth } from '$lib/server/auth';
 import { eq, and, sql } from 'drizzle-orm';
@@ -11,7 +12,7 @@ import { customerWelcomeTemplate, sendEmail } from '$lib/server/email';
 
 import { db } from '$lib/server/db';
 import { APIError } from 'better-auth';
-import { orders, orderItems, roles, user, products, customers } from '$lib/server/db/schema';
+import { roles, user, customers, placeNames } from '$lib/server/db/schema';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
@@ -28,7 +29,15 @@ export const load: PageServerLoad = async (event) => {
 	}
 	const form = await superValidate(zod4(add));
 
-	return { form };
+	const placeList = await db
+		.select({
+			value: placeNames.name,
+			name: placeNames.name
+		})
+		.from(placeNames)
+		.where(eq(placeNames.isActive, true));
+
+	return { form, placeList };
 };
 
 export const actions: Actions = {
@@ -39,15 +48,18 @@ export const actions: Actions = {
 				form,
 				{
 					type: 'error',
-					text: 'Please Check the form}'
+					text: 'Please check the form for errors'
 				},
 				{
-					status: 500
+					status: 400
 				}
 			);
 		}
 
-		const { name, email, password, phone } = form.data;
+		const { name, email, password, address, deliveryAddress } = form.data;
+		// Already validated by the schema; normalised here so `customers.phone` holds
+		// one shape (`+251XXXXXXXXX`) whichever form was typed.
+		const phone = normalizeEthiopianPhone(form.data.phone) as string;
 
 		try {
 			await db.transaction(async (tx) => {
@@ -65,17 +77,20 @@ export const actions: Actions = {
 						roleId: 2
 					})
 					.where(eq(user.id, newCustomer?.user.id));
-				await tx.insert(customers).values({ email, name, phone, userId: newCustomer?.user.id });
+				await tx
+					.insert(customers)
+					.values({ email, name, phone, userId: newCustomer?.user.id, address, deliveryAddress });
 			});
 			const { subject, html } = customerWelcomeTemplate(name);
 
-			sendEmail(email, subject, html);
+			// Not awaited, so the surrounding try/catch can't see a rejection — without
+			// this handler an unreachable mail server crashes the whole process.
+			sendEmail(email, subject, html).catch((err) => console.error('Email Error (Welcome):', err));
 			return message(form, {
 				type: 'success',
 				text: 'Sign Up Successful!'
 			});
 		} catch (error) {
-			console.error(error);
 			if (error instanceof APIError) {
 				return message(
 					form,

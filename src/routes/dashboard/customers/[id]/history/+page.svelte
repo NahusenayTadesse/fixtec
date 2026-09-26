@@ -14,7 +14,7 @@
 	import OrderItems from '../../../orders/order-items.svelte';
 	import Statuses from '$lib/components/Table/statuses.svelte';
 	import FilterMenu from '$lib/components/Table/FilterMenu.svelte';
-const columns = [
+	export const columns = [
 		{
 			accessorKey: 'index',
 			header: '#',

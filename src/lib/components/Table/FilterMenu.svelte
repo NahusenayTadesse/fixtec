@@ -263,7 +263,7 @@
 		<Tooltip.Provider>
 			<Tooltip.Root>
 				<Tooltip.Trigger class={buttonVariants({ variant: 'outline' })}>
-					{#snippet child(props)}
+					{#snippet child({ props })}
 						<Button onclick={() => (filtersOpen = !filtersOpen)} class="w-40" {...props}>
 							{#if filtersOpen}
 								<X class="size-4" />
@@ -281,7 +281,7 @@
 			<Tooltip.Provider>
 				<Tooltip.Root>
 					<Tooltip.Trigger class={buttonVariants({ variant: 'outline' })}>
-						{#snippet child(props)}
+						{#snippet child({ props })}
 							<Button
 								onclick={() => {
 									chartOpen = !chartOpen;

@@ -9,6 +9,9 @@
 	let { data }: { data: string | undefined } = $props();
 
 	let deleting = $state(false);
+
+	import { useCart } from '$lib/hooks/cart.svelte';
+	const cart = useCart();
 </script>
 
 <DropdownMenu.Root>
@@ -35,13 +38,15 @@
 			<DropdownMenu.Item>
 				<form
 					method="post"
-					action="/dashboard/?/logout"
+					action="/logout"
 					use:enhance={() => {
 						deleting = true; // 1. start spinner
 
-						return async ({ update }) => {
+						return async ({ result, update }) => {
 							await update(); // 2. apply action result to page
 							deleting = false; // 3. stop spinner
+							// The cart is per browser, not per account — clear it on the way out.
+							if (result.type === 'redirect') cart.clearCart();
 						};
 					}}
 				>

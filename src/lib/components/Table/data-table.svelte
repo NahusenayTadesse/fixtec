@@ -26,7 +26,8 @@
 		columns,
 		search = true,
 		class: className = '',
-		fileName = 'File'
+		fileName = 'File',
+		selected = $bindable()
 	}: DataTableProps<TData, TValue> = $props();
 	// let filterSchema = $derived(
 	//   discoverFilterSchema(data).filter(meta => !filterBlacklist.includes(meta.key))
@@ -40,7 +41,15 @@
 	import ResizableHandle from '../ui/resizable/resizable-handle.svelte';
 	import { isMobile } from '$lib/global.svelte';
 
-	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: data.length });
+	// Page size is "everything" until a smaller size is picked. It used to be fixed
+	// at the first render's row count, so a row added afterwards (e.g. a new
+	// customer via `invalidateAll`) landed on a second page nobody could see.
+	let pageIndex = $state(0);
+	let chosenPageSize = $state<number | null>(null);
+	const pagination = $derived<PaginationState>({
+		pageIndex,
+		pageSize: chosenPageSize ?? data.length
+	});
 	let columnFilters = $state<ColumnFiltersState>([]);
 
 	type DataTableProps<TData, TValue> = {
@@ -50,6 +59,8 @@
 		class?: string;
 		filterBlacklist?: string[];
 		fileName?: string;
+		/** Bind to receive the original data of the currently selected rows. */
+		selected?: TData[];
 	};
 
 	let sorting = $state<SortingState>([]);
@@ -85,10 +96,10 @@
 			}
 		},
 		onPaginationChange: (updater) => {
-			if (typeof updater === 'function') {
-				pagination = updater(pagination);
-			} else {
-				pagination = updater;
+			const next = typeof updater === 'function' ? updater(pagination) : updater;
+			pageIndex = next.pageIndex;
+			if (next.pageSize !== pagination.pageSize) {
+				chosenPageSize = next.pageSize >= data.length ? null : next.pageSize;
 			}
 		},
 		onSortingChange: (updater) => {
@@ -125,6 +136,12 @@
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel()
 	});
+
+	if (selected) {
+		$effect(() => {
+			selected = table.getSelectedRowModel().rows.map((row) => row.original);
+		});
+	}
 
 	const uniqueTableId = `table-${Math.random().toString(36).substring(2, 15)}`;
 

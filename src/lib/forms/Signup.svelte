@@ -10,18 +10,29 @@
 	import type { SuperValidated, Infer } from 'sveltekit-superforms';
 	import { superForm } from 'sveltekit-superforms';
 	import type { SignupSchema } from '$lib/ZodSchema';
-	import DarkMode from '$lib/components/DarkMode.svelte';
 	import { Eye, EyeOff } from '@lucide/svelte';
 	import Errors from '$lib/formComponents/Errors.svelte';
 
 	let {
 		data,
+		placeList,
 		action = '?/signup'
-	}: { data: SuperValidated<Infer<SignupSchema>>; action?: string } = $props();
+	}: { data: SuperValidated<Infer<SignupSchema>>; placeList: Item[]; action?: string } = $props();
 
 	const { form, errors, delayed, enhance, allErrors, message } = superForm(data, {});
 
+	/**
+	 * Unique per instance, because the submit button reaches its form by `form={id}`.
+	 *
+	 * This was a hardcoded `id="main"` — the same id the checkout page's order
+	 * form uses. On checkout both are in the document at once, so
+	 * `getElementById('main')` resolved to whichever came first and the "Sign Up"
+	 * button submitted the *order* form instead of this one.
+	 */
+	const formId = $props.id();
+
 	import { toast } from 'svelte-sonner';
+	import type { Item } from '$lib/global.svelte';
 	$effect(() => {
 		if ($message) {
 			if ($message.type === 'error') {
@@ -39,13 +50,14 @@
 <Card.Root class="mx-auto flex w-full max-w-md flex-col justify-center justify-self-center ">
 	<Card.Header>
 		<div class="flex w-full flex-col items-center justify-center">
-			<img src="/logo.webp" class="w-1/2" alt="Logo" />
+			<img src="/logo.webp" class="block h-24 w-24 dark:hidden" alt="Logo" />
+			<img src="/logoWhite.webp" class="hidden h-24 w-24 dark:block" alt="Logo" />
 		</div>
 		<Card.Title class="flex flex-row justify-between text-2xl">Sign Up</Card.Title>
 		<Card.Description>Enter your email below to login to your account</Card.Description>
 	</Card.Header>
 	<Card.Content>
-		<form method="POST" id="main" {action} use:enhance>
+		<form method="POST" id={formId} {action} use:enhance>
 			<Errors allErrors={$allErrors} />
 
 			<div class="grid gap-4">
@@ -74,13 +86,31 @@
 				{errors}
 				placeholder="+251 9-11-00-00-00"
 			/>
-			<div class="grid gap-2">
+			<InputComp
+				label="General Address"
+				name="address"
+				type="select"
+				{form}
+				{errors}
+				placeholder="Select your area"
+				items={placeList}
+			/>
+			<InputComp
+				label="Specific Delivery Address"
+				name="deliveryAddress"
+				type="text"
+				{form}
+				{errors}
+				placeholder="Mexico, Edna Mall, 2nd Floor, Apt 201"
+			/>
+
+			<div class="mt-2 grid gap-2">
 				<div class="flex items-center">
-					<Label for="password">Password</Label>
+					<Label for="{formId}-password">Password</Label>
 				</div>
 				<div class="relative">
 					<Input
-						id="password"
+						id="{formId}-password"
 						name="password"
 						type={eye ? 'text' : 'password'}
 						bind:value={$form.password}
@@ -94,7 +124,7 @@
 					{#if $errors.password}<span class="text-red-500">{$errors.password}</span>{/if}
 				</div>
 			</div>
-			<Button type="submit" form="main" class="h-12 w-full text-lg shadow-md">
+			<Button type="submit" form={formId} disabled={$delayed} class="h-12 w-full text-lg shadow-md">
 				{#if $delayed}
 					<LoadingBtn name="Signing You Up" />
 				{:else}

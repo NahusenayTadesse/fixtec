@@ -28,8 +28,14 @@
 		year = false,
 		futureDays = false,
 		image = '',
+		disabled = false,
 		images = $bindable()
 	} = $props();
+
+	// The single checkbox's label needs an element id to point at; `name` alone
+	// isn't one, so clicking "Pick up at the shop" used to do nothing.
+	const uid = $props.id();
+	const checkboxId = $derived(`${name}-${uid}`);
 </script>
 
 <div class="flex w-full max-w-full flex-col justify-start gap-2 p-1">
@@ -55,17 +61,17 @@
 		<input type="hidden" {name} bind:value={$form[name]} />
 	{:else if type === 'checkboxSingle'}
 		<div class="flex items-center gap-2">
-			<Checkbox bind:checked={$form[name]} />
-			<Label for={name} class="capitalize">{placeholder}</Label>
+			<Checkbox id={checkboxId} bind:checked={$form[name]} />
+			<Label for={checkboxId} class="capitalize">{placeholder}</Label>
 			<input type="hidden" {name} bind:value={$form[name]} />
 		</div>
 	{:else}
-		<Input {type} step="any" {name} bind:value={$form[name]} {max} {min} {placeholder} {required} />
+		<Input {type} {disabled} {name} step="any" bind:value={$form[name]} {max} {min} {placeholder} {required} />
 	{/if}
 
 	{#if $errors[name]}
 		{#if $errors[name]._errors}
-			{#each $errors[name]._errors as error}
+			{#each $errors[name]._errors as error (error)}
 				<p class="flex items-center gap-2 text-red-500"><CircleAlert /> {error}</p>
 			{/each}
 		{:else}

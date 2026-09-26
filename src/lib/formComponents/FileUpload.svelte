@@ -14,9 +14,16 @@
 
 	let { form, name, placeholder = 'PDF or Images (Max 10MB)', image = '' } = $props();
 
-	let file = $state(fileProxy(form, name));
+	// A store, so it is read as `$file` — not wrapped in `$state`.
+	const file = fileProxy(form, name);
 	let isDragging = $state(false);
 	let isProcessing = $state(false);
+
+	// `$file` is `undefined` (not an empty list) until something is picked, and again
+	// after ✕; `image` is `null` for a record with no file yet. Checking for `=== 0`
+	// and `=== ''` missed both, so an empty field fell through to the preview and
+	// showed "NaN MB (Optimized)".
+	const hasNewFile = $derived(($file?.length ?? 0) > 0);
 
 	async function handleFileSelection(files: FileList | null) {
 		if (!files || files.length === 0) return;
@@ -83,7 +90,7 @@
 		multiple={false}
 	/>
 
-	{#if $file?.length === 0 && image === ''}
+	{#if !hasNewFile && !image}
 		<Label
 			for={name}
 			class="group relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed py-2! transition-all
@@ -116,7 +123,7 @@
 				</div>
 			</div>
 		</Label>
-	{:else if image && $file?.length === 0}
+	{:else if !hasNewFile}
 		<div
 			class="relative animate-in overflow-hidden rounded-xl border bg-card p-4 shadow-sm duration-200 zoom-in-95 fade-in"
 		>

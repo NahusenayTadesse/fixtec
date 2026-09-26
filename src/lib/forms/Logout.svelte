@@ -10,6 +10,9 @@
 	let deleting = $state(false);
 
 	import { toast } from 'svelte-sonner';
+	import { useCart } from '$lib/hooks/cart.svelte';
+
+	const cart = useCart();
 </script>
 
 <Dialog.Root bind:open>
@@ -25,19 +28,21 @@
 			<div class="flex flex-row items-center justify-center gap-4 pt-4">
 				<form
 					method="post"
-					action="/dashboard/?/logout"
+					action="/logout"
 					use:enhance={() => {
 						deleting = true; // 1. start spinner
 
 						return async ({ result, update }) => {
 							await update(); // 2. apply action result to page
-							deleting = false;
-							if (result.type === 'success') {
-								toast.success('Logged out successfully');
-							} else {
+							deleting = false; // 3. stop spinner
+							// The cart is stored per browser, not per account: without this the
+							// next person on a shared computer saw — and could order — it.
+							if (result.type === 'redirect') cart.clearCart();
+							// The action always redirects; the success toast comes from the
+							// flash message. Only surface a toast when it *didn't* redirect.
+							if (result.type === 'error' || result.type === 'failure') {
 								toast.error('Failed to log out');
 							}
-							// 3. stop spinner
 						};
 					}}
 				>

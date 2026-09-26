@@ -16,6 +16,11 @@
 
 	const { form, errors, enhance, allErrors, message } = superForm(data, {});
 
+	// Unique per instance: the checkout page renders this dialog alongside the
+	// signup one, and both used to hardcode `id="email"` / `id="password"`, so
+	// the labels pointed at whichever field happened to come first.
+	const formId = $props.id();
+
 	import { toast } from 'svelte-sonner';
 	$effect(() => {
 		if ($message) {
@@ -34,7 +39,8 @@
 <Card.Root class="mx-auto flex w-full max-w-md flex-col justify-center justify-self-center ">
 	<Card.Header>
 		<div class="flex w-full flex-col items-center justify-center">
-			<img src="/logo.webp" class="w-1/2" alt="Logo" />
+			<img src="/logo.webp" class="block h-24 w-24 dark:hidden" alt="Logo" />
+			<img src="/logoWhite.webp" class="hidden h-24 w-24 dark:block" alt="Logo" />
 		</div>
 		<Card.Title class="flex flex-row justify-between text-2xl">Login <DarkMode /></Card.Title>
 		<Card.Description>Enter your email below to login to your account</Card.Description>
@@ -45,9 +51,9 @@
 
 			<div class="grid gap-4">
 				<div class="grid gap-2">
-					<Label for="email">Email</Label>
+					<Label for="{formId}-email">Email</Label>
 					<Input
-						id="email"
+						id="{formId}-email"
 						name="email"
 						type="email"
 						placeholder="m@example.com"
@@ -58,14 +64,14 @@
 				</div>
 				<div class="grid gap-2">
 					<div class="flex items-center">
-						<Label for="password">Password</Label>
+						<Label for="{formId}-password">Password</Label>
 						<a href="/forgot-password" class="ml-auto inline-block text-sm underline">
 							Forgot your password?
 						</a>
 					</div>
 					<div class="relative">
 						<Input
-							id="password"
+							id="{formId}-password"
 							name="password"
 							type={eye ? 'text' : 'password'}
 							bind:value={$form.password}

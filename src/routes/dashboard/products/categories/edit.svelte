@@ -62,7 +62,11 @@
 
 <Tooltip.Provider>
 	<Tooltip.Root>
-		<Tooltip.Trigger class="{buttonVariants({ variant: 'ghost' })} justify-self-start p-0!">
+		<!-- Rendered as a span: the dialog inside brings its own <button>, and a button
+		     can't contain another one. -->
+		<Tooltip.Trigger>
+			{#snippet child({ props })}
+				<span {...props} class="{buttonVariants({ variant: 'ghost' })} justify-self-start p-0!">
 			<DialogComp
 				bind:open
 				variant="ghost"
@@ -108,6 +112,8 @@
 					</Button>
 				</form>
 			</DialogComp>
+				</span>
+			{/snippet}
 		</Tooltip.Trigger>
 		<Tooltip.Content>
 			<p>Edit {name}</p>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useCart } from '$lib/hooks/cart.svelte.js';
+	import { useCart, cartKey } from '$lib/hooks/cart.svelte.js';
 	import { Button } from '$lib/components/ui/button';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import {
@@ -20,6 +20,9 @@
 	import Signup from '$lib/forms/Signup.svelte';
 	import Login from '$lib/forms/Login.svelte';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import BankAccountList from '$lib/components/BankAccountList.svelte';
 
 	const cart = useCart();
 	let { data } = $props();
@@ -30,34 +33,122 @@
 			currency: 'ETB'
 		}).format(price);
 	};
-		let saveInfo = $state(false);
-		let freeDelivery = $derived(cart.totalPrice >= Number(data?.freeData?.threshold));
-	const fee = $derived(freeDelivery ? 0 : data?.placeList?.find((item) => item.name === $form.address)?.fee);
+	let saveInfo = $state(false);
 
+	/** Unique per instance — see the note in `Signup.svelte`; a shared `id="main"`
+	 *  had the signup dialog's button submitting this order form. */
+	const formId = $props.id();
 
 	const { form, errors, enhance, allErrors, delayed, message } = superForm(data.form, {
 		dataType: 'json',
 		resetForm: true,
 		onChange: (event) => {
-  	if (event.paths.includes('address') || event.paths.includes('deliveryAddress')) {
-				 saveInfo = true;
-           				 $form.fee = Number(fee) ?? 0;
+			if (event.paths.includes('address') || event.paths.includes('deliveryAddress')) {
+				saveInfo = true;
+			}
+		},
 
+		// Chapa couldn't be reached: go to the order's payment page, which offers a
+		// retry or a bank transfer. Done here rather than in `onResult`, where the
+		// form's own refresh afterwards cancelled the navigation.
+		onUpdated: ({ form }) => {
+			const paymentPage = (form.message as { paymentPage?: string } | undefined)?.paymentPage;
+			const ref = paymentPage && new URL(paymentPage, window.location.origin).searchParams.get('ref');
+			if (!ref) return;
+			const url = new URL(resolve('/checkout/payment'), window.location.origin);
+			url.searchParams.set('ref', ref);
+			// The path is resolved; `resolve()` just has no way to carry the query string.
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			goto(url);
+		},
 
-		}
-	},
+		onResult: ({ result, cancel }) => {
+			// Clear the cart only when an order was actually placed. A result of type
+			// 'success' isn't proof of that: some rejections ("we do not deliver to that
+			// area") used to come back as 'success' too, and emptied the cart of a
+			// customer who had just been told their order failed.
+			const orderId = result.type === 'success' ? result.data?.form?.message?.orderId : undefined;
 
-		onResult: ({ result }) => {
-			// 2. Only clear cart if the server actually says 'success'
-			if (result.type === 'success') {
+			if (orderId) {
 				cart.clearCart();
-				
+				// Paying online: the order exists, so the cart is done with either way.
+				const checkoutUrl = result.type === 'success' ? result.data?.form?.message?.checkoutUrl : undefined;
+				if (checkoutUrl) window.location.href = checkoutUrl;
+			} else if (result.type === 'failure' && result.status === 409) {
+				// An item went out of the catalogue after the page loaded. Re-run the price
+				// check so it is removed (and the customer told), instead of every retry
+				// failing on the same line.
+				reconcileCart();
+			} else if (result.type === 'success') {
+				// Not an order: keep what the customer typed rather than resetting the form.
+				cancel();
+				toast.error(result.data?.form?.message?.text ?? 'Could not place your order');
 			}
 		}
 	});
 
+	/**
+	 * Local pickup: the customer collects the order, so no area is chosen and
+	 * nothing is charged for delivery.
+	 *
+	 * The flag lives on the form (`$form.pickup`) rather than in a local `$state`
+	 * because the schema needs it to decide whether the address fields are
+	 * required — the action still zeroes the fee itself and never trusts it.
+	 */
+	const pickup = $derived(Boolean($form.pickup));
+	const payOnline = $derived($form.paymentOption === 'chapa');
+
+	/** Bank transfer is only offered once there's an account to pay into. */
+	const paymentOptions = $derived([
+		{
+			value: 'onDelivery',
+			label: `Pay on ${pickup ? 'pickup' : 'delivery'}`,
+			hint: `Cash or transfer when you ${pickup ? 'collect your order' : 'receive your order'}.`
+		},
+		{
+			value: 'chapa',
+			label: 'Pay online with Chapa',
+			hint: "telebirr, CBE Birr or card — you'll be taken to Chapa's secure page."
+		},
+		...(data.bankTransfer.accounts.length
+			? [
+					{
+						value: 'bank',
+						label: 'Bank transfer',
+						hint: "Can't pay online? Transfer to our account and upload the receipt."
+					}
+				]
+			: [])
+	]);
+
+	// A threshold of 0 means free delivery is off — same rule as `resolveDeliveryFee`.
+	let freeDelivery = $derived(
+		Number(data?.freeData?.threshold) > 0 && cart.totalPrice >= Number(data?.freeData?.threshold)
+	);
+	const fee = $derived(
+		pickup || freeDelivery ? 0 : data?.placeList?.find((item) => item.name === $form.address)?.fee
+	);
+
+	/**
+	 * The fee as a usable number.
+	 *
+	 * `fee` is `undefined` until a delivery area is chosen, and `Number(undefined)`
+	 * is `NaN` — which `??` does not catch, so the old `Number(fee) ?? 0` left
+	 * `NaN` in the form and rendered "Delivery Fee: NaN" and "ETBNaN".
+	 */
+	const feeAmount = $derived(Number.isFinite(Number(fee)) ? Number(fee) : 0);
+
+	/** Whether we can quote a fee yet, as opposed to defaulting it to zero. */
+	const feeKnown = $derived(
+		pickup || freeDelivery || Boolean(data?.placeList?.some((item) => item.name === $form.address))
+	);
+
+	/** What the customer will actually be charged: goods plus delivery. */
+	const orderTotal = $derived(cart.totalPrice + feeAmount);
+
 	const formattedData = $derived(
 		cart?.items.map((item) => ({
+			priceId: item.priceId,
 			product: item.productId,
 			quantity: item.quantity,
 			amount: item.amount,
@@ -74,26 +165,181 @@
 		}
 	});
 
+	/**
+	 * Tells the schema whether to demand contact details.
+	 *
+	 * Only a validation switch — the action ignores what is posted here and
+	 * decides from the session, so it cannot be flipped to skip the checks.
+	 */
+	$effect(() => {
+		$form.guest = !data?.user;
+	});
+
+	/**
+	 * Keeps the disabled "Delivery Fee" field showing the quote.
+	 *
+	 * Was done from `onChange` on the address fields alone, which meant toggling
+	 * pickup left the previous area's fee sitting in the box.
+	 */
+	$effect(() => {
+		$form.fee = feeAmount;
+	});
 
 	onMount(() => {
 		if (data?.user) {
 			$form.address = data?.customerInfo?.address ?? '';
 			$form.deliveryAddress = data?.customerInfo?.deliveryAddress ?? '';
-			$form.fee = Number(fee) ?? 0;
+			$form.fee = feeAmount;
 		}
+
+		reconcileCart();
 	});
-
-
-
 
 	$effect(() => {
 		$form.selectedProducts = formattedData;
 	});
+
+	/**
+	 * Bring the cart in line with the catalogue before anything can be submitted.
+	 *
+	 * Cart lines are a snapshot: price and label are stored when the item is added
+	 * and never revisited, while the checkout action prices the order from the
+	 * database. Without this the page can quote one figure and the order — and the
+	 * confirmation email — record another, with nothing said to the customer.
+	 */
+	let reconciled = $state(false);
+	// Keyed by `priceId` in the template: the cart holds one line per *variant*, so two
+	// lines can share a product name, and keying by name threw a fatal
+	// `each_key_duplicate` when both packages of one product were removed.
+	let repricedItems = $state<{ priceId: number; name: string; from: number; to: number }[]>([]);
+	let removedItems = $state<{ priceId: number; name: string }[]>([]);
+
+	async function reconcileCart() {
+		repricedItems = [];
+		removedItems = [];
+
+		const priceIds = cart.items.map((item) => item.priceId);
+		if (!priceIds.length) {
+			reconciled = true;
+			return;
+		}
+
+		let current: { id: number; price: string; amount: string }[];
+		try {
+			const res = await fetch('/checkout/prices', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ priceIds })
+			});
+			if (!res.ok) throw new Error(`Price check failed: ${res.status}`);
+			current = await res.json();
+		} catch (err) {
+			// Leave the cart untouched and let the customer through — the server
+			// prices the order regardless, so the worst case is the old behaviour.
+			console.error('Could not re-check cart prices:', err);
+			reconciled = true;
+			return;
+		}
+
+		for (const item of [...cart.items]) {
+			const row = current.find((c) => c.id === item.priceId);
+
+			if (!row) {
+				removedItems.push({ priceId: item.priceId, name: `${item.productName} (${item.amount})` });
+				cart.removeItem(item.priceId);
+				continue;
+			}
+
+			const price = Number(row.price);
+			if (price !== item.price) {
+				repricedItems.push({
+					priceId: item.priceId,
+					name: `${item.productName} (${item.amount})`,
+					from: item.price,
+					to: price
+				});
+			}
+			cart.syncVariant(item.priceId, price, row.amount);
+		}
+
+		reconciled = true;
+	}
 </script>
 
 <svelte:head>
-	<title>Checkout - Lalo Bakery</title>
+	<title>Checkout - Lalo Fixtec</title>
 </svelte:head>
+
+<!-- Shared by the guest and the signed-in form: both offer the same choice, and
+     duplicating it left the two able to drift apart. -->
+{#snippet pickupToggle()}
+	<div class="rounded-lg border border-dashed bg-muted/40 p-4">
+		<InputComp
+			label=""
+			name="pickup"
+			type="checkboxSingle"
+			{form}
+			{errors}
+			placeholder="Pick up at the shop — no delivery fee"
+		/>
+		{#if pickup}
+			<p class="mt-2 text-sm text-muted-foreground">
+				We'll have your order ready for collection at our store. Nothing is charged for delivery.
+			</p>
+		{/if}
+	</div>
+{/snippet}
+
+<!-- Also shared by both forms. The order is placed the same way whichever is
+     picked; this only decides what happens about payment. -->
+{#snippet paymentChoice()}
+	<fieldset class="flex flex-col gap-3 rounded-lg border border-dashed bg-muted/40 p-4">
+		<legend class="px-1 text-sm font-semibold">Payment</legend>
+		{#each paymentOptions as option (option.value)}
+			<label
+				class="flex cursor-pointer items-start gap-3 rounded-md border bg-background p-3 transition-colors has-checked:border-primary has-checked:bg-primary/5"
+			>
+				<input
+					type="radio"
+					name="paymentOption"
+					value={option.value}
+					bind:group={$form.paymentOption}
+					class="mt-1 accent-primary"
+				/>
+				<span>
+					<span class="block text-sm font-medium">{option.label}</span>
+					<span class="block text-xs text-muted-foreground">{option.hint}</span>
+				</span>
+			</label>
+		{/each}
+
+		{#if $form.paymentOption === 'bank'}
+			<div class="flex flex-col gap-3 pt-1">
+				<p class="text-sm text-muted-foreground">
+					Transfer {formatPrice(orderTotal)} to one of our accounts, then upload a screenshot or PDF
+					of the transfer. We'll confirm your order once we've checked it.
+				</p>
+				<BankAccountList accounts={data.bankTransfer.accounts} />
+				<InputComp
+					label="Paid with"
+					name="paymentMethod"
+					type="select"
+					{form}
+					{errors}
+					items={data.bankTransfer.methods}
+				/>
+				<InputComp
+					label="Transfer receipt"
+					name="reciept"
+					type="file"
+					{form}
+					{errors}
+					placeholder="Screenshot or PDF of your transfer (max 10MB)"
+				/>
+			</div>
+		{/if}
+	</fieldset>
+{/snippet}
 
 <div class="mx-auto max-w-6xl px-4 py-8 md:py-12">
 	<div class="mb-8 flex items-center gap-3">
@@ -115,49 +361,102 @@
 				</div>
 
 				{#if !data?.user}
-					<DialogComp title="Sign Up" variant="default" IconComp={UserRoundPlus}>
-						<Signup data={data?.signupForm} action="/signup/?/signup" placeList={data?.placeList} />
-					</DialogComp>
+					<!-- Guests order without an account: the details below become a
+					     standalone `customers` row. Signing up is offered, not required. -->
+					<div class="mb-6 rounded-lg border border-dashed bg-muted/40 p-4">
+						<p class="text-sm text-muted-foreground">
+							You can check out as a guest — just fill in your details below. Already have an
+							account, or want to save your details for next time?
+						</p>
+						<div class="mt-3 flex flex-wrap gap-2">
+							<DialogComp title="Sign Up" variant="default" IconComp={UserRoundPlus}>
+								<Signup
+									data={data?.signupForm}
+									action="/signup?/signup"
+									placeList={data?.placeList}
+								/>
+							</DialogComp>
 
-					<DialogComp title="Log In" variant="default" IconComp={User}>
-						<Login data={data?.loginForm} action="/login/?/login" />
-					</DialogComp>
+							<DialogComp title="Log In" variant="outline" IconComp={User}>
+								<Login data={data?.loginForm} action="/login?/login" />
+							</DialogComp>
+						</div>
+					</div>
+
 					<form
 						action="?/add"
 						use:enhance
-						id="main"
+						id={formId}
 						class="space-y-5"
 						method="post"
 						enctype="multipart/form-data"
 					>
 						<Errors allErrors={$allErrors} />
-						<!-- <InputComp
-							label="Address"
-							name="address"
-							type="text"
-							{form}
 
-							{errors}
-							placeholder="Enter your address"
-							/>
 						<InputComp
-							label="Address"
-							name="deliveryAddress"
+							label="Full Name"
+							name="guestName"
 							type="text"
 							{form}
 							{errors}
-							placeholder="Enter your delivery address"
+							required
+							placeholder="John Doe"
+						/>
+
+						<InputComp
+							label="Email Address"
+							name="guestEmail"
+							type="email"
+							{form}
+							{errors}
+							required
+							placeholder="john@example.com"
+						/>
+
+						<InputComp
+							label="Phone Number"
+							name="guestPhone"
+							type="tel"
+							{form}
+							{errors}
+							required
+							placeholder="+251 9-11-00-00-00"
+						/>
+
+						{@render pickupToggle()}
+						{@render paymentChoice()}
+
+						{#if !pickup}
+							<InputComp
+								label="Delivery Area"
+								name="address"
+								type="select"
+								items={data?.placeList}
+								{form}
+								{errors}
+								placeholder="Select your area"
 							/>
 
 							<InputComp
-							label="Delivery Fee"
-							name="fee"
-							type="text"
-							{form}
-							disabled
-							{errors}
-							placeholder="Enter delivery fee"
-							/> -->
+								label="Delivery Address"
+								name="deliveryAddress"
+								type="text"
+								{form}
+								{errors}
+								required
+								placeholder="Enter your specific delivery address"
+							/>
+
+							<InputComp
+								label="Delivery Fee"
+								name="fee"
+								type="text"
+								{form}
+								disabled
+								{errors}
+								placeholder="Choose a delivery area"
+							/>
+						{/if}
 
 						<InputComp
 							label=""
@@ -168,17 +467,31 @@
 							placeholder=""
 						/>
 
+						<div
+							class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+						>
+							<div>
+								<p class="text-xs font-bold tracking-wider text-gray-500 uppercase">Your Cart</p>
+								<p class="text-sm text-gray-600">{cart.totalItems} items</p>
+							</div>
+							<div class="text-right">
+								<p class="text-lg font-bold text-gray-900">{formatPrice(orderTotal)}</p>
+							</div>
+						</div>
+
 						<div class="pt-4">
 							<Button
 								type="submit"
-								form="main"
+								form={formId}
 								class="h-12 w-full text-lg shadow-md"
-								disabled={cart.items.length === 0 || $delayed}
+								disabled={cart.items.length === 0 || $delayed || !reconciled}
 							>
 								{#if $delayed}
 									<LoadingBtn name="Processing..." />
+								{:else if !reconciled}
+									<LoadingBtn name="Checking prices..." />
 								{:else}
-									Complete Order — {formatPrice(cart.totalPrice)}
+									{payOnline ? 'Complete Order & Pay' : 'Complete Order'} — {formatPrice(orderTotal)}
 								{/if}
 							</Button>
 						</div>
@@ -187,60 +500,56 @@
 					<form
 						action="?/add"
 						use:enhance
-						id="main"
+						id={formId}
 						class="space-y-5"
 						method="post"
 						enctype="multipart/form-data"
 					>
-							
-						<InputComp
-							label="Address"
-							name="address"
-							type="select"
-							items={data?.placeList}
-							{form}
-							{errors}
-							placeholder="Enter your delivery address"
+						{@render pickupToggle()}
+						{@render paymentChoice()}
+
+						{#if !pickup}
+							<InputComp
+								label="Address"
+								name="address"
+								type="select"
+								items={data?.placeList}
+								{form}
+								{errors}
+								placeholder="Enter your delivery address"
 							/>
 
 							<InputComp
-							label="Delivery Address"
-							name="deliveryAddress"
-							type="text"
-							{form}
-							{errors}
-							placeholder="Enter your specific delivery address"
+								label="Delivery Address"
+								name="deliveryAddress"
+								type="text"
+								{form}
+								{errors}
+								placeholder="Enter your specific delivery address"
 							/>
 
 							<InputComp
-							label="Delivery Fee"
-							name="fee"
-							type="text"
-							{form}
-							disabled
-							{errors}
-							placeholder="Enter delivery fee"
+								label="Delivery Fee"
+								name="fee"
+								type="text"
+								{form}
+								disabled
+								{errors}
+								placeholder="Enter delivery fee"
 							/>
-                         {#if saveInfo}
+						{/if}
+						{#if saveInfo && !pickup}
 							<InputComp
-							label="Save Information"
-							name="saveInfo"
-							type="checkboxSingle"
-							{form}
-							disabled
-							{errors}
-							placeholder="Save this information for future orders."
+								label="Save Information"
+								name="saveInfo"
+								type="checkboxSingle"
+								{form}
+								disabled
+								{errors}
+								placeholder="Save this information for future orders."
 							/>
-                        {/if}
+						{/if}
 
-						<InputComp
-							label=""
-							name="selectedProducts"
-							type="hidden"
-							{form}
-							{errors}
-							placeholder=""
-						/>
 						<InputComp
 							label=""
 							name="selectedProducts"
@@ -257,21 +566,23 @@
 								<p class="text-sm text-gray-600">{cart.totalItems} items</p>
 							</div>
 							<div class="text-right">
-								<p class="text-lg font-bold text-gray-900">{formatPrice(cart.totalPrice)}</p>
+								<p class="text-lg font-bold text-gray-900">{formatPrice(orderTotal)}</p>
 							</div>
 						</div>
 
 						<div class="pt-4">
 							<Button
 								type="submit"
-								form="main"
+								form={formId}
 								class="h-12 w-full text-lg shadow-md"
-								disabled={cart.items.length === 0 || $delayed}
+								disabled={cart.items.length === 0 || $delayed || !reconciled}
 							>
 								{#if $delayed}
 									<LoadingBtn name="Processing..." />
+								{:else if !reconciled}
+									<LoadingBtn name="Checking prices..." />
 								{:else}
-									Complete Order — {formatPrice(cart.totalPrice)}
+									{payOnline ? 'Complete Order & Pay' : 'Complete Order'} — {formatPrice(orderTotal)}
 								{/if}
 							</Button>
 						</div>
@@ -293,9 +604,20 @@
 					</div>
 
 					{#if cart.items.length > 0}
-						<ScrollArea class="max-h-100 pr-4">
+						<!-- The cap has to reach the viewport, not just the root. bits-ui puts
+						     `overflow-y: scroll` on `[data-slot=scroll-area-viewport]`, and the
+						     shadcn wrapper sizes that viewport `size-full` — a percentage height,
+						     which resolves to `auto` under a root that only carries `max-h-*`. So
+						     the viewport grew with the cart and a long list ran straight out of the
+						     summary card instead of scrolling. `max-h-[inherit]` hands the viewport
+						     the root's own 25rem, and a short cart still shrinks to fit. -->
+						<ScrollArea class="max-h-100 pr-4 [&>[data-slot=scroll-area-viewport]]:max-h-[inherit]">
 							<div class="divide-y divide-border">
-								{#each cart.items as item (item.productId)}
+								<!-- Keyed on the variant, not the product: the cart holds one line per
+								     variant, so keying on `productId` alone produced duplicate keys and
+								     a fatal `each_key_duplicate` as soon as someone picked two
+								     packages of the same product. -->
+								{#each cart.items as item (cartKey(item))}
 									<div class="py-3">
 										<CartItem {item} />
 									</div>
@@ -309,18 +631,47 @@
 								<span>{formatPrice(cart.totalPrice)}</span>
 							</div>
 							<div class="flex justify-between text-sm">
-								<span class="text-muted-foreground">Shipping</span>
-								{#if data?.user && $form.fee !== undefined}
-	<span class="font-medium text-green-600">{$form.fee !== 0 ? formatPrice($form.fee) : 'Free'}</span>
-								 {:else}
-								  <span>Uncalculated.</span>
-{/if}
+								<span class="text-muted-foreground">{pickup ? 'Pickup' : 'Shipping'}</span>
+								<!-- Guests choose a delivery area too, so the quote no longer
+								     depends on being signed in. -->
+								{#if feeKnown}
+									<span class="font-medium text-green-600">
+										{feeAmount !== 0 ? formatPrice(feeAmount) : 'Free'}
+									</span>
+								{:else}
+									<span class="text-muted-foreground">Select a delivery area</span>
+								{/if}
 							</div>
+							<!-- Delivery is part of what gets charged, so it belongs in the total.
+							     This used to repeat the subtotal, quoting the customer a figure
+							     that was short by the whole delivery fee. -->
 							<div class="flex justify-between border-t pt-3 text-lg font-bold">
 								<span>Total</span>
-								<span class="text-primary">{formatPrice(cart.totalPrice)}</span>
+								<span class="text-primary">{formatPrice(orderTotal)}</span>
 							</div>
 						</div>
+
+						{#if repricedItems.length || removedItems.length}
+							<div
+								class="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm"
+								role="status"
+							>
+								<p class="font-medium">Your cart was updated</p>
+								<ul class="mt-1 space-y-0.5 text-muted-foreground">
+									{#each repricedItems as change (change.priceId)}
+										<li>
+											{change.name} is now {formatPrice(change.to)} (was {formatPrice(change.from)})
+										</li>
+									{/each}
+									{#each removedItems as removed (removed.priceId)}
+										<li>{removed.name} is no longer available and was removed</li>
+									{/each}
+								</ul>
+								<p class="mt-2 text-xs text-muted-foreground">
+									The total above is what you will be charged.
+								</p>
+							</div>
+						{/if}
 					{:else}
 						<div class="py-12 text-center">
 							<Package class="mx-auto mb-3 size-10 text-muted-foreground/40" />

@@ -2,10 +2,30 @@ import { renderComponent } from '$lib/components/ui/data-table/index.js';
 import DataTableLinks from '$lib/components/Table/data-table-links.svelte';
 import DataTableActions from './data-table-actions.svelte';
 import DataTableSort from '$lib/components/Table/data-table-sort.svelte';
+import DataTableCheckbox from '$lib/components/Table/data-table-checkbox.svelte';
 import ImageViewer from '$lib/components/Table/image-viewer.svelte';
 import PriceList from './priceList.svelte';
 
 export const columns = [
+	{
+		id: 'select',
+		header: ({ table }) =>
+			renderComponent(DataTableCheckbox, {
+				checked: table.getIsAllPageRowsSelected(),
+				indeterminate: table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected(),
+				onCheckedChange: (v: boolean) => table.toggleAllPageRowsSelected(v),
+				label: 'Select all'
+			}),
+		cell: ({ row }) =>
+			renderComponent(DataTableCheckbox, {
+				checked: row.getIsSelected(),
+				onCheckedChange: (v: boolean) => row.toggleSelected(v),
+				label: 'Select row'
+			}),
+		enableSorting: false,
+		enableHiding: false
+	},
+
 	{
 		accessorKey: 'index',
 		header: '#',

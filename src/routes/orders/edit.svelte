@@ -109,7 +109,11 @@
 
 <Tooltip.Provider>
 	<Tooltip.Root>
-		<Tooltip.Trigger class="{buttonVariants({ variant: 'ghost' })} justify-self-start p-0!">
+		<!-- Rendered as a span: the dialog inside brings its own <button>, and a button
+		     can't contain another one. -->
+		<Tooltip.Trigger>
+			{#snippet child({ props })}
+				<span {...props} class="{buttonVariants({ variant: 'ghost' })} justify-self-start p-0!">
 			<Dialog.Root bind:open>
 				<Dialog.Trigger class="flex w-auto flex-row items-center justify-center gap-2 border-0">
 					{#if icon}
@@ -234,6 +238,8 @@
 					</ScrollArea>
 				</Dialog.Content>
 			</Dialog.Root>
+				</span>
+			{/snippet}
 		</Tooltip.Trigger>
 		<Tooltip.Content>
 			<p>Edit {customerName}</p>

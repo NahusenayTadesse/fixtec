@@ -2,7 +2,6 @@
 	import { useCart } from '$lib/hooks/cart.svelte.js';
 	import { Button } from '$lib/components/ui/button';
 	import { MinusIcon, PlusIcon, TrashIcon } from '@lucide/svelte';
-	import { Badge } from '$lib/components/ui/badge'; // Optional: if you have a badge component
 	import type { CartItem } from '$lib/hooks/cart.svelte.js';
 
 	const { item }: { item: CartItem } = $props();
@@ -16,19 +15,19 @@
 		}).format(price);
 	};
 
-	/** Decrease quantity - Now passing amount */
+	/** Decrease quantity — the line is identified by its variant. */
 	const decreaseQuantity = () => {
-		cart.updateQuantity(item.productId, item.amount, item.quantity - 1);
+		cart.updateQuantity(item.priceId, item.quantity - 1);
 	};
 
-	/** Increase quantity - Fixed: Now passing amount and correct current quantity */
+	/** Increase quantity */
 	const increaseQuantity = () => {
-		cart.updateQuantity(item.productId, item.amount, item.quantity + 1);
+		cart.updateQuantity(item.priceId, item.quantity + 1);
 	};
 
-	/** Remove item - Now passing amount */
+	/** Remove item */
 	const removeItem = () => {
-		cart.removeItem(item.productId, item.amount);
+		cart.removeItem(item.priceId);
 	};
 </script>
 
@@ -43,7 +42,6 @@
 					{item.amount}
 				</span>
 			</div>
-			<p class="text-xs text-muted-foreground">ID: {item.productId}</p>
 		</div>
 		<Button
 			size="icon"

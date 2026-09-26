@@ -1,4 +1,5 @@
 import { z } from 'zod/v4';
+import { ethiopianPhone } from '$lib/validators/phone';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB limit
 const ACCEPTED_FILE_TYPES = [
 	'image/jpeg', // Common for both platforms
@@ -8,13 +9,29 @@ const ACCEPTED_FILE_TYPES = [
 	'image/heif', // High Efficiency Image File (related to HEIC)
 	'application/pdf' // Document format, kept from original
 ];
+/**
+ * The signup form — the one schema behind `/signup`, its action, and the
+ * "Sign Up" dialog on the checkout page.
+ *
+ * The field is `deliveryAddress`, matching both `Signup.svelte` and the
+ * `customers` column. It used to be `specificAddress` here while the form and
+ * the action both said `deliveryAddress`, so the seeded form and the validated
+ * one were two different shapes: superforms saw mismatched form ids and threw
+ * the action's errors away, which is why signup only ever produced a bare
+ * "check the form" toast.
+ */
 export const addUser = z.object({
 	name: z.string('Name is Required').min(2).max(100),
-	phone: z.string('Phone is Required').min(10).max(15),
+	// Ethiopian phone number, mobile or landline, accepted in any of the usual
+	// forms; the signup actions normalise it to `+251XXXXXXXXX` before writing
+	// `customers.phone`.
+	phone: ethiopianPhone(),
 	email: z.email('Email is Required'),
-	password: z.string('Password is required!'),
-	address: z.string('General Address is required!'),
-	specificAddress: z.string('Specific Address is required!')
+	// better-auth rejects anything shorter with an opaque APIError; catching it
+	// here puts the message on the field instead.
+	password: z.string('Password is required!').min(8, 'Password must be at least 8 characters'),
+	address: z.string('General Address is required!').min(1, 'Please choose your area'),
+	deliveryAddress: z.string('Specific Address is required!').min(5).max(200)
 });
 export type SignupSchema = typeof addUser;
 export const loginSchema = z.object({
@@ -293,33 +310,26 @@ export const editAppointment = z.object({
 // TypeScript type inference
 export type EditAppointment = z.infer<typeof editAppointment>;
 
-export const editCustomer = z.object({
-	firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
-	lastName: z.string().max(50, 'Last name is too long').optional().or(z.literal('')),
-	phone: z
-		.string()
-		.min(7, 'Phone number is too short')
-		.max(15, 'Phone number is too long')
-		.regex(/^[0-9+\-()\s]+$/, 'Invalid phone number'),
-	gender: z.string().refine((val) => ['male', 'female'].includes(val), {
-		message: 'Please select a gender'
-	}),
-	customerId: z.number()
-});
-
-export type EditCustomer = z.infer<typeof editCustomer>;
-
+/**
+ * A customer record on its own — no `user` account is created or linked, so the
+ * fields here mirror the `customers` table only. Shared by every page that shows
+ * the add-customer dialog; the action itself lives in
+ * `/dashboard/customers?/addCustomer`.
+ */
 export const addCustomer = z.object({
-	firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
-	lastName: z.string().max(50, 'Last name is too long').optional().or(z.literal('')),
+	name: z
+		.string()
+		.min(2, 'Name must be at least 2 characters')
+		.max(100, 'Name must be at most 100 characters'),
+	// Optional: a walk-in customer often has no email. Still validated when filled in.
+	email: z.email('Enter a valid email').max(100, 'Email is too long').optional().or(z.literal('')),
 	phone: z
 		.string()
 		.min(7, 'Phone number is too short')
 		.max(15, 'Phone number is too long')
 		.regex(/^[0-9+\-()\s]+$/, 'Invalid phone number'),
-	gender: z.string().refine((val) => ['male', 'female'].includes(val), {
-		message: 'Please select a gender'
-	})
+	address: z.string().max(255, 'Address is too long').optional().or(z.literal('')),
+	deliveryAddress: z.string().max(255, 'Delivery address is too long').optional().or(z.literal(''))
 });
 
 export type AddCustomerSchema = z.infer<typeof addCustomer>;

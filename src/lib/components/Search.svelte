@@ -13,19 +13,14 @@
 		{ label: 'Customers', path: '/dashboard/customers' },
 
 		// Orders
-		{ label: 'All Orders', path: '/dashboard/orders/all-orders' },
-		{ label: 'Cancelled Orders', path: '/dashboard/orders/cancelled' },
-		{ label: 'Delivered Orders', path: '/dashboard/orders/delivered' },
+		{ label: 'Orders', path: '/dashboard/orders' },
 
 		// Products
 		{ label: 'Products', path: '/dashboard/products' },
 		{ label: 'Add Products', path: '/dashboard/products/add-products' },
 		{ label: 'Product Categories', path: '/dashboard/products/categories' },
 
-		// Recipes
-		{ label: 'Recipes', path: '/dashboard/recipes/recipes' },
-		{ label: 'Add Recipe', path: '/dashboard/recipes/add-recipes' },
-
+		{ label: 'Bank Accounts', path: '/dashboard/bank-accounts' },
 		{ label: 'Reports', path: '/dashboard/reports' },
 
 		{ label: 'Payment Methods', path: '/dashboard/admin-panel/payment-methods' },

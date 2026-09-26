@@ -1,7 +1,10 @@
 import { db } from '$lib/server/db';
 import { products, productCategories, productSuppliers, prices } from '$lib/server/db/schema';
-import { eq, inArray, and, or, like, count } from 'drizzle-orm';
+import { eq, inArray, and, or, like, count, asc } from 'drizzle-orm';
+import { fail } from '@sveltejs/kit';
+import { setFlash } from 'sveltekit-flash-message/server';
 import type { PageServerLoad } from '../$types';
+import type { Actions } from './$types';
 
 const DEFAULT_PAGE_SIZE = 20;
 const ALLOWED_PAGE_SIZES = [10, 20, 50, 100];
@@ -9,7 +12,8 @@ const ALLOWED_PAGE_SIZES = [10, 20, 50, 100];
 export const load: PageServerLoad = async ({ url }) => {
 	const search = url.searchParams.get('search')?.trim() ?? '';
 	const category = url.searchParams.get('category');
-	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1'));
+	const parsedPage = parseInt(url.searchParams.get('page') ?? '1');
+	const page = Math.max(1, Number.isFinite(parsedPage) ? parsedPage : 1);
 	const pageSizeParam = parseInt(url.searchParams.get('pageSize') ?? '');
 	const pageSize = ALLOWED_PAGE_SIZES.includes(pageSizeParam) ? pageSizeParam : DEFAULT_PAGE_SIZE;
 	const offset = (page - 1) * pageSize;
@@ -41,6 +45,9 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(productCategories, eq(productCategories.id, products.categoryId))
 		.leftJoin(productSuppliers, eq(productSuppliers.id, products.supplierId))
 		.where(whereClause)
+		// Without an ORDER BY, LIMIT/OFFSET pages have no defined order, so products
+		// could repeat on one page and never appear on another.
+		.orderBy(asc(products.id))
 		.limit(pageSize)
 		.offset(offset);
 
@@ -79,4 +86,31 @@ export const load: PageServerLoad = async ({ url }) => {
 			hasPrevPage: page > 1
 		}
 	};
+};
+
+export const actions: Actions = {
+	bulkDelete: async ({ request, cookies }) => {
+		const formData = await request.formData();
+		const ids = formData
+			.getAll('ids')
+			.map((id) => Number(id))
+			.filter((id) => Number.isInteger(id));
+
+		if (ids.length === 0) {
+			setFlash({ type: 'error', message: 'No products selected' }, cookies);
+			return fail(400);
+		}
+
+		try {
+			await db.update(products).set({ isActive: false }).where(inArray(products.id, ids));
+			setFlash(
+				{ type: 'success', message: `${ids.length} product(s) deactivated successfully!` },
+				cookies
+			);
+		} catch (err) {
+			console.error('Error bulk deactivating products:', err);
+			setFlash({ type: 'error', message: `Unexpected Error: ${(err as Error)?.message}` }, cookies);
+			return fail(400);
+		}
+	}
 };

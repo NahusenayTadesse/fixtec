@@ -6,7 +6,9 @@ import {
 	mysqlEnum,
 	decimal,
 	text,
-	timestamp
+	timestamp,
+	datetime,
+	index
 } from 'drizzle-orm/mysql-core';
 import { secureFields, user } from './auth.schema';
 
@@ -16,6 +18,22 @@ export const paymentMethods = mysqlTable('payment_methods', {
 	description: varchar('description', { length: 255 }),
 	...secureFields
 });
+/**
+ * The company's bank accounts, listed at checkout so shoppers know where to send
+ * a transfer. Reference information only: each belongs to a payment method, and
+ * nothing else points at them — transfers are checked by hand from the receipt.
+ */
+export const bankAccounts = mysqlTable('bank_accounts', {
+	id: int('id').primaryKey().autoincrement(),
+	paymentMethodId: int('payment_method_id')
+		.notNull()
+		.references(() => paymentMethods.id, { onDelete: 'cascade' }),
+	bankName: varchar('bank_name', { length: 100 }).notNull(),
+	accountName: varchar('account_name', { length: 150 }).notNull(),
+	accountNumber: varchar('account_number', { length: 50 }).notNull(),
+	...secureFields
+});
+
 export const freeDelivery = mysqlTable('free_delivery', {
 	suggestionThreshold: decimal('suggestion_threshold', { precision: 10, scale: 2 }).notNull(),
 	threshold: decimal('threshold', { precision: 10, scale: 2 }).notNull()
@@ -58,11 +76,11 @@ export const productImages = mysqlTable('product_images', {
 export const customers = mysqlTable('customers', {
 	id: int('id').primaryKey().autoincrement(),
 	name: varchar('name', { length: 100 }).notNull(),
-	email: varchar('email', { length: 100 }).notNull().unique(),
+	// Both nullable: staff add walk-in customers who have no account and often no
+	// email. UNIQUE still holds — MySQL allows repeated NULLs in a unique index.
+	email: varchar('email', { length: 100 }).unique(),
 	phone: varchar('phone', { length: 20 }),
-	userId: varchar('user_id', { length: 255 })
-		.notNull()
-		.references(() => user.id),
+	userId: varchar('user_id', { length: 255 }).references(() => user.id),
 	address: varchar('address', { length: 255 }),
 	deliveryAddress: varchar('delivery_address', { length: 255 }),	
 	...secureFields
@@ -85,11 +103,12 @@ export const productCategories = mysqlTable('product_categories', {
 	...secureFields
 });
 
-export const transactions = mysqlTable('transactions', {
+export const transactions = mysqlTable(
+	'transactions',
+	{
 	id: int('id').primaryKey().autoincrement(),
 	amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
 	paymentStatus: mysqlEnum('payment_status', [
-		'pending',
 		'pending',
 		'paid',
 		'unpaid',
@@ -103,8 +122,17 @@ export const transactions = mysqlTable('transactions', {
 		onDelete: 'set null'
 	}),
 	recieptLink: varchar('reciept_link', { length: 255 }),
+	// The Chapa reference of the online payment attempt currently in flight. A
+	// retry replaces it, so a late success on an abandoned attempt can't settle.
+	txnRef: varchar('txn_ref', { length: 100 }).unique(),
+	// Set, once, by the request that confirmed the payment with Chapa. It is the
+	// idempotency lock: the webhook and the customer's return visit race on it.
+	settledTxnRef: varchar('settled_txn_ref', { length: 100 }),
 	...secureFields
-});
+	},
+	// `/files/[name]` looks receipts up by file name on every file request.
+	(table) => [index('transactions_reciept_link_idx').on(table.recieptLink)]
+);
 export const productAdjustments = mysqlTable('product_adjustments', {
 	id: int('id').autoincrement().primaryKey(),
 	productsId: int('product_id')
@@ -125,6 +153,9 @@ export const orders = mysqlTable('orders', {
 		address: varchar('address', { length: 255 }),
 	deliveryAddress: varchar('delivery_address', { length: 255 }),
 	fee: decimal('fee', { precision: 10, scale: 2 }),
+	// When the order last became delivered — `createdAt` is when it was placed, and
+	// "today's deliveries" can't be read off that. NULL for every other status.
+	deliveredAt: datetime('delivered_at'),
 	...secureFields
 });
 

@@ -1,8 +1,3 @@
-import { z } from 'zod/v4';
-
-export const add = z.object({
-	name: z.string('Name is Required').min(2).max(100),
-	phone: z.string('Phone is Required').min(10).max(15),
-	email: z.email('Email is Required'),
-	password: z.string('Password is required!')
-});
+// Single source of truth for the signup shape, so the checkout page's signup
+// dialog validates against exactly what this route's action does.
+export { addUser as add } from '$lib/ZodSchema';

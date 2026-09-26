@@ -16,7 +16,8 @@
 		Star,
 		Building2,
 
-		Truck
+		Truck,
+		Landmark
 
 	} from '@lucide/svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -47,13 +48,19 @@
 				{ title: 'All Products', url: '/dashboard/products', icon: Sheet },
 				{ title: 'Add Product', url: '/dashboard/products/add-products', icon: Plus },
 				{ title: 'Suppliers', url: '/dashboard/products/suppliers', icon: Sheet },
-				{ title: 'Add Supplier', url: '/dashboard/products/add-supplier', icon: Plus }
+				{ title: 'Add Supplier', url: '/dashboard/products/suppliers/add-suppliers', icon: Plus }
 			]
 		},
 				{
 			title: 'Delivery Address',
 			url: '/dashboard/delivery-address',
 			icon: Truck
+		},
+
+		{
+			title: 'Bank Accounts',
+			url: '/dashboard/bank-accounts',
+			icon: Landmark
 		},
 
 		{
