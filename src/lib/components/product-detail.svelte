@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
+	import { Badge } from '@nahu/admin-kit/components/ui/badge/index.js';
 	import { ShareIcon, PlusIcon, CheckIcon, Plus, Minus, ShoppingCartIcon } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -19,7 +19,7 @@
 		$props();
 
 	import { useCart } from '$lib/hooks/cart.svelte.js';
-	import Input from './ui/input/input.svelte';
+	import Input from '@nahu/admin-kit/components/ui/input/input.svelte';
 
 	const cart = useCart();
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Svelte 5 Runes
 	import { enhance } from '$app/forms';
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 
 	let { data, form } = $props();
 	let pendingOrders = $derived(data.pendingOrders || []);

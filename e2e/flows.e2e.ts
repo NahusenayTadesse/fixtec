@@ -40,7 +40,7 @@ async function signUp(page: Page, user: { name: string; email: string; phone: st
 	await form.locator('input[name="name"]').fill(user.name);
 	await form.locator('input[name="email"]').fill(user.email);
 	await form.locator('input[name="phone"]').fill(user.phone);
-	await form.getByRole('button', { name: 'Select address' }).click();
+	await form.getByRole('combobox', { name: 'General Address' }).click();
 	await page.getByRole('option', { name: customer.area }).click();
 	await form.locator('input[name="deliveryAddress"]').fill(customer.address);
 	await form.locator('input[name="password"]').fill(user.password);
@@ -150,7 +150,7 @@ test('guest checkout with delivery charges the area fee', async ({ page }) => {
 	await page.locator('input[name="guestName"]').fill('Guest Buyer');
 	await page.locator('input[name="guestEmail"]').fill(guestEmail);
 	await page.locator('input[name="guestPhone"]').fill('0933445566');
-	await page.getByRole('button', { name: 'Select address' }).click();
+	await page.getByRole('combobox', { name: 'Delivery Area' }).click();
 	await page.getByRole('option', { name: 'Bole' }).click();
 	await page.locator('input[name="deliveryAddress"]').fill('Bole Medhanialem, House 12');
 	await expect(page.getByText('Total ETB 29,750.00')).toBeVisible();
@@ -254,7 +254,7 @@ test('admin marks an order delivered', async ({ page }) => {
 	await row.getByRole('cell').nth(-2).getByRole('button').click();
 	const dialog = page.getByRole('dialog');
 	await expect(dialog).toContainText(`Edit Order #${order.id}`);
-	await dialog.getByRole('button', { name: /^pending$/i }).click();
+	await dialog.getByRole('combobox', { name: 'Status' }).click();
 	await page.getByRole('option', { name: /delivered/i }).click();
 	// Delivered orders need a payment method; the action refuses without one.
 	await dialog.getByRole('combobox').filter({ hasText: /payment method/i }).click();
@@ -385,7 +385,7 @@ test('admin creates a store-pickup order from the dashboard', async ({ page }) =
 	await dialog.getByRole('combobox').filter({ hasText: /search products/i }).click();
 	await page.getByRole('option', { name: /Tool Only/ }).click();
 	// Pickup is offered alongside the delivery areas now.
-	await dialog.getByRole('combobox').filter({ hasText: /select address/i }).click();
+	await dialog.getByRole('combobox', { name: 'Delivery Area' }).click();
 	await page.getByRole('option', { name: 'Store Pickup' }).click();
 	await dialog.getByRole('button', { name: 'Add Order' }).click();
 	await expect(dialog).toBeHidden();
@@ -550,7 +550,7 @@ test('staff editing an order paid online keeps it paid', async ({ page }) => {
 	await expect(row.getByText('paid', { exact: true })).toBeVisible();
 	await row.getByRole('cell').nth(-2).getByRole('button').click();
 	const dialog = page.getByRole('dialog');
-	await dialog.getByRole('button', { name: /^pending$/i }).click();
+	await dialog.getByRole('combobox', { name: 'Status' }).click();
 	await page.getByRole('option', { name: /delivered/i }).click();
 	await dialog.getByRole('button', { name: 'Save Changes' }).click();
 
@@ -577,7 +577,7 @@ test('admin manages the company bank accounts', async ({ page }) => {
 
 	await page.getByRole('button', { name: 'Add Bank Account' }).first().click();
 	const add = page.getByRole('dialog');
-	await add.getByRole('button', { name: /select payment method/i }).click();
+	await add.getByRole('combobox', { name: /payment method/i }).click();
 	await page.getByRole('option', { name: 'CBE Bank' }).click();
 	await add.locator('input[name="bankName"]').fill(bankName);
 	await add.locator('input[name="accountName"]').fill('Lalo Fixtec PLC');
@@ -595,7 +595,7 @@ test('admin manages the company bank accounts', async ({ page }) => {
 	// Deactivated accounts disappear from checkout…
 	await row.getByRole('cell').nth(-2).getByRole('button').click();
 	const edit = page.getByRole('dialog');
-	await edit.getByRole('button', { name: /Active — shown at checkout/ }).click();
+	await edit.getByRole('combobox', { name: 'Status' }).click();
 	await page.getByRole('option', { name: /Inactive/ }).click();
 	await edit.getByRole('button', { name: 'Save Changes' }).click();
 	await expect(edit).toBeHidden();
@@ -609,14 +609,14 @@ test('admin manages the company bank accounts', async ({ page }) => {
 	await logIn(page, admin);
 	await go(page, '/dashboard/bank-accounts');
 	await row.getByRole('cell').nth(-2).getByRole('button').click();
-	await edit.getByRole('button', { name: /Inactive — hidden/ }).click();
+	await edit.getByRole('combobox', { name: 'Status' }).click();
 	await page.getByRole('option', { name: /Active — shown/ }).click();
 	await edit.getByRole('button', { name: 'Save Changes' }).click();
 	await expect(row.getByText('active', { exact: true })).toBeVisible();
 
 	// A throwaway account to check delete.
 	await page.getByRole('button', { name: 'Add Bank Account' }).first().click();
-	await add.getByRole('button', { name: /select payment method/i }).click();
+	await add.getByRole('combobox', { name: /payment method/i }).click();
 	await page.getByRole('option', { name: 'CBE Bank' }).click();
 	await add.locator('input[name="bankName"]').fill(`Delete Me ${run}`);
 	await add.locator('input[name="accountName"]').fill('Nobody');
@@ -652,7 +652,7 @@ test('customer pays by bank transfer and uploads the receipt', async ({ page, co
 	await expect(page.getByText('Upload your transfer receipt').first()).toBeVisible();
 	expect(await query('SELECT id FROM customers WHERE email = ?', [email])).toHaveLength(0);
 
-	await page.getByRole('button', { name: /select payment method/i }).click();
+	await page.getByRole('combobox', { name: /payment method/i }).click();
 	await page.getByRole('option', { name: 'CBE Bank' }).click();
 	await page.locator('input[type="file"][name="reciept"]').setInputFiles(receiptPdf);
 	await expect(page.getByText('transfer-receipt.pdf')).toBeVisible();
@@ -697,7 +697,7 @@ test("if Chapa doesn't work out, the customer can switch to a bank transfer", as
 	await go(page, `/checkout/payment?ref=${txn_ref}`);
 	await page.getByRole('button', { name: 'Pay by bank transfer' }).click();
 	await expect(page.getByRole('listitem').filter({ hasText: bankName })).toBeVisible();
-	await page.getByRole('button', { name: /select payment method/i }).click();
+	await page.getByRole('combobox', { name: /payment method/i }).click();
 	await page.getByRole('option', { name: 'CBE Bank' }).click();
 	await page.locator('input[type="file"][name="reciept"]').setInputFiles(receiptPdf);
 	await page.getByRole('button', { name: 'Send receipt' }).click();

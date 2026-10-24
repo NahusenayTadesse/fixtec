@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import { Button } from '$lib/components/ui/button';
-	import { Card } from '$lib/components/ui/card';
+	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
+	import { Card } from '@nahu/admin-kit/components/ui/card/index.js';
 	import { ChevronLeftIcon, ChevronRightIcon, QuoteIcon } from '@lucide/svelte';
 
 	type Testimonial = {

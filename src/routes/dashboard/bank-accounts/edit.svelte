@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { SquarePen, Save } from '@lucide/svelte';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { toast } from 'svelte-sonner';
 	import DialogComp from '$lib/formComponents/DialogComp.svelte';
-	import LoadingBtn from '$lib/formComponents/LoadingBtn.svelte';
-	import Errors from '$lib/formComponents/Errors.svelte';
+	import LoadingBtn from '@nahu/admin-kit/formComponents/LoadingBtn.svelte';
+	import Errors from '@nahu/admin-kit/formComponents/Errors.svelte';
 	import type { Item } from '$lib/global.svelte';
 	import type { edit } from './schema';
 	import Fields from './fields.svelte';

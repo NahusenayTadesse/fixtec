@@ -1,7 +1,7 @@
 <script lang="ts">
 	import RecipeCard from './recipe-card.svelte';
 	import RecipeModal from './recipe-modal.svelte';
-	import { Input } from '$lib/components/ui/input';
+	import { Input } from '@nahu/admin-kit/components/ui/input/index.js';
 	import { ChefHat, SearchIcon } from '@lucide/svelte';
 
 	type Recipe = {

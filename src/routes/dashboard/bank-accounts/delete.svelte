@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { Trash } from '@lucide/svelte';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { toast } from 'svelte-sonner';
 	import DialogComp from '$lib/formComponents/DialogComp.svelte';
-	import LoadingBtn from '$lib/formComponents/LoadingBtn.svelte';
+	import LoadingBtn from '@nahu/admin-kit/formComponents/LoadingBtn.svelte';
 	import type { remove } from './schema';
 
 	let { data, id, bankName }: { data: SuperValidated<Infer<typeof remove>>; id: number; bankName: string } =

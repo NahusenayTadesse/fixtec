@@ -6,7 +6,7 @@
 		AccordionContent
 	} from '$lib/components/ui/accordion';
 	import { Layers, Route, Network, ShieldCheck, Handshake, HardHat } from '@lucide/svelte';
-	import Button from './ui/button/button.svelte';
+	import Button from '@nahu/admin-kit/components/ui/button/button.svelte';
 
 	const features = [
 		{

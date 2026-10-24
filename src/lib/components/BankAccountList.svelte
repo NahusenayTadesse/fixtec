@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 	import { Check, Copy, Landmark } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 

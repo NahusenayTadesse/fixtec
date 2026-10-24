@@ -63,6 +63,7 @@
 		"zod": "^4.3.6"
 	},
 	"dependencies": {
+		"@nahu/admin-kit": "file:../admin-kit",
 		"@tabler/icons-svelte": "^3.38.0",
 		"browser-image-compression": "^2.0.2",
 		"chart.js": "^4.5.1",

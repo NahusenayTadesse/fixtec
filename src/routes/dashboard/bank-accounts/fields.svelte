@@ -1,6 +1,10 @@
 <script lang="ts">
-	import InputComp from '$lib/formComponents/InputComp.svelte';
+	import InputComp from '@nahu/admin-kit/formComponents/InputComp.svelte';
 	import type { Item } from '$lib/global.svelte';
+	import type { Writable } from 'svelte/store';
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Store = Writable<Record<string, any>>;
 
 	// Shared by the add and edit dialogs. Their superForms have different schemas,
 	// and `InputComp` takes the stores untyped, so they're passed straight through.
@@ -8,7 +12,7 @@
 		form,
 		errors,
 		paymentMethodList
-	}: { form: unknown; errors: unknown; paymentMethodList: Item[] } = $props();
+	}: { form: Store; errors: Store; paymentMethodList: Item[] } = $props();
 </script>
 
 <InputComp

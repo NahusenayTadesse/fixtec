@@ -3,12 +3,12 @@
 	import { invalidateAll } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { toast } from 'svelte-sonner';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import * as Table from '$lib/components/ui/table';
+	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
+	import * as Card from '@nahu/admin-kit/components/ui/card/index.js';
+	import * as Table from '@nahu/admin-kit/components/ui/table/index.js';
 	import BankAccountList from '$lib/components/BankAccountList.svelte';
-	import InputComp from '$lib/formComponents/InputComp.svelte';
-	import LoadingBtn from '$lib/formComponents/LoadingBtn.svelte';
+	import InputComp from '@nahu/admin-kit/formComponents/InputComp.svelte';
+	import LoadingBtn from '@nahu/admin-kit/formComponents/LoadingBtn.svelte';
 	import {
 		CircleCheckBig,
 		CircleX,
@@ -199,7 +199,7 @@
 					class="flex flex-col gap-3"
 				>
 					<InputComp
-						label="Paid with"
+						label="Payment method"
 						name="paymentMethod"
 						type="select"
 						{form}
