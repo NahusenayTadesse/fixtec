@@ -57,8 +57,6 @@ export const actions: Actions = {
 			productName,
 			category,
 			description,
-			quantity,
-
 			supplier,
 			reorderLevel,
 			image,
@@ -84,7 +82,6 @@ export const actions: Actions = {
 						name: productName,
 						categoryId: category,
 						description,
-						quantity,
 						supplierId: supplier || null,
 						reorderLevel,
 						featuredImage,
