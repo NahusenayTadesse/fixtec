@@ -22,10 +22,16 @@ import {
 	placeNames,
 	prices,
 	products,
-	transactions
+	transactions,
+	user
 } from '$lib/server/db/schema';
 import { resolveDeliveryFee } from '$lib/server/delivery';
-import { bankTransferOptions, PaymentStartError, startOnlinePayment } from '$lib/server/payments';
+import {
+	bankTransferOptions,
+	customerEmail,
+	PaymentStartError,
+	startOnlinePayment
+} from '$lib/server/payments';
 import { deleteUploadedFile, saveUploadedFile } from '$lib/server/upload';
 import type { PageServerLoad, Actions } from './$types';
 
@@ -178,9 +184,12 @@ export const actions: Actions = {
 				);
 			}
 		} else {
+			// No `customers.email` while earlier guest orders await verification — the
+			// login email stands in for it (see `mergeGuestCustomer`).
 			customer = await db
-				.select({ value: customers.id, email: customers.email })
+				.select({ value: customers.id, email: customerEmail })
 				.from(customers)
+				.leftJoin(user, eq(customers.userId, user.id))
 				.where(eq(customers.userId, locals.user!.id))
 				.limit(1)
 				.then((rows) => rows[0]);

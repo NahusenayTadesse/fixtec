@@ -18,7 +18,8 @@ import {
 	orderItems,
 	orders,
 	paymentMethods,
-	transactions
+	transactions,
+	user
 } from '$lib/server/db/schema';
 import { initializeChapaTransaction, newTxRef, verifyChapaTransaction } from '$lib/server/chapa';
 import {
@@ -27,6 +28,14 @@ import {
 	customerPaymentReceivedTemplate,
 	sendEmail
 } from '$lib/server/email';
+
+/**
+ * Where a customer's payment mail goes. An account whose earlier guest orders are
+ * waiting on email verification has no `customers.email` yet (see
+ * `mergeGuestCustomer`), so it falls back to the account's login email.
+ * Needs `user` left-joined on `customers.userId`.
+ */
+export const customerEmail = sql<string | null>`COALESCE(${customers.email}, ${user.email})`;
 
 /** The name online payments are recorded under in `payment_methods`. */
 export const CHAPA_METHOD_NAME = 'Chapa';
@@ -123,11 +132,12 @@ export async function startOnlinePayment(orderId: number, origin: string): Promi
 			id: orders.id,
 			transactionId: orders.transactionId,
 			name: customers.name,
-			email: customers.email,
+			email: customerEmail,
 			phone: customers.phone
 		})
 		.from(orders)
 		.innerJoin(customers, eq(orders.customerId, customers.id))
+		.leftJoin(user, eq(customers.userId, user.id))
 		.where(eq(orders.id, orderId))
 		.then((rows) => rows[0]);
 
@@ -136,6 +146,14 @@ export async function startOnlinePayment(orderId: number, origin: string): Promi
 
 	const state = await orderPaymentState(orderId);
 	if (state?.settledTxnRef || state?.paymentStatus === 'paid') throw new AlreadyPaidError();
+
+	// The attempt about to be replaced may already be paid, with Chapa's webhook not
+	// here yet (the customer paid in one tab, then clicked Pay again in another).
+	// Asking first stops a second charge for the same order.
+	if (state?.txnRef) {
+		const previous = await settleOnlinePayment(state.txnRef);
+		if (previous.status === 'paid') throw new AlreadyPaidError();
+	}
 
 	const amount = await orderTotal(orderId);
 	const txRef = newTxRef(orderId);
@@ -189,11 +207,10 @@ export type SettlementOutcome =
  * order paid. Safe to call repeatedly and concurrently for the same reference.
  */
 export async function settleOnlinePayment(txRef: string): Promise<SettlementOutcome> {
-	const transaction = await db
+	const current = await db
 		.select({
 			id: transactions.id,
 			amount: transactions.amount,
-			txnRef: transactions.txnRef,
 			settledTxnRef: transactions.settledTxnRef,
 			orderId: orders.id
 		})
@@ -202,12 +219,19 @@ export async function settleOnlinePayment(txRef: string): Promise<SettlementOutc
 		.where(eq(transactions.txnRef, txRef))
 		.then((rows) => rows[0]);
 
+	// Not the order's current attempt: unknown, or an older attempt that a retry has
+	// since replaced. A replaced attempt can still have been paid — the customer
+	// opened Pay twice and finished the first checkout — and dropping that would
+	// leave them charged with the order unpaid. So if the reference names one of our
+	// orders and Chapa says it went through, it settles that order like any other.
+	const transaction = current ?? (await supersededAttempt(txRef));
+
 	if (!transaction) {
-		// Either unknown, or an older attempt that a retry has since replaced.
 		return { status: 'pending', orderId: null, reason: 'Unknown or expired payment reference.', retryable: false };
 	}
 
 	const { orderId } = transaction;
+	const superseded = !current;
 
 	if (transaction.settledTxnRef === txRef) {
 		return { status: 'paid', orderId, amount: Number(transaction.amount), alreadySettled: true };
@@ -220,13 +244,17 @@ export async function settleOnlinePayment(txRef: string): Promise<SettlementOutc
 		console.error(`Chapa verify failed for ${txRef}:`, err);
 		return {
 			status: 'pending',
-			orderId,
+			orderId: superseded ? null : orderId,
 			reason: 'We could not reach Chapa to confirm your payment. Please refresh in a moment.',
 			retryable: true
 		};
 	}
 
 	if (!verification.paid) {
+		// A replaced attempt that wasn't paid is just dead — same answer as before.
+		if (superseded) {
+			return { status: 'pending', orderId: null, reason: 'Unknown or expired payment reference.', retryable: false };
+		}
 		if (verification.failed) {
 			return { status: 'failed', orderId, reason: 'Chapa reported this payment as failed.' };
 		}
@@ -238,7 +266,11 @@ export async function settleOnlinePayment(txRef: string): Promise<SettlementOutc
 		};
 	}
 
-	const expected = Number(transaction.amount);
+	// Held to the order's total *now*, not only to the amount recorded when the
+	// attempt started. Checking the stored amount alone let a customer start a
+	// payment for a cheap order, add items to it, then pay the old figure and have
+	// the bigger order marked paid.
+	const expected = Math.max(Number(transaction.amount), await orderTotal(orderId));
 	if (verification.txRef && verification.txRef !== txRef) {
 		console.error(`Chapa tx_ref mismatch: expected ${txRef}, got ${verification.txRef}`);
 		return { status: 'pending', orderId, reason: 'Payment reference mismatch — please contact us.', retryable: false };
@@ -257,27 +289,36 @@ export async function settleOnlinePayment(txRef: string): Promise<SettlementOutc
 		};
 	}
 
-	// The claim: matches only while this attempt is unsettled, so of two
-	// concurrent callers exactly one changes a row.
+	// The claim: matches only while the order is unsettled, so of two concurrent
+	// callers exactly one changes a row. A replaced attempt takes the reference back
+	// as it settles, so later lookups (the payment page, a repeated webhook) find it.
 	const claim = await db
 		.update(transactions)
-		.set({ settledTxnRef: txRef, paymentStatus: 'paid' })
+		.set({
+			txnRef: txRef,
+			settledTxnRef: txRef,
+			paymentStatus: 'paid',
+			paymentMethodId: await chapaMethodId()
+		})
 		.where(
 			and(
 				eq(transactions.id, transaction.id),
-				eq(transactions.txnRef, txRef),
+				superseded ? undefined : eq(transactions.txnRef, txRef),
 				isNull(transactions.settledTxnRef)
 			)
 		);
 
 	if (affectedRowsOf(claim) === 0) {
+		const settledBy = await orderPaymentState(orderId).then((state) => state?.settledTxnRef);
+		if (settledBy && settledBy !== txRef) reportDoublePayment(orderId, txRef, settledBy, verification.amount);
 		return { status: 'paid', orderId, amount: verification.amount, alreadySettled: true };
 	}
 
 	const email = await db
-		.select({ email: customers.email })
+		.select({ email: customerEmail })
 		.from(orders)
 		.innerJoin(customers, eq(orders.customerId, customers.id))
+		.leftJoin(user, eq(customers.userId, user.id))
 		.where(eq(orders.id, orderId))
 		.then((rows) => rows[0]?.email);
 
@@ -293,6 +334,43 @@ export async function settleOnlinePayment(txRef: string): Promise<SettlementOutc
 	);
 
 	return { status: 'paid', orderId, amount: verification.amount, alreadySettled: false };
+}
+
+/**
+ * The order's transaction for a reference that is no longer its current attempt.
+ * References are `fx{orderId}-{random}` (see `newTxRef`); only the shape is read
+ * here — whether it was really paid is still decided by asking Chapa.
+ */
+async function supersededAttempt(txRef: string) {
+	const orderId = Number(txRef.match(/^fx(\d+)-[0-9a-f]{18}$/)?.[1]);
+	if (!orderId) return undefined;
+
+	return db
+		.select({
+			id: transactions.id,
+			amount: transactions.amount,
+			settledTxnRef: transactions.settledTxnRef,
+			orderId: orders.id
+		})
+		.from(orders)
+		.innerJoin(transactions, eq(orders.transactionId, transactions.id))
+		.where(eq(orders.id, orderId))
+		.then((rows) => rows[0]);
+}
+
+/**
+ * Chapa took a second payment for an order already settled by another reference.
+ * Nothing here can undo it, so staff are told to refund.
+ */
+function reportDoublePayment(orderId: number, txRef: string, settledBy: string, amount: number) {
+	console.error(`Order #${orderId} paid twice: ${txRef} after ${settledBy} (${amount} ETB)`);
+	sendEmail(
+		ADMIN_EMAIL,
+		`Refund needed: order #${orderId} was paid twice`,
+		`<p>Order #${orderId} was already paid through Chapa (reference ${settledBy}),
+		and a second Chapa payment of ${amount.toFixed(2)} ETB has gone through under reference
+		${txRef}. Please refund the second payment from the Chapa dashboard.</p>`
+	).catch((err) => console.error('Email Error (Double payment, Admin):', err));
 }
 
 // --- Bank transfer -----------------------------------------------------------

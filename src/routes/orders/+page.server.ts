@@ -7,6 +7,7 @@ import { add, edit } from './schema';
 import { db } from '$lib/server/db';
 import { orders, orderItems, products, customers, prices } from '$lib/server/db/schema';
 import { orderPaymentState } from '$lib/server/payments';
+import { resolveDeliveryFee } from '$lib/server/delivery';
 import type { PageServerLoad, Actions } from './$types';
 
 /** The statuses a customer is allowed to see and edit here. */
@@ -206,7 +207,7 @@ export const actions: Actions = {
 			// another customer's order. Restricted to the statuses this page exposes, so a
 			// delivered order can't be rewritten after the fact.
 			const existing = await db
-				.select({ id: orders.id })
+				.select({ id: orders.id, address: orders.address })
 				.from(orders)
 				.where(
 					and(
@@ -223,7 +224,10 @@ export const actions: Actions = {
 			}
 
 			// Once paid (online or by hand), changing the items would leave the order
-			// disagreeing with what was actually charged.
+			// disagreeing with what was actually charged. The same goes while a payment is
+			// under way: a Chapa checkout is fixed at the total it was started with, and a
+			// transfer receipt is for the total the customer saw, so adding items then
+			// paying the old figure got a bigger order for the smaller price.
 			const payment = await orderPaymentState(orderId);
 			if (payment?.paymentStatus === 'paid') {
 				return message(
@@ -232,12 +236,34 @@ export const actions: Actions = {
 					{ status: 409 }
 				);
 			}
+			if (payment?.txnRef || payment?.recieptLink) {
+				return message(
+					form,
+					{
+						type: 'error',
+						text: 'A payment for this order is already under way, so it can no longer be changed. Please contact us.'
+					},
+					{ status: 409 }
+				);
+			}
 
 			await db.transaction(async (tx) => {
 				const lineItems = await resolveLineItems(tx, selectedProducts);
 
+				// The fee follows the new subtotal: an order placed above the free-delivery
+				// threshold and then cut down must not keep its free delivery. Orders with
+				// no area (added here, not at checkout) have no fee to work out, and one
+				// whose area has since been switched off keeps the fee it was quoted.
+				const fee =
+					existing.address && lineItems.length
+						? await resolveDeliveryFee(existing.address, sumLineItems(lineItems))
+						: undefined;
+
 				// `customerId` is deliberately not updated — an order never changes owner.
-				await tx.update(orders).set({ updatedBy: locals.user?.id }).where(eq(orders.id, orderId));
+				await tx
+					.update(orders)
+					.set({ updatedBy: locals.user?.id, ...(fee !== undefined && { fee }) })
+					.where(eq(orders.id, orderId));
 
 				if (lineItems.length) {
 					await tx.delete(orderItems).where(eq(orderItems.orderId, orderId));
@@ -306,4 +332,13 @@ async function resolveLineItems(
 			price: variant.price
 		};
 	});
+}
+
+/** Sums in whole cents so repeated decimal addition can't drift. */
+function sumLineItems(lineItems: Array<{ quantity: number; price: string }>): number {
+	const cents = lineItems.reduce(
+		(acc, item) => acc + Math.round(Number(item.price) * 100) * item.quantity,
+		0
+	);
+	return cents / 100;
 }

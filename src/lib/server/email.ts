@@ -439,3 +439,59 @@ export const adminPaymentReceivedTemplate = (orderId: number, amount: number, tx
         </div>
     `
 });
+
+/**
+ * Sent when someone signs up with an email that already has guest orders. Those
+ * orders are only moved into the account once this link is followed — see
+ * `mergeGuestCustomer`.
+ */
+export const customerVerifyEmailTemplate = (url: string) => ({
+	subject: `Confirm Your Email - Lalo Fixtec`,
+	html: `
+        <div style="max-width: 600px; margin: auto; font-family: sans-serif; border: 1px solid #eee;">
+            <div style="background-color: #2596be; padding: 20px; text-align: center;">
+                <img src="https://lalofixtec.com/logo192.png"
+                     alt="Lalo Fixtec Logo"
+                     width="80"
+                     style="display: block; margin: 0 auto 10px;">
+                <h1 style="color: white; margin: 0; font-size: 20px;">
+                    Confirm Your Email
+                </h1>
+            </div>
+
+            <div style="padding: 20px; color: #333;">
+                <p>Hello,</p>
+
+                <p>
+                    Thanks for creating a <strong>Lalo Fixtec</strong> account. You have placed
+                    orders with us before as a guest. Confirm this email address and we will
+                    add those orders to your account.
+                </p>
+
+                <div style="text-align: center; margin: 25px 0;">
+                    <a href="${url}"
+                       style="background: #2596be; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                        Confirm Email
+                    </a>
+                </div>
+
+                <p>
+                    If the button does not work, copy and paste this link into your browser:
+                </p>
+
+                <p style="word-break: break-all; color: #2596be;">
+                    ${url}
+                </p>
+
+                <p>
+                    If you did not create an account, you can safely ignore this email.
+                </p>
+
+                <p style="margin-top: 20px;">
+                    Best regards,<br/>
+                    <strong>Lalo Fixtec Team</strong>
+                </p>
+            </div>
+        </div>
+    `
+});

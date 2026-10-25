@@ -114,7 +114,8 @@ export const actions: Actions = {
 
 				const customer = await tx
 					.select({
-						id: customers.id
+						id: customers.id,
+						email: customers.email
 					})
 					.from(customers)
 					.where(eq(customers.userId, id))
@@ -126,7 +127,10 @@ export const actions: Actions = {
 						.set({
 							name,
 							phone,
-							email,
+							// Left empty while earlier guest orders still hold this email and await
+							// verification — `mergeGuestCustomer` fills it in. Setting it here would
+							// collide with the guest row and fail every profile save.
+							email: customer.email ? email : null,
 							address,
 							deliveryAddress
 						})
