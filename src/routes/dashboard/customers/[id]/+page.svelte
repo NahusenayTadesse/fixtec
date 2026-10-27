@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
 	import { untrack } from 'svelte';
 
@@ -73,14 +74,14 @@
 		{
 			accessorKey: 'index',
 			header: '#',
-			cell: (info) => info.row.index + 1,
+			cell: rowNumber,
 			sortable: false
 		},
 
 		{
 			accessorKey: 'items',
 			header: 'Items',
-			sortable: true,
+			sortable: false,
 			cell: ({ row }) => {
 				return renderComponent(OrderItems, {
 					items:
@@ -242,7 +243,7 @@
 		data={data?.allData}
 		class="w-6xl!"
 		fileName="Pending Orders - {data?.customer?.customerName}"
-		search={true}
+		server={data.table}
 	/>
 {:else}
 	<Empty title="customer" />

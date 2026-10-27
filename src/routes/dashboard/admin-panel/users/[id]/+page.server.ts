@@ -11,14 +11,15 @@ import {
 	session,
 	customers
 } from '$lib/server/db/schema';
-import { eq, count } from 'drizzle-orm';
+import { asc, count, eq, like, or } from 'drizzle-orm';
+import { buildWhere, contains, orderBy, parseTableQuery, serverTable } from '$lib/server/table';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from 'sveltekit-superforms';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { error } from '@sveltejs/kit';
 import { ADMIN_ROLE } from '$lib/server/authz';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	const { id } = params;
 
 	const form = await superValidate(zod4(schema));
@@ -49,22 +50,41 @@ export const load: PageServerLoad = async ({ params }) => {
 		})
 		.from(roles);
 
-	const permissionList = await db
-		.select({
-			id: permissions.id,
-			name: permissions.name,
-			description: permissions.description
-		})
-		.from(permissions)
-		.innerJoin(rolePermissions, eq(permissions.id, rolePermissions.permissionId))
-		.where(eq(rolePermissions.roleId, singleUser.roleId));
+	const query = parseTableQuery(url, [], 20, ['name']);
+	const where = buildWhere(query, {
+		// A user with no role has no permissions; -1 matches no role.
+		base: [eq(rolePermissions.roleId, singleUser.roleId ?? -1)],
+		search: (term: string) =>
+			or(like(permissions.name, contains(term)), like(permissions.description, contains(term)))
+	});
+
+	const [permissionList, [{ total }]] = await Promise.all([
+		db
+			.select({
+				id: permissions.id,
+				name: permissions.name,
+				description: permissions.description
+			})
+			.from(permissions)
+			.innerJoin(rolePermissions, eq(permissions.id, rolePermissions.permissionId))
+			.where(where)
+			.orderBy(...(orderBy(query, { name: permissions.name }) ?? []), asc(permissions.id))
+			.limit(query.limit)
+			.offset(query.offset),
+		db
+			.select({ total: count() })
+			.from(permissions)
+			.innerJoin(rolePermissions, eq(permissions.id, rolePermissions.permissionId))
+			.where(where)
+	]);
 
 	return {
 		singleUser,
 		id,
 		form,
 		roleList,
-		permissionList
+		permissionList,
+		table: serverTable(query, total)
 	};
 };
 

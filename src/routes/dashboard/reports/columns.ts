@@ -1,3 +1,4 @@
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
 import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
@@ -8,7 +9,7 @@ export const columns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1
+		cell: rowNumber
 	},
 
 	{
@@ -80,6 +81,12 @@ export const columns = [
 				target: '_blank'
 			});
 		}
+	},
+
+	{
+		accessorKey: 'category',
+		header: 'Category',
+		cell: ({ row }) => row.original.category ?? '—'
 	},
 
 	{

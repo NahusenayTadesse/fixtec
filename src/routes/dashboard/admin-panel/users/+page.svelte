@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { columns } from './columns';
 
 	let { data } = $props();
@@ -17,7 +18,7 @@
 {#await data}
 	<Loading name="Customers" />
 {:then customerList}
-	{#if data.userList.length === 0}
+	{#if data.userList.length === 0 && !page.url.search}
 		<div class="flex h-96 w-full flex-col items-center justify-center lg:w-5xl">
 			<p class="justify-self-cente mt-4 flex flex-row gap-4 text-center text-4xl">
 				<Frown class="h-12 w-16  animate-bounce" />
@@ -26,10 +27,16 @@
 			<Button href="/dashboard/users/add-users"><Plus />Add New Users</Button>
 		</div>
 	{:else}
-		<h2 class="my-4 text-2xl">No of Users: {data.userList?.length}</h2>
+		<h2 class="my-4 text-2xl">No of Users: {data.table.pagination.total}</h2>
 
 		<div class="mt-8 mb-4 w-[350px] p-0 pt-4 lg:w-full lg:p-0">
-			<DataTable data={data.userList} {columns} fileName="Users List" />
+			<DataTable
+				data={data.userList}
+				{columns}
+				fileName="Users List"
+				server={data.table}
+				facetKeys={['role']}
+			/>
 		</div>
 	{/if}
 {:catch}

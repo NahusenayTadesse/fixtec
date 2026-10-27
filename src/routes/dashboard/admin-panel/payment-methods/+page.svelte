@@ -1,4 +1,5 @@
 <script>
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 	import DataTable from '@nahu/admin-kit/components/Table/data-table.svelte';
 	import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
@@ -11,10 +12,7 @@
 		{
 			id: 'index',
 			header: '#',
-			cell: (info) => {
-				const rowIndex = info.table.getRowModel().rows.findIndex((row) => row.id === info.row.id);
-				return rowIndex + 1;
-			},
+			cell: rowNumber,
 			enableSorting: false
 		},
 		{
@@ -118,6 +116,4 @@
 		</Button>
 	</form>
 </DialogComp>
-{#key data?.allPaymentMethods}
-	<DataTable {columns} data={data?.allPaymentMethods} search={true} fileName="Payment Methods" />
-{/key}
+<DataTable {columns} data={data.allPaymentMethods} fileName="Payment Methods" server={data.table} />

@@ -1,4 +1,5 @@
 <script>
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 	import DataTable from '@nahu/admin-kit/components/Table/data-table.svelte';
 	import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
@@ -10,7 +11,7 @@
 		{
 			accessorKey: 'index',
 			header: '#',
-			cell: (info) => info.row.index + 1,
+			cell: rowNumber,
 			sortable: false
 		},
 		{
@@ -37,7 +38,11 @@
 		},
 		{
 			accessorKey: 'fee',
-			header: 'Fee',
+			header: ({ column }) =>
+				renderComponent(DataTableSort, {
+					name: 'Fee',
+					onclick: column.getToggleSortingHandler()
+				}),
 			sortable: true,
 			cell: ({ row }) => {
 				return 'ETB ' + row.original.fee;
@@ -46,7 +51,11 @@
 
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: ({ column }) =>
+				renderComponent(DataTableSort, {
+					name: 'Status',
+					onclick: column.getToggleSortingHandler()
+				}),
 			sortable: true,
 			cell: ({ row }) => {
 				return renderComponent(Statuses, {
@@ -100,76 +109,77 @@
 	<title>Delivery Address</title>
 </svelte:head>
 
+{#key data?.allData}
+	<DialogComp IconComp={Plus} title="Add New Delivery Address" variant="default">
+		<form action="?/add" use:enhance id="main" class="flex flex-col gap-4" method="post">
+			<InputComp {form} {errors} label="Place Name" type="text" name="name" required={true} />
+			<InputComp
+				{form}
+				{errors}
+				label="Place Name (Amharic, optional)"
+				type="text"
+				name="nameAm"
+				placeholder="Leave empty to show the English name"
+			/>
 
+			<InputComp
+				{form}
+				{errors}
+				label="Delivery Fee"
+				type="number"
+				name="fee"
+				placeholder="Enter Delivery Fee"
+				required={true}
+				rows={10}
+			/>
+			<InputComp
+				label="Status"
+				name="status"
+				type="select"
+				{form}
+				{errors}
+				items={[
+					{ value: true, name: 'Active' },
+					{ value: false, name: 'Inactive' }
+				]}
+			/>
 
-
-	{#key data?.allData}
-		<DialogComp IconComp={Plus} title="Add New Delivery Address" variant="default">
-			<form action="?/add" use:enhance id="main" class="flex flex-col gap-4" method="post">
-				<InputComp {form} {errors} label="Place Name" type="text" name="name" required={true} />
-				<InputComp
-					{form}
-					{errors}
-					label="Place Name (Amharic, optional)"
-					type="text"
-					name="nameAm"
-					placeholder="Leave empty to show the English name"
-				/>
-
-				<InputComp
-					{form}
-					{errors}
-					label="Delivery Fee"
-					type="number"
-					name="fee"
-					placeholder="Enter Delivery Fee"
-					required={true}
-					rows={10}
-				/>
-				<InputComp
-					label="Status"
-					name="status"
-					type="select"
-					{form}
-					{errors}
-					items={[
-						{ value: true, name: 'Active' },
-						{ value: false, name: 'Inactive' }
-					]}
-				/>
-
-				<Button type="submit" form="main">
-					{#if $delayed}
-						<LoadingBtn name="Adding Delivery Address" />
-					{:else}
-						<Plus /> Add Delivery Address
-					{/if}
-				</Button>
-			</form>
-		</DialogComp>
-	{/key}
-
-	{#if data?.freeData}
-		<div class="rounded-2xl mt-4 border border-primary p-4 shadow-sm ring-1 ring-foreground/5">
-			<div class="text-sm font-semibold ">Free Delivery Overview</div>
-			<div class="mt-3 grid gap-3 sm:grid-cols-2">
-				<div class="rounded-xl p-3">
-					<div class="text-xs uppercase tracking-[0.2em] ">Free delivery starts at</div>
-					<div class="mt-1 text-lg font-semibold">ETB {data?.freeData.threshold}</div>
-				</div>
-				<div class="rounded-xl p-3">
-					<div class="text-xs uppercase tracking-[0.2em] ">Suggestions start at</div>
-					<div class="mt-1 text-lg font-semibold">ETB {data?.freeData.suggestionThreshold}</div>
-				</div>
-			</div>
-				<Free
-		data={data?.freeForm}
-		action="?/free"
-		threshold={data?.freeData?.threshold}
-		suggestionThreshold={data?.freeData?.suggestionThreshold}
-	/>
-		</div>
-	{/if}
-{#key data.allData}
-	<DataTable {columns} data={data?.allData} search={true} />
+			<Button type="submit" form="main">
+				{#if $delayed}
+					<LoadingBtn name="Adding Delivery Address" />
+				{:else}
+					<Plus /> Add Delivery Address
+				{/if}
+			</Button>
+		</form>
+	</DialogComp>
 {/key}
+
+{#if data?.freeData}
+	<div class="mt-4 rounded-2xl border border-primary p-4 shadow-sm ring-1 ring-foreground/5">
+		<div class="text-sm font-semibold">Free Delivery Overview</div>
+		<div class="mt-3 grid gap-3 sm:grid-cols-2">
+			<div class="rounded-xl p-3">
+				<div class="text-xs tracking-[0.2em] uppercase">Free delivery starts at</div>
+				<div class="mt-1 text-lg font-semibold">ETB {data?.freeData.threshold}</div>
+			</div>
+			<div class="rounded-xl p-3">
+				<div class="text-xs tracking-[0.2em] uppercase">Suggestions start at</div>
+				<div class="mt-1 text-lg font-semibold">ETB {data?.freeData.suggestionThreshold}</div>
+			</div>
+		</div>
+		<Free
+			data={data?.freeForm}
+			action="?/free"
+			threshold={data?.freeData?.threshold}
+			suggestionThreshold={data?.freeData?.suggestionThreshold}
+		/>
+	</div>
+{/if}
+<DataTable
+	{columns}
+	data={data.allData}
+	fileName="Delivery Areas"
+	server={data.table}
+	facetKeys={['status']}
+/>

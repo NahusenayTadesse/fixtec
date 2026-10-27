@@ -1,4 +1,5 @@
 <script>
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 	import DataTable from '@nahu/admin-kit/components/Table/data-table.svelte';
 	import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
@@ -10,7 +11,7 @@
 		{
 			accessorKey: 'index',
 			header: '#',
-			cell: (info) => info.row.index + 1,
+			cell: rowNumber,
 			sortable: false
 		},
 		{
@@ -39,7 +40,11 @@
 
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: ({ column }) =>
+				renderComponent(DataTableSort, {
+					name: 'Status',
+					onclick: column.getToggleSortingHandler()
+				}),
 			sortable: true,
 			cell: ({ row }) => {
 				return renderComponent(Statuses, {
@@ -143,6 +148,10 @@
 		</Button>
 	</form>
 </DialogComp>
-{#key data.allData}
-	<DataTable {columns} data={data?.allData} search={true} />
-{/key}
+<DataTable
+	{columns}
+	data={data.allData}
+	fileName="Categories"
+	server={data.table}
+	facetKeys={['status']}
+/>

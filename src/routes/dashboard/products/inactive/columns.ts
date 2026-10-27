@@ -1,3 +1,4 @@
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
 import DataTableActions from '../data-table-actions.svelte';
@@ -29,14 +30,14 @@ export const columns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1,
+		cell: rowNumber,
 		sortable: false
 	},
 
 	{
 		accessorKey: 'image',
 		header: 'Image',
-		sortable: true,
+		sortable: false,
 		cell: ({ row }) => {
 			return renderComponent(ImageViewer, {
 				src: row.original.image,
@@ -64,14 +65,8 @@ export const columns = [
 
 	{
 		accessorKey: 'prices',
-		header: ({ column }) =>
-			renderComponent(DataTableSort, {
-				name: 'Price',
-
-				onclick: column.getToggleSortingHandler()
-			}),
-		sortable: true,
-
+		header: 'Price',
+		enableSorting: false,
 		cell: ({ row }) => {
 			return renderComponent(PriceList, {
 				priceList: row.original.priceList
@@ -84,6 +79,16 @@ export const columns = [
 		header: ({ column }) =>
 			renderComponent(DataTableSort, {
 				name: 'Category',
+				onclick: column.getToggleSortingHandler()
+			}),
+		sortable: true
+	},
+
+	{
+		accessorKey: 'supplier',
+		header: ({ column }) =>
+			renderComponent(DataTableSort, {
+				name: 'Supplier',
 				onclick: column.getToggleSortingHandler()
 			}),
 		sortable: true

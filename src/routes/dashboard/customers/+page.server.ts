@@ -1,7 +1,15 @@
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { customers, user, orders } from '$lib/server/db/schema';
-import { eq, and, count, desc, sql, inArray } from 'drizzle-orm';
+import { eq, and, count, desc, sql, inArray, or, like } from 'drizzle-orm';
+import {
+	buildWhere,
+	contains,
+	facetCounts,
+	orderBy,
+	parseTableQuery,
+	serverTable
+} from '$lib/server/table';
 import { setFlash } from 'sveltekit-flash-message/server';
 import { fail, message, setError, superValidate } from 'sveltekit-superforms';
 import { addCustomer } from '$lib/ZodSchema';
@@ -9,32 +17,88 @@ import { duplicateField } from '$lib/server/crud';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { normalizeEthiopianPhone } from '$lib/validators/phone';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const addCustomerForm = await superValidate(zod4(addCustomer), { id: 'addCustomer' });
-	const customersList = await db
-		.select({
-			id: customers.id,
-			customerName: customers.name,
-			email: customers.email,
-			phone: customers.phone,
-			address: customers.address,
-			deliveryAddress: customers.deliveryAddress,
-			orderCount: count(orders.id),
-			daysSinceJoined: sql<number>`DATEDIFF(CURRENT_DATE, ${customers.createdAt})`,
-			createdBy: user.name,
-			createdById: user.id,
-			createdAt: sql<string>`DATE_FORMAT(${customers.createdAt}, '%Y-%m-%d')`
+export const load: PageServerLoad = async ({ url }) => {
+	const query = parseTableQuery(url, ['deliveryAddress'], 20, [
+		'customerName',
+		'phone',
+		'email',
+		'address',
+		'deliveryAddress',
+		'createdAt',
+		'daysSinceJoined',
+		'orderCount'
+	]);
+
+	const spec = {
+		dateColumn: customers.createdAt,
+		search: (term: string) =>
+			or(
+				like(customers.name, contains(term)),
+				like(customers.phone, contains(term)),
+				like(customers.email, contains(term)),
+				like(customers.address, contains(term)),
+				like(customers.deliveryAddress, contains(term))
+			),
+		filters: { deliveryAddress: (v: string) => eq(customers.deliveryAddress, v) }
+	};
+	const where = buildWhere(query, spec);
+
+	const pendingOrders = count(orders.id);
+
+	const [addCustomerForm, customersList, [{ total }], facets] = await Promise.all([
+		superValidate(zod4(addCustomer), { id: 'addCustomer' }),
+		db
+			.select({
+				id: customers.id,
+				customerName: customers.name,
+				email: customers.email,
+				phone: customers.phone,
+				address: customers.address,
+				deliveryAddress: customers.deliveryAddress,
+				orderCount: pendingOrders,
+				daysSinceJoined: sql<number>`DATEDIFF(CURRENT_DATE, ${customers.createdAt})`,
+				createdBy: user.name,
+				createdById: user.id,
+				createdAt: sql<string>`DATE_FORMAT(${customers.createdAt}, '%Y-%m-%d')`
+			})
+			.from(customers)
+			.leftJoin(user, eq(customers.createdBy, user.id))
+			.leftJoin(orders, and(eq(orders.customerId, customers.id), eq(orders.status, 'pending')))
+			.where(where)
+			.groupBy(customers.id, user.name, customers.createdAt, customers.name)
+			// Newest first by default: a customer just added must land on page one.
+			.orderBy(
+				...(orderBy(query, {
+					customerName: customers.name,
+					phone: customers.phone,
+					email: customers.email,
+					address: customers.address,
+					deliveryAddress: customers.deliveryAddress,
+					createdAt: customers.createdAt,
+					// Days since joining grows as the join date shrinks.
+					daysSinceJoined: sql`DATEDIFF(CURRENT_DATE, ${customers.createdAt})`,
+					orderCount: pendingOrders
+				}) ?? [desc(customers.createdAt)]),
+				desc(customers.id)
+			)
+			.limit(query.limit)
+			.offset(query.offset),
+		db.select({ total: count() }).from(customers).where(where),
+		facetCounts({
+			deliveryAddress: () =>
+				db
+					.select({ value: customers.deliveryAddress, count: count() })
+					.from(customers)
+					.where(buildWhere(query, spec, { except: 'deliveryAddress' }))
+					.groupBy(customers.deliveryAddress)
 		})
-		.from(customers)
-		.leftJoin(user, eq(customers.createdBy, user.id))
-		.leftJoin(orders, and(eq(orders.customerId, customers.id), eq(orders.status, 'pending')))
-		.groupBy(customers.id, user.name, customers.createdAt, customers.name)
-		// Newest first: the table pages, so a customer just added must land on page one.
-		.orderBy(desc(customers.createdAt), desc(customers.id));
+	]);
 
 	return {
 		customersList,
-		addCustomerForm
+		addCustomerForm,
+		table: serverTable(query, total, facets),
+		filtered: Boolean(query.search || query.dateStart || query.filters.deliveryAddress)
 	};
 };
 

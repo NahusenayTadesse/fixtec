@@ -1,3 +1,4 @@
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
 import Copy from '@nahu/admin-kit/Copy.svelte';
@@ -8,7 +9,7 @@ export const columns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1,
+		cell: rowNumber,
 		sortable: false
 	},
 
@@ -31,25 +32,41 @@ export const columns = [
 	},
 	{
 		accessorKey: 'phone',
-		header: 'Phone',
+		header: ({ column }) =>
+			renderComponent(DataTableSort, {
+				name: 'Phone',
+				onclick: column.getToggleSortingHandler()
+			}),
 		sortable: true,
 		cell: ({ row }) => renderComponent(Copy, { data: row.original.phone })
 	},
 	{
 		accessorKey: 'email',
-		header: 'Email',
+		header: ({ column }) =>
+			renderComponent(DataTableSort, {
+				name: 'Email',
+				onclick: column.getToggleSortingHandler()
+			}),
 		sortable: true,
 		cell: ({ row }) => renderComponent(Copy, { data: row.original.email })
 	},
 	{
 		accessorKey: 'address',
-		header: 'Address',
+		header: ({ column }) =>
+			renderComponent(DataTableSort, {
+				name: 'Address',
+				onclick: column.getToggleSortingHandler()
+			}),
 		sortable: true,
 		cell: ({ row }) => renderComponent(Copy, { data: row.original.address })
 	},
 	{
 		accessorKey: 'deliveryAddress',
-		header: 'Delivery Address',
+		header: ({ column }) =>
+			renderComponent(DataTableSort, {
+				name: 'Delivery Address',
+				onclick: column.getToggleSortingHandler()
+			}),
 		sortable: true,
 		cell: ({ row }) => renderComponent(Copy, { data: row.original.deliveryAddress })
 	},

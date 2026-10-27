@@ -1,6 +1,6 @@
 import { setError, superValidate, message, fail } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { eq } from 'drizzle-orm';
+import { asc, count, eq, like, or } from 'drizzle-orm';
 
 import {
 	paymentMethod as schema,
@@ -12,35 +12,65 @@ import { testimonials as paymentMethods, user } from '$lib/server/db/schema';
 import type { Actions } from './$types.js';
 import type { PageServerLoad } from './$types.js';
 
-export const load: PageServerLoad = async () => {
-	const form = await superValidate(zod4(schema));
-	const editForm = await superValidate(zod4(editSchema));
-	const deleteForm = await superValidate(zod4(deleteTestimonial));
+export const load: PageServerLoad = async ({ url }) => {
+	const query = parseTableQuery(url, [], 20, ['name', 'position', 'createdBy']);
+	const where = buildWhere(query, {
+		search: (term: string) =>
+			or(
+				like(paymentMethods.name, contains(term)),
+				like(paymentMethods.position, contains(term)),
+				like(paymentMethods.message, contains(term)),
+				like(user.name, contains(term))
+			)
+	});
 
-	const allPaymentMethods = await db
-		.select({
-			id: paymentMethods.id,
-			name: paymentMethods.name,
-			position: paymentMethods.position,
-			testimonial: paymentMethods.message,
-			positionAm: paymentMethods.positionAm,
-			testimonialAm: paymentMethods.messageAm,
-			avatar: paymentMethods.avatar,
-			createdBy: user.name,
-			createdById: paymentMethods.createdBy
-		})
-		.from(paymentMethods)
-		.leftJoin(user, eq(user.id, paymentMethods.createdBy));
+	const [form, editForm, deleteForm, allPaymentMethods, [{ total }]] = await Promise.all([
+		superValidate(zod4(schema)),
+		superValidate(zod4(editSchema)),
+		superValidate(zod4(deleteTestimonial)),
+		db
+			.select({
+				id: paymentMethods.id,
+				name: paymentMethods.name,
+				position: paymentMethods.position,
+				testimonial: paymentMethods.message,
+				positionAm: paymentMethods.positionAm,
+				testimonialAm: paymentMethods.messageAm,
+				avatar: paymentMethods.avatar,
+				createdBy: user.name,
+				createdById: paymentMethods.createdBy
+			})
+			.from(paymentMethods)
+			.leftJoin(user, eq(user.id, paymentMethods.createdBy))
+			.where(where)
+			.orderBy(
+				...(orderBy(query, {
+					name: paymentMethods.name,
+					position: paymentMethods.position,
+					createdBy: user.name
+				}) ?? []),
+				asc(paymentMethods.id)
+			)
+			.limit(query.limit)
+			.offset(query.offset),
+		db
+			.select({ total: count() })
+			.from(paymentMethods)
+			.leftJoin(user, eq(user.id, paymentMethods.createdBy))
+			.where(where)
+	]);
 
 	return {
 		form,
 		editForm,
 		deleteForm,
-		allPaymentMethods
+		allPaymentMethods,
+		table: serverTable(query, total)
 	};
 };
 
 import { saveUploadedFile } from '$lib/server/upload.js';
+import { buildWhere, contains, orderBy, parseTableQuery, serverTable } from '$lib/server/table';
 
 export const actions: Actions = {
 	add: async ({ request, locals }) => {

@@ -1,4 +1,5 @@
 <script>
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 	import DataTable from '@nahu/admin-kit/components/Table/data-table.svelte';
 	import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
@@ -14,16 +15,13 @@
 		{
 			id: 'index',
 			header: '#',
-			cell: (info) => {
-				const rowIndex = info.table.getRowModel().rows.findIndex((row) => row.id === info.row.id);
-				return rowIndex + 1;
-			},
+			cell: rowNumber,
 			enableSorting: false
 		},
 		{
 			accessorKey: 'avatar',
 			header: 'Image',
-			sortable: true,
+			sortable: false,
 			cell: ({ row }) => {
 				// You can pass whatever you need from `row.original` to the component
 				return renderComponent(ImageViewer, {
@@ -70,7 +68,7 @@
 		{
 			accessorKey: 'testimonial',
 			header: 'Testimonials',
-			sortable: true,
+			sortable: false,
 			cell: ({ row }) => renderComponent(BigText, { text: row.original.testimonial })
 		},
 
@@ -189,6 +187,6 @@
 			</Button>
 		</form>
 	</DialogComp>
-
-	<DataTable {columns} data={data?.allPaymentMethods} search={true} fileName="Testimonial" />
 {/key}
+
+<DataTable {columns} data={data.allPaymentMethods} fileName="Testimonial" server={data.table} />

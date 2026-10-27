@@ -1,6 +1,6 @@
 import { setError, superValidate, message, fail } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { eq } from 'drizzle-orm';
+import { asc, count, eq, like, or } from 'drizzle-orm';
 
 import { add, edit } from './schema';
 import { db } from '$lib/server/db';
@@ -8,26 +8,68 @@ import { productCategories as department } from '$lib/server/db/schema';
 import { duplicateField } from '$lib/server/crud';
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types.js';
+import {
+	activeFilter,
+	activeState,
+	buildWhere,
+	contains,
+	enumFacet,
+	facetCounts,
+	orderBy,
+	parseTableQuery,
+	serverTable
+} from '$lib/server/table';
 
-export const load: PageServerLoad = async () => {
-	const form = await superValidate(zod4(add));
-	const editForm = await superValidate(zod4(edit));
+export const load: PageServerLoad = async ({ url }) => {
+	const query = parseTableQuery(url, ['status'], 20, ['name', 'status']);
+	const spec = {
+		search: (term: string) =>
+			or(
+				like(department.name, contains(term)),
+				like(department.nameAm, contains(term)),
+				like(department.description, contains(term))
+			),
+		filters: { status: activeFilter(department.isActive) }
+	};
+	const where = buildWhere(query, spec);
 
-	const allData = await db
-		.select({
-			id: department.id,
-			name: department.name,
-			description: department.description,
-			nameAm: department.nameAm,
-			descriptionAm: department.descriptionAm,
-			status: department.isActive
+	const [form, editForm, allData, [{ total }], facets] = await Promise.all([
+		superValidate(zod4(add)),
+		superValidate(zod4(edit)),
+		db
+			.select({
+				id: department.id,
+				name: department.name,
+				description: department.description,
+				nameAm: department.nameAm,
+				descriptionAm: department.descriptionAm,
+				status: department.isActive
+			})
+			.from(department)
+			.where(where)
+			.orderBy(
+				...(orderBy(query, { name: department.name, status: department.isActive }) ?? []),
+				asc(department.id)
+			)
+			.limit(query.limit)
+			.offset(query.offset),
+		db.select({ total: count() }).from(department).where(where),
+		facetCounts({
+			status: () =>
+				db
+					.select({ value: activeState(department.isActive), count: count() })
+					.from(department)
+					.where(buildWhere(query, spec, { except: 'status' }))
+					.groupBy(activeState(department.isActive))
+					.then(enumFacet)
 		})
-		.from(department);
+	]);
 
 	return {
 		form,
 		editForm,
-		allData
+		allData,
+		table: serverTable(query, total, facets)
 	};
 };
 

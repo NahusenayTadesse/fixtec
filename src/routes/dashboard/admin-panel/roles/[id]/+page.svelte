@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
 	import { editRoleSchema } from './schema';
 
@@ -138,11 +139,12 @@
 
 <br />
 
-{#if data?.userList?.length}
+{#if data.table.pagination.total || page.url.search}
 	<h3>Users on this Role</h3>
 	<DataTable
-		data={data?.userList}
+		data={data.userList}
 		columns={userColumns}
 		fileName="{data?.singleUser.name} Users List"
+		server={data.table}
 	/>
 {/if}

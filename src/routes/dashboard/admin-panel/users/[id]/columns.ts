@@ -1,3 +1,4 @@
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
 
@@ -5,7 +6,7 @@ export const columns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1,
+		cell: rowNumber,
 		sortable: false
 	},
 

@@ -1,32 +1,57 @@
 import { setError, superValidate, message, fail } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { eq } from 'drizzle-orm';
+import { asc, count, eq, like, or } from 'drizzle-orm';
 
 import { paymentMethod as schema, editPaymentMethod as editSchema } from './schema';
 import { db } from '$lib/server/db';
 import { paymentMethods, user } from '$lib/server/db/schema';
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types.js';
+import { buildWhere, contains, orderBy, parseTableQuery, serverTable } from '$lib/server/table';
 
-export const load: PageServerLoad = async () => {
-	const form = await superValidate(zod4(schema));
-	const editForm = await superValidate(zod4(editSchema));
+export const load: PageServerLoad = async ({ url }) => {
+	const query = parseTableQuery(url, [], 20, ['name', 'createdBy']);
+	const where = buildWhere(query, {
+		search: (term: string) =>
+			or(
+				like(paymentMethods.name, contains(term)),
+				like(paymentMethods.nameAm, contains(term)),
+				like(user.name, contains(term))
+			)
+	});
 
-	const allPaymentMethods = await db
-		.select({
-			id: paymentMethods.id,
-			name: paymentMethods.name,
-			nameAm: paymentMethods.nameAm,
-			createdBy: user.name,
-			createdById: paymentMethods.createdBy
-		})
-		.from(paymentMethods)
-		.leftJoin(user, eq(user.id, paymentMethods.createdBy));
+	const [form, editForm, allPaymentMethods, [{ total }]] = await Promise.all([
+		superValidate(zod4(schema)),
+		superValidate(zod4(editSchema)),
+		db
+			.select({
+				id: paymentMethods.id,
+				name: paymentMethods.name,
+				nameAm: paymentMethods.nameAm,
+				createdBy: user.name,
+				createdById: paymentMethods.createdBy
+			})
+			.from(paymentMethods)
+			.leftJoin(user, eq(user.id, paymentMethods.createdBy))
+			.where(where)
+			.orderBy(
+				...(orderBy(query, { name: paymentMethods.name, createdBy: user.name }) ?? []),
+				asc(paymentMethods.id)
+			)
+			.limit(query.limit)
+			.offset(query.offset),
+		db
+			.select({ total: count() })
+			.from(paymentMethods)
+			.leftJoin(user, eq(user.id, paymentMethods.createdBy))
+			.where(where)
+	]);
 
 	return {
 		form,
 		editForm,
-		allPaymentMethods
+		allPaymentMethods,
+		table: serverTable(query, total)
 	};
 };
 

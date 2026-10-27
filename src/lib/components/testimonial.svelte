@@ -71,11 +71,12 @@
 	onmouseleave={() => (isPaused = false)}
 >
 	<!-- Main Card -->
-	<Card
-		class="shadow-lg-xl relative overflow-hidden border-primary/10 bg-gradient-to-br from-card via-card to-primary/5 pt-0"
-	>
+	<Card class="relative overflow-hidden rounded-3xl pt-0 glass">
 		<!-- Decorative Quote Icon -->
-		<div class="absolute top-6 right-6 text-primary/10">
+		<div
+			class="pointer-events-none absolute -top-20 -left-20 size-56 rounded-full bg-primary/20 blur-3xl"
+		></div>
+		<div class="absolute top-6 right-6 text-primary/15">
 			<QuoteIcon class="size-16" />
 		</div>
 
@@ -129,7 +130,7 @@
 				<Button
 					variant="ghost"
 					size="icon"
-					class="shadow-lg-md size-10 rounded-full bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background"
+					class="size-10 rounded-full glass-strong transition-all duration-200 hover:scale-110"
 					onclick={goToPrevious}
 					aria-label={m.testimonials_prev()}
 				>
@@ -141,7 +142,7 @@
 				<Button
 					variant="ghost"
 					size="icon"
-					class="shadow-lg-md size-10 rounded-full bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background"
+					class="size-10 rounded-full glass-strong transition-all duration-200 hover:scale-110"
 					onclick={goToNext}
 					aria-label={m.testimonials_next()}
 				>
@@ -154,7 +155,7 @@
 	<!-- Indicator Dots -->
 	{#if testimonials.length > 1}
 		<div class="mt-6 flex justify-center gap-2">
-			{#each testimonials as _, index}
+			{#each testimonials as _, index (index)}
 				<button
 					class={[
 						'size-2.5 rounded-full transition-all duration-300',

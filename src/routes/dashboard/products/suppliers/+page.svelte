@@ -12,6 +12,11 @@
 	<h2 class="text-2xl font-bold">Suppliers: {data?.allData.length}</h2>
 </div>
 
-{#key data?.allData}
-	<DataTable {columns} data={data?.allData} search={true} class="w-6xl!" fileName="Suppliers" />
-{/key}
+<DataTable
+	{columns}
+	data={data.allData}
+	class="w-6xl!"
+	fileName="Suppliers"
+	server={data.table}
+	facetKeys={['status']}
+/>

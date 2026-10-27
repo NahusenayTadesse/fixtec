@@ -132,7 +132,7 @@
 	}
 </script>
 
-<div class="min-h-dvh bg-background">
+<div class="min-h-dvh">
 	<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
 		<div class="grid gap-8 lg:grid-cols-2 lg:gap-12">
 			<!-- Product Image Section -->

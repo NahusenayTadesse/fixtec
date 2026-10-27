@@ -1,3 +1,5 @@
+import Statuses from '@nahu/admin-kit/components/Table/statuses.svelte';
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
 import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
@@ -5,7 +7,7 @@ export const columns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1,
+		cell: rowNumber,
 		sortable: false
 	},
 
@@ -29,7 +31,7 @@ export const userColumns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1,
+		cell: rowNumber,
 		sortable: false
 	},
 
@@ -46,7 +48,7 @@ export const userColumns = [
 			return renderComponent(DataTableLinks, {
 				id: row.original.id,
 				name: row.original.name,
-				link: '/dashboard/users'
+				link: '/dashboard/admin-panel/users'
 			});
 		}
 	},
@@ -68,6 +70,8 @@ export const userColumns = [
 				name: 'Active',
 				onclick: column.getToggleSortingHandler()
 			}),
-		sortable: true
+		sortable: true,
+		cell: ({ row }) =>
+			renderComponent(Statuses, { status: row.original.isActive ? 'Active' : 'Inactive' })
 	}
 ];

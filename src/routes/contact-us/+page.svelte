@@ -97,7 +97,7 @@
 	<meta property="twitter:image" content="/tools (1).webp" />
 </svelte:head>
 
-<div class="min-h-dvh w-full bg-background text-foreground transition-colors">
+<div class="min-h-dvh w-full text-foreground">
 	<!-- Main Content -->
 	<main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 		<!-- Hero Section -->
@@ -111,7 +111,7 @@
 		<div class="grid gap-8 lg:grid-cols-3">
 			<!-- Contact Form -->
 			<div class="lg:col-span-2">
-				<Card class="border-2">
+				<Card class="glass rounded-3xl">
 					<CardHeader>
 						<CardTitle>{m.contact_form_title()}</CardTitle>
 						<CardDescription>{m.contact_form_desc()}</CardDescription>
@@ -191,7 +191,7 @@
 			<!-- Contact Info & Social -->
 			<div class="space-y-6">
 				<!-- Direct Contact -->
-				<Card class="border-2">
+				<Card class="glass rounded-3xl">
 					<CardHeader>
 						<CardTitle class="text-lg">{m.contact_info()}</CardTitle>
 					</CardHeader>
@@ -229,13 +229,13 @@
 				</Card>
 
 				<!-- Social Media -->
-				<Card class="border-2">
+				<Card class="glass rounded-3xl">
 					<CardHeader>
 						<CardTitle class="text-lg">{m.contact_follow()}</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div class="grid grid-cols-2 gap-3">
-							{#each socialLinks as social}
+							{#each socialLinks as social (social.name)}
 								<a
 									href={social.url}
 									target="_blank"
@@ -270,7 +270,7 @@
 				</Card>
 
 				<!-- Hours -->
-				<Card class="border-2 bg-linear-to-br from-primary/5 to-accent/5">
+				<Card class="glass-strong rounded-3xl">
 					<CardHeader>
 						<CardTitle class="text-lg">{m.contact_hours()}</CardTitle>
 					</CardHeader>

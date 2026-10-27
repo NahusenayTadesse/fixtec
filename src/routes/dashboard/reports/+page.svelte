@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+	import { navigateWithQuery } from '@nahu/admin-kit/queryFilters';
 	import { columns } from './columns';
 	import RevenueTrendChart from './RevenueTrendChart.svelte';
 	import OrdersTrendChart from './OrdersTrendChart.svelte';
@@ -11,75 +10,22 @@
 	let { data } = $props();
 
 	import DataTable from '@nahu/admin-kit/components/Table/data-table.svelte';
-	import QueryBuilder from '$lib/QueryBuilder.svelte';
-	import FilterMenu from '$lib/components/Table/FilterMenu.svelte';
-	import { Label } from '@nahu/admin-kit/components/ui/label/index.js';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '@nahu/admin-kit/components/ui/select/index.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
-	import { Card, CardContent, CardHeader, CardTitle } from '@nahu/admin-kit/components/ui/card/index.js';
+	import {
+		Card,
+		CardContent,
+		CardHeader,
+		CardTitle
+	} from '@nahu/admin-kit/components/ui/card/index.js';
 	import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
 
-	import {
-		Frown,
-		ChevronLeft,
-		ChevronRight,
-		Wallet,
-		ShoppingCart,
-		Package,
-		Truck,
-		TrendingUp
-	} from '@lucide/svelte';
-	import type { CalendarDate } from '@internationalized/date';
-	import { DATE_PRESETS, getPresetDateRange, formatETB } from '$lib/global.svelte';
+	import { Wallet, ShoppingCart, Package, Truck, TrendingUp } from '@lucide/svelte';
+	import { DATE_PRESETS, formatETB } from '$lib/global.svelte';
 
-	function updateFilters(params: Record<string, string | number | undefined>) {
-		const url = new URL(page.url);
-		for (const [key, value] of Object.entries(params)) {
-			if (value !== undefined && value !== '') {
-				url.searchParams.set(key, String(value));
-			} else {
-				url.searchParams.delete(key);
-			}
-		}
-		if (!('page' in params)) url.searchParams.set('page', '1');
-		goto(url, { keepFocus: true, noScroll: true });
+	function applyPreset(preset: string) {
+		// The preset owns the window, so an explicit one is dropped with it.
+		navigateWithQuery({ preset, dateStart: null, dateEnd: null, page: 1 });
 	}
-
-	function applyPreset(presetValue: string) {
-		if (presetValue === 'allTime') {
-			updateFilters({ preset: 'allTime', start: undefined, end: undefined });
-			return;
-		}
-		const range = getPresetDateRange(presetValue as Parameters<typeof getPresetDateRange>[0]);
-		updateFilters({ preset: presetValue, start: range?.start, end: range?.end });
-	}
-
-	type ReportFilters = { paymentMethod: string; category: string; status: string };
-
-	function handleQueryChange(payload: {
-		search: string;
-		pageSize: number;
-		dateRange: { start: CalendarDate; end: CalendarDate } | null;
-		customFilters: ReportFilters;
-	}) {
-		updateFilters({
-			search: payload.search,
-			pageSize: payload.pageSize === 20 ? undefined : payload.pageSize,
-			start: payload.dateRange?.start?.toString(),
-			end: payload.dateRange?.end?.toString(),
-			// a manual date-range edit supersedes any preset badge
-			preset: undefined,
-			paymentMethod: payload.customFilters.paymentMethod || undefined,
-			category: payload.customFilters.category || undefined,
-			status: payload.customFilters.status || undefined
-		});
-	}
-
-	const goToPage = (p: number) => updateFilters({ page: p });
-
-	// Client-side filter over the current page's detail rows — visualized instantly
-	// via FilterMenu's own charts, no extra DB round trip.
-	let filteredList = $derived(data.detailRows);
 </script>
 
 <svelte:head>
@@ -94,7 +40,7 @@
 			{#each DATE_PRESETS as preset (preset.value)}
 				<Button
 					size="sm"
-					variant={data.filters.preset === preset.value ? 'default' : 'outline'}
+					variant={data.preset === preset.value ? 'default' : 'outline'}
 					onclick={() => applyPreset(preset.value)}
 				>
 					{preset.label}
@@ -102,86 +48,6 @@
 			{/each}
 		</div>
 	</div>
-
-	<QueryBuilder
-		title="Report Filters"
-		description="Search, filter by status, payment method, category and date — applied server-side"
-		showSearch={true}
-		showDate={true}
-		showPageSize={true}
-		initialSearch={data.filters.search}
-		initialPageSize={data.filters.pageSize}
-		initialStart={data.filters.start ?? undefined}
-		initialEnd={data.filters.end ?? undefined}
-		initialCustomFilters={{
-			paymentMethod: data.filters.paymentMethod ?? '',
-			category: data.filters.category ?? '',
-			status: data.filters.status ?? ''
-		}}
-		searchPlaceholder="Customer, product, or delivery address..."
-		totalResults={data.pagination.totalCount}
-		onQueryChange={handleQueryChange}
-	>
-		{#snippet children(filters, update)}
-			<div class="flex flex-col gap-2">
-				<Label class="text-sm font-medium text-foreground">Status</Label>
-				<Select
-					type="single"
-					value={String(filters.status ?? '')}
-					onValueChange={(v) => update('status', v)}
-				>
-					<SelectTrigger class="w-full capitalize">
-						{filters.status || 'All'}
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="">All</SelectItem>
-						<SelectItem value="pending">Pending</SelectItem>
-						<SelectItem value="delivered">Delivered</SelectItem>
-						<SelectItem value="cancelled">Cancelled</SelectItem>
-					</SelectContent>
-				</Select>
-			</div>
-
-			<div class="flex flex-col gap-2">
-				<Label class="text-sm font-medium text-foreground">Payment Method</Label>
-				<Select
-					type="single"
-					value={String(filters.paymentMethod ?? '')}
-					onValueChange={(v) => update('paymentMethod', v)}
-				>
-					<SelectTrigger class="w-full">
-						{data.paymentMethodList.find((p) => String(p.value) === filters.paymentMethod)?.name ??
-							'Any'}
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="">Any</SelectItem>
-						{#each data.paymentMethodList as method (method.value)}
-							<SelectItem value={String(method.value)}>{method.name}</SelectItem>
-						{/each}
-					</SelectContent>
-				</Select>
-			</div>
-
-			<div class="flex flex-col gap-2">
-				<Label class="text-sm font-medium text-foreground">Category</Label>
-				<Select
-					type="single"
-					value={String(filters.category ?? '')}
-					onValueChange={(v) => update('category', v)}
-				>
-					<SelectTrigger class="w-full">
-						{data.categories.find((c) => String(c.value) === filters.category)?.name ?? 'Any'}
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="">Any</SelectItem>
-						{#each data.categories as category (category.value)}
-							<SelectItem value={String(category.value)}>{category.name}</SelectItem>
-						{/each}
-					</SelectContent>
-				</Select>
-			</div>
-		{/snippet}
-	</QueryBuilder>
 </div>
 
 <!-- Stat tiles -->
@@ -198,7 +64,7 @@
 		<CardContent>
 			<div class="text-2xl font-bold text-emerald-600">{formatETB(data.summary.totalRevenue)}</div>
 			<p class="mt-1 text-xs text-muted-foreground">
-				Line items of {data.filters.status === 'all' ? 'delivered' : data.filters.status} orders
+				Line items of {data.status === 'all' ? 'delivered' : data.status} orders
 			</p>
 		</CardContent>
 	</Card>
@@ -234,7 +100,7 @@
 				{formatETB(data.summary.averageOrderValue)}
 			</div>
 			<p class="mt-1 text-xs text-muted-foreground">
-				Revenue / {data.filters.status === 'all' ? 'delivered' : data.filters.status} orders
+				Revenue / {data.status === 'all' ? 'delivered' : data.status} orders
 			</p>
 		</CardContent>
 	</Card>
@@ -326,66 +192,16 @@
 	</Card>
 </div>
 
-{#if data.detailRows.length === 0}
-	<div class="flex h-96 w-full flex-col items-center justify-center lg:w-5xl">
-		<p class="justify-self-cente mt-4 flex flex-row gap-4 text-center text-4xl">
-			<Frown class="h-12 w-16 animate-bounce" />
-			No Order Data for this Range or Filters
-		</p>
-	</div>
-{:else}
-	<div class="flex flex-col gap-4">
-		<h2 class="my-4 text-2xl">Order Line Items ({data.pagination.totalCount})</h2>
+<div class="flex flex-col gap-4">
+	<h2 class="my-4 text-2xl">Order Line Items ({data.table.pagination.total})</h2>
 
-		<p class="text-xs text-muted-foreground">
-			Filters below apply instantly to the rows already on this page — no server round trip. Use the
-			filters above to change what's loaded from the database.
-		</p>
-
-		<FilterMenu
-			bind:filteredList
-			data={data.detailRows}
-			filterKeys={['status', 'paymentMethodName', 'productName']}
-		/>
-
-		{#key filteredList}
-			<DataTable
-				data={filteredList}
-				{columns}
-				fileName="Reports {data.filters.start ?? 'all'} - {data.filters.end ?? 'time'}"
-			/>
-		{/key}
-	</div>
-
-	{#if data.pagination.totalPages > 1}
-		<div class="mt-6 flex items-center justify-center gap-2">
-			<Button
-				variant="outline"
-				size="sm"
-				disabled={!data.pagination.hasPrevPage}
-				onclick={() => goToPage(data.pagination.currentPage - 1)}
-			>
-				<ChevronLeft size={16} />
-			</Button>
-
-			{#each Array.from({ length: data.pagination.totalPages }, (_, i) => i + 1) as p (p)}
-				<Button
-					variant={p === data.pagination.currentPage ? 'default' : 'outline'}
-					size="sm"
-					onclick={() => goToPage(p)}
-				>
-					{p}
-				</Button>
-			{/each}
-
-			<Button
-				variant="outline"
-				size="sm"
-				disabled={!data.pagination.hasNextPage}
-				onclick={() => goToPage(data.pagination.currentPage + 1)}
-			>
-				<ChevronRight size={16} />
-			</Button>
-		</div>
-	{/if}
-{/if}
+	<DataTable
+		data={data.detailRows}
+		{columns}
+		fileName="Reports {data.range.start ?? 'all'} - {data.range.end ?? 'time'}"
+		server={data.table}
+		facetKeys={['status', 'paymentMethodName', 'category']}
+		facetLabels={{ paymentMethodName: 'Payment Method' }}
+		dateFilter="Ordered"
+	/>
+</div>

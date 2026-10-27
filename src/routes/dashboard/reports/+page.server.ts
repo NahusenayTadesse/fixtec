@@ -1,4 +1,3 @@
-import { error } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import {
 	orders,
@@ -9,79 +8,79 @@ import {
 	transactions,
 	paymentMethods
 } from '$lib/server/db/schema';
-import { and, asc, desc, eq, gte, like, lte, or, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, like, or, sql } from 'drizzle-orm';
+import {
+	buildWhere,
+	contains,
+	enumFacet,
+	facetCounts,
+	orderBy,
+	parseTableQuery,
+	serverTable
+} from '$lib/server/table';
 
-import { getPresetDateRange, isValidDateString, type DatePreset } from '$lib/global.svelte';
+import { getPresetDateRange, type DatePreset } from '$lib/global.svelte';
 import type { PageServerLoad } from './$types';
 
-const DEFAULT_PAGE_SIZE = 20;
-const ALLOWED_PAGE_SIZES = [10, 20, 50, 100];
 const STATUSES = ['pending', 'delivered', 'cancelled'] as const;
+type Status = (typeof STATUSES)[number];
+
+const SORT_KEYS = [
+	'orderId',
+	'date',
+	'status',
+	'customerName',
+	'productName',
+	'quantityPurchased',
+	'unitPrice',
+	'lineTotal',
+	'paymentMethodName',
+	'totalPaid'
+];
 
 export const load: PageServerLoad = async ({ url }) => {
-	const startParam = url.searchParams.get('start');
-	const endParam = url.searchParams.get('end');
+	const query = parseTableQuery(url, ['status', 'paymentMethodName', 'category'], 20, SORT_KEYS);
+
+	// No window chosen means a preset — this month unless another (or all time) was picked. It is
+	// written back onto the query so the table's date control shows the window in use.
 	const presetParam = url.searchParams.get('preset');
-
-	if (
-		(startParam || endParam) &&
-		(!isValidDateString(startParam) || !isValidDateString(endParam))
-	) {
-		error(400, 'Invalid date range');
+	if ((!query.dateStart || !query.dateEnd) && presetParam !== 'allTime') {
+		const range = getPresetDateRange((presetParam as DatePreset) ?? 'thisMonth');
+		query.dateStart = range?.start ?? null;
+		query.dateEnd = range?.end ?? null;
 	}
 
-	let start: string | undefined;
-	let end: string | undefined;
+	const statusParam = query.filters.status;
+	const status = STATUSES.includes(statusParam as Status) ? (statusParam as Status) : 'all';
 
-	if (startParam && endParam) {
-		start = startParam;
-		end = endParam;
-	} else if (presetParam !== 'allTime') {
-		const preset = getPresetDateRange((presetParam as DatePreset) ?? 'thisMonth') ?? undefined;
-		start = preset?.start;
-		end = preset?.end;
-	}
-
-	const statusParam = url.searchParams.get('status') ?? 'all';
-	const status = STATUSES.includes(statusParam as (typeof STATUSES)[number]) ? statusParam : 'all';
-	const search = url.searchParams.get('search')?.trim() ?? '';
-	const paymentMethodFilter = url.searchParams.get('paymentMethod');
-	const categoryFilter = url.searchParams.get('category');
-	// `Math.max(1, NaN)` is NaN, so `?page=abc` reached `.offset(NaN)` and 500'd.
-	const parsedPage = parseInt(url.searchParams.get('page') ?? '1', 10);
-	const page = Number.isFinite(parsedPage) ? Math.max(1, parsedPage) : 1;
-	const pageSizeParam = parseInt(url.searchParams.get('pageSize') ?? '');
-	const pageSize = ALLOWED_PAGE_SIZES.includes(pageSizeParam) ? pageSizeParam : DEFAULT_PAGE_SIZE;
-	const offset = (page - 1) * pageSize;
-
-	const filtersExceptStatus = [
-		start ? gte(orders.createdAt, new Date(start)) : undefined,
-		end ? lte(orders.createdAt, new Date(`${end}T23:59:59`)) : undefined,
-		paymentMethodFilter ? eq(transactions.paymentMethodId, Number(paymentMethodFilter)) : undefined,
-		categoryFilter ? eq(products.categoryId, Number(categoryFilter)) : undefined,
-		search
-			? or(
-					like(customers.name, `%${search}%`),
-					like(customers.phone, `%${search}%`),
-					like(customers.email, `%${search}%`),
-					like(products.name, `%${search}%`),
-					like(orders.deliveryAddress, `%${search}%`)
-				)
-			: undefined
-	];
+	const spec = {
+		dateColumn: orders.createdAt,
+		search: (term: string) =>
+			or(
+				like(customers.name, contains(term)),
+				like(customers.phone, contains(term)),
+				like(customers.email, contains(term)),
+				like(products.name, contains(term)),
+				like(orders.deliveryAddress, contains(term))
+			),
+		filters: {
+			status: (v: string) =>
+				STATUSES.includes(v as Status) ? eq(orders.status, v as Status) : undefined,
+			paymentMethodName: (v: string) => eq(transactions.paymentMethodId, Number(v)),
+			category: (v: string) => eq(products.categoryId, Number(v))
+		}
+	};
 
 	/** Every filter as chosen — drives the order counts, status chart and detail table. */
-	const whereClause = and(
-		status !== 'all' ? eq(orders.status, status as (typeof STATUSES)[number]) : undefined,
-		...filtersExceptStatus
-	);
+	const whereClause = buildWhere(query, spec);
+	const filtersExceptStatus = [buildWhere(query, spec, { except: 'status' })];
 
 	/**
 	 * Money figures only count delivered orders unless a status is picked explicitly.
 	 * Under "all statuses" they used to include cancelled orders (never paid) and
 	 * pending ones (not paid yet), which overstated revenue.
 	 */
-	const revenueStatus = (status === 'all' ? 'delivered' : status) as (typeof STATUSES)[number];
+	const revenueStatus: Status = status === 'all' ? 'delivered' : status;
 	const revenueWhereClause = and(eq(orders.status, revenueStatus), ...filtersExceptStatus);
 
 	const lineTotalSql = sql<number>`${orderItems.quantity} * ${orderItems.price}`;
@@ -251,6 +250,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			customerId: customers.id,
 			productName: products.name,
 			productId: products.id,
+			category: productCategories.name,
 			quantityPurchased: orderItems.quantity,
 			unitPrice: orderItems.price,
 			lineTotal: lineTotalSql.mapWith(Number),
@@ -264,10 +264,25 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(transactions, eq(orders.transactionId, transactions.id))
 		.leftJoin(customers, eq(orders.customerId, customers.id))
 		.leftJoin(paymentMethods, eq(transactions.paymentMethodId, paymentMethods.id))
+		.leftJoin(productCategories, eq(products.categoryId, productCategories.id))
 		.where(whereClause)
-		.orderBy(desc(orders.createdAt))
-		.limit(pageSize)
-		.offset(offset);
+		.orderBy(
+			...(orderBy(query, {
+				orderId: orders.id,
+				date: orders.createdAt,
+				status: orders.status,
+				customerName: customers.name,
+				productName: products.name,
+				quantityPurchased: orderItems.quantity,
+				unitPrice: orderItems.price,
+				lineTotal: lineTotalSql,
+				paymentMethodName: paymentMethods.name,
+				totalPaid: transactions.amount
+			}) ?? [desc(orders.createdAt)]),
+			desc(orderItems.id)
+		)
+		.limit(query.limit)
+		.offset(query.offset);
 
 	const [{ totalRows }] = await db
 		.select({ totalRows: sql<number>`COUNT(*)`.mapWith(Number) })
@@ -278,15 +293,42 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(customers, eq(orders.customerId, customers.id))
 		.where(whereClause);
 
-	const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
-
-	const categories = await db
-		.select({ value: productCategories.id, name: productCategories.name })
-		.from(productCategories);
-
-	const paymentMethodList = await db
-		.select({ value: paymentMethods.id, name: paymentMethods.name })
-		.from(paymentMethods);
+	/** Facet tallies over the same line items the table lists, each minus its own filter. */
+	const facets = await facetCounts({
+		status: () =>
+			db
+				.select({ value: orders.status, count: count() })
+				.from(orders)
+				.innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+				.innerJoin(products, eq(orderItems.productId, products.id))
+				.leftJoin(transactions, eq(orders.transactionId, transactions.id))
+				.leftJoin(customers, eq(orders.customerId, customers.id))
+				.where(buildWhere(query, spec, { except: 'status' }))
+				.groupBy(orders.status)
+				.then(enumFacet),
+		paymentMethodName: () =>
+			db
+				.select({ value: paymentMethods.id, label: paymentMethods.name, count: count() })
+				.from(orders)
+				.innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+				.innerJoin(products, eq(orderItems.productId, products.id))
+				.innerJoin(transactions, eq(orders.transactionId, transactions.id))
+				.innerJoin(paymentMethods, eq(transactions.paymentMethodId, paymentMethods.id))
+				.leftJoin(customers, eq(orders.customerId, customers.id))
+				.where(buildWhere(query, spec, { except: 'paymentMethodName' }))
+				.groupBy(paymentMethods.id, paymentMethods.name),
+		category: () =>
+			db
+				.select({ value: productCategories.id, label: productCategories.name, count: count() })
+				.from(orders)
+				.innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+				.innerJoin(products, eq(orderItems.productId, products.id))
+				.innerJoin(productCategories, eq(products.categoryId, productCategories.id))
+				.leftJoin(transactions, eq(orders.transactionId, transactions.id))
+				.leftJoin(customers, eq(orders.customerId, customers.id))
+				.where(buildWhere(query, spec, { except: 'category' }))
+				.groupBy(productCategories.id, productCategories.name)
+	});
 
 	return {
 		detailRows,
@@ -302,24 +344,10 @@ export const load: PageServerLoad = async ({ url }) => {
 			topProducts,
 			dailyTrend
 		},
-		categories,
-		paymentMethodList,
-		filters: {
-			search,
-			status,
-			start,
-			end,
-			preset: startParam || endParam ? undefined : (presetParam ?? 'thisMonth'),
-			paymentMethod: paymentMethodFilter,
-			category: categoryFilter,
-			pageSize
-		},
-		pagination: {
-			currentPage: page,
-			totalPages,
-			totalCount: totalRows,
-			hasNextPage: page < totalPages,
-			hasPrevPage: page > 1
-		}
+		status,
+		/** The preset button to light up: only while no explicit window overrides it. */
+		preset: url.searchParams.has('dateStart') ? null : (presetParam ?? 'thisMonth'),
+		range: { start: query.dateStart, end: query.dateEnd },
+		table: serverTable(query, totalRows, facets)
 	};
 };

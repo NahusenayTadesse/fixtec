@@ -1,3 +1,4 @@
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
 import Statuses from '@nahu/admin-kit/components/Table/statuses.svelte';
@@ -8,10 +9,7 @@ export const columns = [
 	{
 		id: 'index',
 		header: '#',
-		cell: (info) => {
-			const rowIndex = info.table.getRowModel().rows.findIndex((row) => row.id === info.row.id);
-			return rowIndex + 1;
-		},
+		cell: rowNumber,
 		enableSorting: false
 	},
 

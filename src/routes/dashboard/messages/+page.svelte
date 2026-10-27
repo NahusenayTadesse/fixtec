@@ -1,4 +1,5 @@
 <script>
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 	import DataTable from '@nahu/admin-kit/components/Table/data-table.svelte';
 	import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
@@ -12,10 +13,7 @@
 		{
 			id: 'index',
 			header: '#',
-			cell: (info) => {
-				const rowIndex = info.table.getRowModel().rows.findIndex((row) => row.id === info.row.id);
-				return rowIndex + 1;
-			},
+			cell: rowNumber,
 			enableSorting: false
 		},
 
@@ -71,7 +69,7 @@
 		{
 			accessorKey: 'message',
 			header: 'Message',
-			sortable: true,
+			sortable: false,
 			cell: ({ row }) => renderComponent(BigText, { text: row.original.message })
 		},
 
@@ -110,9 +108,9 @@
 			}
 		},
 		{
-			accessorKey: '',
+			id: 'delete',
 			header: 'Delete',
-			sortable: true,
+			enableSorting: false,
 			cell: ({ row }) => {
 				// You can pass whatever you need from `row.original` to the component
 				return renderComponent(Delete, {
@@ -127,15 +125,17 @@
 
 	import Copy from '@nahu/admin-kit/Copy.svelte';
 	import { formatEthiopianDate as formatDate } from '$lib/global.svelte.js';
-	import FilterMenu from '$lib/components/Table/FilterMenu.svelte';
-
-	let filteredList = $derived(data?.allPaymentMethods);
 </script>
 
 <svelte:head>
 	<title>Messages</title>
 </svelte:head>
-{#key data?.allPaymentMethods}
-	<FilterMenu data={data?.allPaymentMethods} bind:filteredList filterKeys={['subject', 'isRead']} />
-	<DataTable {columns} data={filteredList} search={true} fileName="Messages" />
-{/key}
+<DataTable
+	{columns}
+	data={data.allPaymentMethods}
+	fileName="Messages"
+	server={data.table}
+	facetKeys={['subject', 'isRead']}
+	facetLabels={{ isRead: 'Read Status' }}
+	dateFilter="Submitted"
+/>

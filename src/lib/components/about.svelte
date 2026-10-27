@@ -9,7 +9,6 @@
 		Building2Icon,
 		ChartArea
 	} from '@lucide/svelte';
-	import { fly, fade } from 'svelte/transition';
 
 	const highPerformanceDrivers = [
 		{
@@ -55,7 +54,7 @@
 	];
 </script>
 
-<section class="relative bg-background px-4 py-24 sm:px-6 lg:px-8">
+<section class="relative px-4 py-24 sm:px-6 lg:px-8">
 	<div
 		class="absolute inset-0 z-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent)] opacity-[0.03]"
 		style="background-image: radial-gradient(circle at 2px 2px, var(--primary) 1px, transparent 0); background-size: 40px 40px;"
@@ -63,7 +62,7 @@
 
 	<div class="relative z-10 mx-auto max-w-6xl">
 		<div
-			transition:fly={{ y: 20, duration: 600 }}
+			data-reveal="up"
 			class="mb-20 flex flex-col gap-4 border-l-4 border-primary pl-6 text-left"
 		>
 			<h2 class="text-4xl font-black tracking-tight text-foreground uppercase sm:text-5xl">
@@ -78,14 +77,18 @@
 		</div>
 
 		<div class="mb-20 grid gap-12 lg:grid-cols-5">
-			<div transition:fly={{ x: -20, duration: 600, delay: 100 }} class="lg:col-span-2">
-				<div class="rounded-2xl border border-primary/10 bg-primary/5 p-8">
+			<div data-reveal="left" class="lg:col-span-2">
+				<div class="h-full rounded-3xl p-8 glass">
 					<h3 class="mb-6 text-lg font-bold tracking-widest text-primary uppercase">
 						{m.about_sectors_title()}
 					</h3>
 					<ul class="space-y-4">
-						{#each targetSectors as sector (sector)}
-							<li class="group flex items-center gap-3 font-semibold text-foreground/80">
+						{#each targetSectors as sector, i (sector)}
+							<li
+								data-reveal="left"
+								style="--d: {200 + i * 70}ms"
+								class="group flex items-center gap-3 font-semibold text-foreground/80"
+							>
 								<div
 									class="h-1.5 w-1.5 rounded-full bg-primary transition-all group-hover:w-4"
 								></div>
@@ -96,15 +99,19 @@
 				</div>
 			</div>
 
-			<div transition:fly={{ x: 20, duration: 600, delay: 200 }} class="lg:col-span-3">
+			<div class="lg:col-span-3">
 				<div class="grid gap-4 sm:grid-cols-2">
-					{#each highPerformanceDrivers as driver (driver)}
-						<Card class="border-primary/10 bg-card/50 transition-colors hover:border-primary/30">
+					{#each highPerformanceDrivers as driver, i (driver)}
+						<Card
+							data-reveal="up"
+							style="--d: {i * 100}ms"
+							class="group rounded-3xl glass transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_-15px_var(--primary)]"
+						>
 							<CardContent class="p-6">
 								<div
-									class="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
+									class="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 transition-all duration-500 group-hover:rotate-6 group-hover:bg-primary group-hover:text-primary-foreground"
 								>
-									<svelte:component this={driver.icon} class="size-6" />
+									<driver.icon class="size-6" />
 								</div>
 								<h4 class="text-base font-bold text-foreground">{driver.label}</h4>
 								<p class="mt-2 text-sm leading-relaxed text-foreground/60">{driver.description}</p>

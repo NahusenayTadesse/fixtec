@@ -109,9 +109,10 @@
 <br />
 
 <DataTable
-	data={data?.permissionList}
+	data={data.permissionList}
 	{columns}
-	fileName="{data?.singleUser?.name}Permission List"
+	fileName="{data?.singleUser?.name} Permission List"
+	server={data.table}
 />
 
 {#snippet fe(

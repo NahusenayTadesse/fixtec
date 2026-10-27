@@ -1,42 +1,83 @@
 import { setError, superValidate, message, fail } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { eq } from 'drizzle-orm';
+import { asc, count, eq, like, or } from 'drizzle-orm';
 
 import { add, edit, free } from './schema';
 import { db } from '$lib/server/db';
 import { placeNames as department, freeDelivery } from '$lib/server/db/schema';
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types.js';
+import {
+	activeFilter,
+	activeState,
+	buildWhere,
+	contains,
+	enumFacet,
+	facetCounts,
+	orderBy,
+	parseTableQuery,
+	serverTable
+} from '$lib/server/table';
 
-export const load: PageServerLoad = async () => {
-	const form = await superValidate(zod4(add));
-	const editForm = await superValidate(zod4(edit));
-	const freeForm = await superValidate(zod4(free));
+export const load: PageServerLoad = async ({ url }) => {
+	const query = parseTableQuery(url, ['status'], 20, ['name', 'fee', 'status']);
+	const spec = {
+		search: (term: string) =>
+			or(like(department.name, contains(term)), like(department.nameAm, contains(term))),
+		filters: { status: activeFilter(department.isActive) }
+	};
+	const where = buildWhere(query, spec);
 
-	const [freeData] = await db
-		.select({
-			threshold: freeDelivery.threshold,
-			suggestionThreshold: freeDelivery.suggestionThreshold
+	const [form, editForm, freeForm, [freeData], allData, [{ total }], facets] = await Promise.all([
+		superValidate(zod4(add)),
+		superValidate(zod4(edit)),
+		superValidate(zod4(free)),
+		db
+			.select({
+				threshold: freeDelivery.threshold,
+				suggestionThreshold: freeDelivery.suggestionThreshold
+			})
+			.from(freeDelivery)
+			.limit(1),
+		db
+			.select({
+				id: department.id,
+				name: department.name,
+				nameAm: department.nameAm,
+				fee: department.fee,
+				status: department.isActive
+			})
+			.from(department)
+			.where(where)
+			.orderBy(
+				...(orderBy(query, {
+					name: department.name,
+					fee: department.fee,
+					status: department.isActive
+				}) ?? []),
+				asc(department.id)
+			)
+			.limit(query.limit)
+			.offset(query.offset),
+		db.select({ total: count() }).from(department).where(where),
+		facetCounts({
+			status: () =>
+				db
+					.select({ value: activeState(department.isActive), count: count() })
+					.from(department)
+					.where(buildWhere(query, spec, { except: 'status' }))
+					.groupBy(activeState(department.isActive))
+					.then(enumFacet)
 		})
-		.from(freeDelivery)
-		.limit(1);
-
-	const allData = await db
-		.select({
-			id: department.id,
-			name: department.name,
-			nameAm: department.nameAm,
-			fee: department.fee,
-			status: department.isActive
-		})
-		.from(department);
+	]);
 
 	return {
 		form,
 		editForm,
 		allData,
 		freeForm,
-		freeData
+		freeData,
+		table: serverTable(query, total, facets)
 	};
 };
 

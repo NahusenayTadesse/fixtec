@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { Input } from '@nahu/admin-kit/components/ui/input/index.js';
 	import { Label } from '@nahu/admin-kit/components/ui/label/index.js';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
@@ -122,7 +123,7 @@
 		{
 			accessorKey: 'index',
 			header: '#',
-			cell: (info) => info.row.index + 1,
+			cell: rowNumber,
 			sortable: false
 		},
 
@@ -436,7 +437,7 @@
 					data={data?.priceList}
 					class="w-6xl!"
 					fileName="{data?.product?.name} - Price List"
-					search={true}
+					variant="compact"
 				/>
 			{/if}
 		</div>
@@ -456,7 +457,7 @@
 				data={data.batches}
 				class="w-6xl!"
 				fileName="{data?.product?.name} - Batches"
-				search={true}
+				variant="compact"
 			/>
 		{/if}
 	</div>

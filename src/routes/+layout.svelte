@@ -28,6 +28,8 @@
 	import Cart from '$lib/components/floating-cart/cart.svelte';
 	import Header from '$lib/components/header.svelte';
 	import Footer from '$lib/components/footer.svelte';
+	import SiteBackdrop from '$lib/components/site-backdrop.svelte';
+	import { startReveal } from '$lib/reveal';
 
 	// This initializes the class and puts it into Svelte's context
 	setCart();
@@ -80,7 +82,9 @@
 
 {#if !page.url.pathname.startsWith('/dashboard')}
 	<!-- The storefront keeps its own typography: the kit's h1–p rules skip this subtree. -->
-	<div data-site-type class="contents">
+	<!-- `startReveal` animates this subtree's `data-reveal` elements in as they scroll into view. -->
+	<div data-site-type class="contents" {@attach startReveal}>
+		<SiteBackdrop />
 		<Header data={data?.user?.name ?? ''} />
 		{@render children()}
 

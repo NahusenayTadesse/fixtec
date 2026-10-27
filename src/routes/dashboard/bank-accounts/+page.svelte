@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	import { Plus } from '@lucide/svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { toast } from 'svelte-sonner';
@@ -35,7 +36,11 @@
 	});
 
 	const columns = [
-		{ accessorKey: 'index', header: '#', cell: (info: { row: { index: number } }) => info.row.index + 1 },
+		{
+			accessorKey: 'index',
+			header: '#',
+			cell: rowNumber
+		},
 		{ accessorKey: 'bankName', header: 'Bank' },
 		{ accessorKey: 'accountName', header: 'Account Holder' },
 		{
@@ -89,7 +94,13 @@
 
 <div class="mt-4">
 	<DialogComp bind:open={addOpen} IconComp={Plus} title="Add Bank Account" variant="default">
-		<form action="?/add" method="post" id="add-bank-account" use:enhance class="flex flex-col gap-4">
+		<form
+			action="?/add"
+			method="post"
+			id="add-bank-account"
+			use:enhance
+			class="flex flex-col gap-4"
+		>
 			<Errors allErrors={$allErrors} />
 			<Fields {form} {errors} paymentMethodList={data.paymentMethodList} />
 			<Button type="submit" form="add-bank-account" disabled={$delayed}>
@@ -103,4 +114,11 @@
 	</DialogComp>
 </div>
 
-<DataTable {columns} data={data.allData} fileName="Bank Accounts" />
+<DataTable
+	{columns}
+	data={data.allData}
+	fileName="Bank Accounts"
+	server={data.table}
+	facetKeys={['paymentMethodName', 'status']}
+	facetLabels={{ paymentMethodName: 'Payment Method' }}
+/>

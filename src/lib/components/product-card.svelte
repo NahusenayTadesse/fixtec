@@ -45,9 +45,7 @@
 
 	/** Any variant of this product that is already in the cart. */
 	const quantityInCart = $derived(
-		cart.items
-			.filter((i) => i.productId === productId)
-			.reduce((sum, i) => sum + i.quantity, 0)
+		cart.items.filter((i) => i.productId === productId).reduce((sum, i) => sum + i.quantity, 0)
 	);
 
 	function addToCart() {
@@ -73,9 +71,12 @@
 </script>
 
 <Card
-	class="group overflow-hidden border-sidebar-border transition-all duration-300 hover:ring-2 hover:ring-primary/20"
+	class="group overflow-hidden rounded-3xl pt-0 glass transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_24px_60px_-18px_var(--primary)]"
 >
-	<a href="/shop/single/{productId}" class="relative aspect-square overflow-hidden bg-muted">
+	<a
+		href="/shop/single/{productId}"
+		class="relative m-2 mb-0 aspect-square overflow-hidden rounded-2xl bg-muted/60"
+	>
 		{#if image}
 			<!-- `h-full` was mistyped as `h-fu ll`, so the image had no height rule and
 			     the card collapsed to a strip. -->
@@ -83,8 +84,12 @@
 				src="/files/{image}"
 				alt={productName}
 				loading="lazy"
-				class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+				class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
 			/>
+			<!-- A pane of light crossing the photo on hover -->
+			<span
+				class="pointer-events-none absolute inset-y-0 -left-full w-1/2 skew-x-12 bg-linear-to-r from-transparent via-white/30 to-transparent transition-[left] duration-1000 group-hover:left-[150%]"
+			></span>
 		{:else}
 			<div class="flex h-full w-full items-center justify-center text-muted-foreground/40">
 				<ShoppingCartIcon class="size-12" />
@@ -93,7 +98,7 @@
 
 		<div class="absolute inset-x-2 top-2 flex justify-between gap-2">
 			{#if category}
-				<Badge variant="secondary" class="bg-white/80 backdrop-blur-md dark:bg-black/80">
+				<Badge variant="secondary" class="rounded-full text-foreground glass">
 					{category}
 				</Badge>
 			{/if}

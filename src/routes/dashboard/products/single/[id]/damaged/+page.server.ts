@@ -1,85 +1,107 @@
 import { error } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { user, damagedProducts, products, prices, stockBatches } from '$lib/server/db/schema';
-import { and, asc, eq, like, or, sql } from 'drizzle-orm';
-
+import { asc, count, eq, like, or, sql } from 'drizzle-orm';
+import { getCurrentMonthRangeDates } from '$lib/global.svelte';
 import {
-	currentMonthFilter,
-	getCurrentMonthRangeDates,
-	isValidDateString
-} from '$lib/global.svelte';
+	buildWhere,
+	contains,
+	facetCounts,
+	orderBy,
+	parseTableQuery,
+	serverTable
+} from '$lib/server/table';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, url }) => {
-	const { id } = params as { id: string };
-
-	const startParam = url.searchParams.get('start');
-	const endParam = url.searchParams.get('end');
-	const search = url.searchParams.get('search')?.trim() ?? '';
-	const reasonFilter = url.searchParams.get('reason') ?? '';
-
-	if (
-		(startParam || endParam) &&
-		(!isValidDateString(startParam) || !isValidDateString(endParam))
-	) {
-		error(400, 'Invalid date range');
-	}
-
-	const defaults = getCurrentMonthRangeDates();
-	const start = startParam ?? defaults.start;
-	const end = endParam ?? defaults.end;
+	const productId = Number(params.id);
 
 	const product = await db
 		.select({ name: products.name })
 		.from(products)
-		.where(eq(products.id, Number(id)))
+		.where(eq(products.id, productId))
 		.then((rows) => rows[0]);
 
 	if (!product) error(404, 'Product not found');
 
-	const whereClause = and(
-		eq(damagedProducts.productId, Number(id)),
-		currentMonthFilter(damagedProducts.createdAt, start, end),
-		search
-			? or(
-					like(damagedProducts.reason, `%${search}%`),
-					like(damagedProducts.damagedBy, `%${search}%`)
-				)
-			: undefined,
-		reasonFilter ? eq(damagedProducts.reason, reasonFilter) : undefined
-	);
+	const query = parseTableQuery(url, ['reason'], 20, [
+		'date',
+		'quantity',
+		'damagedBy',
+		'changedBy'
+	]);
 
-	const allTransactions = await db
-		.select({
-			id: damagedProducts.id,
-			date: sql<string>`DATE_FORMAT(${damagedProducts.createdAt}, '%W %Y-%m-%d')`,
-			quantity: damagedProducts.quantity,
-			variant: prices.amount,
-			batchNumber: stockBatches.batchNumber,
-			reason: damagedProducts.reason,
-			damagedBy: damagedProducts.damagedBy,
-			changedById: user.id,
-			changedBy: user.name
-		})
-		.from(damagedProducts)
-		.leftJoin(user, eq(damagedProducts.createdBy, user.id))
-		.leftJoin(prices, eq(prices.id, damagedProducts.variantId))
-		.leftJoin(stockBatches, eq(stockBatches.id, damagedProducts.batchId))
-		.where(whereClause)
-		.orderBy(asc(damagedProducts.createdAt));
+	// No window chosen means this month, as before, unless `?period=all` asks for every row. The
+	// month is written back onto the query so the table's date control shows where the rows are from.
+	const custom = Boolean(query.dateStart && query.dateEnd);
+	const period = custom
+		? null
+		: url.searchParams.get('period') === 'all'
+			? ('all' as const)
+			: ('month' as const);
+	if (period === 'month') {
+		const month = getCurrentMonthRangeDates();
+		query.dateStart = month.start;
+		query.dateEnd = month.end;
+	}
 
-	const reasonRows = await db
-		.selectDistinct({ reason: damagedProducts.reason })
-		.from(damagedProducts)
-		.where(eq(damagedProducts.productId, Number(id)));
-
-	return {
-		allTransactions,
-		product,
-		start,
-		end,
-		search,
-		reasonFilter,
-		reasonOptions: reasonRows.map((r) => r.reason).filter(Boolean)
+	const spec = {
+		base: [eq(damagedProducts.productId, productId)],
+		dateColumn: damagedProducts.createdAt,
+		search: (term: string) =>
+			or(
+				like(damagedProducts.reason, contains(term)),
+				like(damagedProducts.damagedBy, contains(term)),
+				like(user.name, contains(term))
+			),
+		filters: { reason: (v: string) => eq(damagedProducts.reason, v) }
 	};
+	const where = buildWhere(query, spec);
+
+	const [allTransactions, [{ total }], facets] = await Promise.all([
+		db
+			.select({
+				id: damagedProducts.id,
+				date: sql<string>`DATE_FORMAT(${damagedProducts.createdAt}, '%W %Y-%m-%d')`,
+				quantity: damagedProducts.quantity,
+				variant: prices.amount,
+				batchNumber: stockBatches.batchNumber,
+				reason: damagedProducts.reason,
+				damagedBy: damagedProducts.damagedBy,
+				changedById: user.id,
+				changedBy: user.name
+			})
+			.from(damagedProducts)
+			.leftJoin(user, eq(damagedProducts.createdBy, user.id))
+			.leftJoin(prices, eq(prices.id, damagedProducts.variantId))
+			.leftJoin(stockBatches, eq(stockBatches.id, damagedProducts.batchId))
+			.where(where)
+			.orderBy(
+				...(orderBy(query, {
+					date: damagedProducts.createdAt,
+					quantity: damagedProducts.quantity,
+					damagedBy: damagedProducts.damagedBy,
+					changedBy: user.name
+				}) ?? [asc(damagedProducts.createdAt)]),
+				asc(damagedProducts.id)
+			)
+			.limit(query.limit)
+			.offset(query.offset),
+		db
+			.select({ total: count() })
+			.from(damagedProducts)
+			.leftJoin(user, eq(damagedProducts.createdBy, user.id))
+			.where(where),
+		facetCounts({
+			reason: () =>
+				db
+					.select({ value: damagedProducts.reason, count: count() })
+					.from(damagedProducts)
+					.leftJoin(user, eq(damagedProducts.createdBy, user.id))
+					.where(buildWhere(query, spec, { except: 'reason' }))
+					.groupBy(damagedProducts.reason)
+		})
+	]);
+
+	return { allTransactions, product, table: serverTable(query, total, facets), period };
 };

@@ -17,6 +17,10 @@
 
 	let { data } = $props();
 
+	/* The bar firms up once the page moves under it. */
+	let scrollY = $state(0);
+	const scrolled = $derived(scrollY > 8);
+
 	const menuItems = [
 		{ label: m.nav_home(), href: '/' },
 		{ label: m.nav_products_services(), href: '/shop' },
@@ -28,8 +32,15 @@
 	];
 </script>
 
+<svelte:window bind:scrollY />
+
 <header
-	class="bg-foreground-background sticky top-0 z-50 w-full px-2 py-2 backdrop-blur supports-backdrop-filter:bg-[#2596be]/40 lg:px-16"
+	class={[
+		'sticky top-0 z-50 w-full border-b px-2 transition-all duration-500 lg:px-16',
+		scrolled
+			? 'border-x-0 border-t-0 py-1 shadow-lg glass-strong'
+			: 'border-x-0 border-t-0 py-2 shadow-none glass'
+	]}
 >
 	<div class="flex h-14 items-center justify-between px-4 md:px-6">
 		<!-- Logo/Title -->
@@ -49,12 +60,17 @@
 		</div>
 
 		<!-- Desktop Menu -->
-		<nav class="hidden items-center gap-1 md:flex">
+		<nav class="hidden items-center gap-1 rounded-full p-1 glass md:flex">
 			{#each menuItems as item (item.href)}
 				<Button
 					variant={page.url.pathname === item.href ? 'default' : 'ghost'}
 					size="sm"
-					class={page.url.pathname === item.href ? 'text-white' : 'text-black dark:text-white'}
+					class={[
+						'rounded-full px-4 transition-all duration-300',
+						page.url.pathname === item.href
+							? 'text-white shadow-[0_0_20px_-4px_var(--primary)]'
+							: 'text-black hover:bg-white/50 dark:text-white dark:hover:bg-white/10'
+					]}
 					href={item.href}
 					onclick={() => handleMenuClick()}
 				>
@@ -93,7 +109,7 @@
 							</Button>
 						{/snippet}
 					</SheetTrigger>
-					<SheetContent side="right" class="flex w-80 flex-col p-0">
+					<SheetContent side="right" class="flex w-80 flex-col p-0 glass-strong">
 						<div class="border-b bg-muted/20 p-6">
 							{#if data === ''}
 								<div class="space-y-1">

@@ -1,3 +1,4 @@
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
 import DataTableActions from './data-table-actions.svelte';
@@ -7,7 +8,7 @@ export const columns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1
+		cell: rowNumber
 	},
 
 	{
@@ -42,6 +43,11 @@ export const columns = [
 		accessorKey: 'batchNumber',
 		header: 'Batch',
 		cell: ({ row }) => row.original.batchNumber ?? '—'
+	},
+
+	{
+		accessorKey: 'reason',
+		header: 'Reason'
 	},
 
 	{

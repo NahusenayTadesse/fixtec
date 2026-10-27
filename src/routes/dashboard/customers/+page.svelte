@@ -7,9 +7,7 @@
 
 	import Loading from '@nahu/admin-kit/components/Loading.svelte';
 	import { Frown } from '@lucide/svelte';
-	import FilterMenu from '$lib/components/Table/FilterMenu.svelte';
 	import AddCustomer from '$lib/forms/AddCustomer.svelte';
-	let filteredList = $derived(data?.customersList);
 </script>
 
 <svelte:head>
@@ -20,7 +18,7 @@
 	<AddCustomer data={data.addCustomerForm} />
 </div>
 
-{#if data.customersList.length === 0}
+{#if data.customersList.length === 0 && !data.filtered}
 	<div class="flex h-96 w-5xl items-center justify-center">
 		<p class="justify-self-cente mt-4 flex flex-row gap-4 text-center text-4xl">
 			<Frown class="h-12 w-16  animate-bounce" />
@@ -28,12 +26,14 @@
 		</p>
 	</div>
 {:else}
-	<h2 class="my-4 text-2xl">No of customers {data.customersList?.length}</h2>
+	<h2 class="my-4 text-2xl">No of customers {data.table.pagination.total}</h2>
 
-	<FilterMenu
-		bind:filteredList
+	<DataTable
 		data={data.customersList}
-		filterKeys={['orderCount', 'daysSinceJoined', 'address', 'deliveryAddress']}
+		{columns}
+		fileName="Customers"
+		server={data.table}
+		facetKeys={['deliveryAddress']}
+		dateFilter="Registered"
 	/>
-	<DataTable data={filteredList} {columns} />
 {/if}

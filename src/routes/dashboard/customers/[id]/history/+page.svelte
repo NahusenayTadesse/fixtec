@@ -1,5 +1,5 @@
 <script lang="ts">
-
+	import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 	let { data } = $props();
 
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
@@ -13,19 +13,18 @@
 	import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
 	import OrderItems from '../../../orders/order-items.svelte';
 	import Statuses from '@nahu/admin-kit/components/Table/statuses.svelte';
-	import FilterMenu from '$lib/components/Table/FilterMenu.svelte';
 	export const columns = [
 		{
 			accessorKey: 'index',
 			header: '#',
-			cell: (info) => info.row.index + 1,
+			cell: rowNumber,
 			sortable: false
 		},
 
 		{
 			accessorKey: 'items',
 			header: 'Items',
-			sortable: true,
+			enableSorting: false,
 			cell: ({ row }) => {
 				return renderComponent(OrderItems, {
 					items:
@@ -58,11 +57,9 @@
 					name: 'Ordered On',
 					onclick: column.getToggleSortingHandler()
 				}),
-			sortable: false
+			sortable: true
 		}
 	];
-
-	let filteredList = $derived(data?.allData);
 
 	import { page } from '$app/state';
 </script>
@@ -82,13 +79,14 @@
 			>
 		</p>
 	</header>
-	<FilterMenu bind:filteredList filterKeys={['status']} data={data?.allData} />
 	<DataTable
 		{columns}
-		data={filteredList}
+		data={data.allData}
 		class="w-6xl!"
-		fileName="Pending Orders - {data?.customer?.customerName}"
-		search={true}
+		fileName="Orders - {data?.customer?.customerName}"
+		server={data.table}
+		facetKeys={['status']}
+		dateFilter="Ordered"
 	/>
 {:else}
 	<Empty title="orders" />

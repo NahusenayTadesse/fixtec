@@ -1,6 +1,15 @@
 import { superValidate, message, setError } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { eq, and, or, like, gte, lte, desc, sql, count, inArray } from 'drizzle-orm';
+import { eq, and, or, like, desc, sql, count, inArray } from 'drizzle-orm';
+import {
+	buildWhere,
+	contains,
+	enumFacet,
+	facetCounts,
+	orderBy,
+	parseTableQuery,
+	serverTable
+} from '$lib/server/table';
 import {
 	sendEmail,
 	customerDeliveredTemplate,
@@ -29,38 +38,45 @@ import { addCustomer } from '$lib/ZodSchema';
 import { saveUploadedFile } from '$lib/server/upload';
 import type { PageServerLoad, Actions } from './$types';
 
-const DEFAULT_PAGE_SIZE = 20;
-const ALLOWED_PAGE_SIZES = [10, 20, 50, 100];
 const STATUSES = ['pending', 'delivered', 'cancelled'] as const;
+type PaymentStatus = (typeof transactions.paymentStatus.enumValues)[number];
 
 export const load: PageServerLoad = async ({ url }) => {
+	// The status buttons above the table: pending unless asked otherwise, `all` for every order.
 	const statusParam = url.searchParams.get('status') ?? 'pending';
 	const status = STATUSES.includes(statusParam as (typeof STATUSES)[number]) ? statusParam : 'all';
-	const start = url.searchParams.get('start');
-	const end = url.searchParams.get('end');
-	const search = url.searchParams.get('search')?.trim() ?? '';
-	const paymentMethodFilter = url.searchParams.get('paymentMethod');
-	// `Math.max(1, NaN)` is NaN, so `?page=abc` reached `.offset(NaN)` and 500'd.
-	const parsedPage = parseInt(url.searchParams.get('page') ?? '1', 10);
-	const page = Number.isFinite(parsedPage) ? Math.max(1, parsedPage) : 1;
-	const pageSizeParam = parseInt(url.searchParams.get('pageSize') ?? '');
-	const PAGE_SIZE = ALLOWED_PAGE_SIZES.includes(pageSizeParam) ? pageSizeParam : DEFAULT_PAGE_SIZE;
-	const offset = (page - 1) * PAGE_SIZE;
 
-	const whereClause = and(
-		status !== 'all' ? eq(orders.status, status as (typeof STATUSES)[number]) : undefined,
-		start ? gte(orders.createdAt, new Date(start)) : undefined,
-		end ? lte(orders.createdAt, new Date(`${end}T23:59:59`)) : undefined,
-		paymentMethodFilter ? eq(transactions.paymentMethodId, Number(paymentMethodFilter)) : undefined,
-		search
-			? or(
-					like(customers.name, `%${search}%`),
-					like(customers.phone, `%${search}%`),
-					like(customers.email, `%${search}%`),
-					like(orders.deliveryAddress, `%${search}%`)
-				)
-			: undefined
-	);
+	const query = parseTableQuery(url, ['paymentMethodName', 'paymentStatus'], 20, [
+		'name',
+		'phone',
+		'email',
+		'deliveryAddress',
+		'fee',
+		'paymentMethodName',
+		'paymentStatus',
+		'createdAt',
+		'status'
+	]);
+
+	const spec = {
+		base: [status !== 'all' ? eq(orders.status, status as (typeof STATUSES)[number]) : undefined],
+		dateColumn: orders.createdAt,
+		search: (term: string) =>
+			or(
+				like(customers.name, contains(term)),
+				like(customers.phone, contains(term)),
+				like(customers.email, contains(term)),
+				like(orders.deliveryAddress, contains(term))
+			),
+		filters: {
+			paymentMethodName: (v: string) => eq(transactions.paymentMethodId, Number(v)),
+			paymentStatus: (v: string) =>
+				(transactions.paymentStatus.enumValues as readonly string[]).includes(v)
+					? eq(transactions.paymentStatus, v as PaymentStatus)
+					: undefined
+		}
+	};
+	const whereClause = buildWhere(query, spec);
 
 	// `addCustomerForm` feeds the shared add-customer dialog; it posts across to
 	// /dashboard/customers?/addCustomer, which is where that action lives.
@@ -152,9 +168,24 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(transactions, eq(orders.transactionId, transactions.id))
 		.leftJoin(paymentMethods, eq(transactions.paymentMethodId, paymentMethods.id))
 		.where(whereClause)
-		.orderBy(desc(orders.createdAt))
-		.limit(PAGE_SIZE)
-		.offset(offset);
+		.orderBy(
+			...(orderBy(query, {
+				name: customers.name,
+				phone: customers.phone,
+				email: customers.email,
+				deliveryAddress: orders.deliveryAddress,
+				fee: orders.fee,
+				paymentMethodName: paymentMethods.name,
+				paymentStatus: transactions.paymentStatus,
+				createdAt: orders.createdAt,
+				status: orders.status
+			}) ?? [
+				desc(orders.createdAt)
+			]),
+			desc(orders.id)
+		)
+		.limit(query.limit)
+		.offset(query.offset);
 
 	const [{ total }] = await db
 		.select({ total: count(orders.id) })
@@ -163,7 +194,27 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(transactions, eq(orders.transactionId, transactions.id))
 		.where(whereClause);
 
-	const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+	/** Every facet joins what the search and filters can reach, minus its own filter. */
+	const facets = await facetCounts({
+		paymentMethodName: () =>
+			db
+				.select({ value: paymentMethods.id, label: paymentMethods.name, count: count() })
+				.from(orders)
+				.leftJoin(customers, eq(orders.customerId, customers.id))
+				.innerJoin(transactions, eq(orders.transactionId, transactions.id))
+				.innerJoin(paymentMethods, eq(transactions.paymentMethodId, paymentMethods.id))
+				.where(buildWhere(query, spec, { except: 'paymentMethodName' }))
+				.groupBy(paymentMethods.id, paymentMethods.name),
+		paymentStatus: () =>
+			db
+				.select({ value: transactions.paymentStatus, count: count() })
+				.from(orders)
+				.leftJoin(customers, eq(orders.customerId, customers.id))
+				.innerJoin(transactions, eq(orders.transactionId, transactions.id))
+				.where(buildWhere(query, spec, { except: 'paymentStatus' }))
+				.groupBy(transactions.paymentStatus)
+				.then(enumFacet)
+	});
 
 	const orderIds = allData.map((o) => o.id);
 	const allItems = orderIds.length
@@ -196,21 +247,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		paymentMethodList,
 		placeList,
 		freeDeliveryThreshold,
-		filters: {
-			status,
-			start,
-			end,
-			search,
-			paymentMethod: paymentMethodFilter,
-			pageSize: PAGE_SIZE
-		},
-		pagination: {
-			currentPage: page,
-			totalPages,
-			totalCount: total,
-			hasNextPage: page < totalPages,
-			hasPrevPage: page > 1
-		}
+		status,
+		table: serverTable(query, total, facets)
 	};
 };
 

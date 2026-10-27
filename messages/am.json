@@ -641,5 +641,9 @@
 	"srv_chapa_unreachable": "ቻፓን ማግኘት አልተቻለም። እባክዎ ትንሽ ቆይተው እንደገና ይሞክሩ።",
 	"srv_receipt_received": "ደረሰኙ ደርሷል — ካረጋገጥን በኋላ ትዕዛዝዎን እናጸድቃለን።",
 	"srv_logout_success": "በተሳካ ሁኔታ ወጥተዋል",
-	"hello_world": "Hello, {name} from am!"
+	"hello_world": "Hello, {name} from am!",
+	"home_products_title": "የእኛ",
+	"home_products_title_highlight": "ምርቶች",
+	"home_products_text": "ለቀጣዩ ፕሮጀክትዎ ዝግጁ የሆኑ ሙያዊ ደረጃ ያላቸው መሣሪያዎችና ቁሳቁሶች።",
+	"home_products_view_all": "ሁሉንም ምርቶች ይመልከቱ"
 }

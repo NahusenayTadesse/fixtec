@@ -21,17 +21,19 @@
 			icon: Linkedin,
 			color: 'hover:text-black dark:hover:text-white'
 		},
+		// These two were written as `label`/`href`, which this list's template never reads, so
+		// their icons linked nowhere.
 		{
+			name: 'Instagram',
+			url: 'https://www.instagram.com/Fix@202016_lalo-instrgram',
 			icon: Instagram,
-			label: 'Instagram',
-			value: 'Contact us on Instagram',
-			href: 'https://www.instagram.com/Fix@202016_lalo-instrgram'
+			color: 'hover:text-pink-500'
 		},
 		{
+			name: 'TikTok',
+			url: 'https://www.tiktok.com/@fixtechlalo',
 			icon: '',
-			label: 'TikTok',
-			value: 'Follow us on TikTok',
-			href: 'https://www.tiktok.com/@fixtechlalo'
+			color: 'hover:text-black dark:hover:text-white'
 		},
 		{
 			name: 'Telegram',
@@ -55,7 +57,10 @@
 	];
 </script>
 
-<footer class="border-t bg-card text-card-foreground">
+<footer class="relative overflow-hidden border-x-0 border-b-0 text-card-foreground glass-strong">
+	<div
+		class="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary to-transparent"
+	></div>
 	<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 		<!-- Newsletter Section -->
 
@@ -141,16 +146,17 @@
 			<div class="flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
 				<p class="text-sm text-foreground/70">{m.footer_follow()}</p>
 				<div class="grid grid-cols-4 gap-3">
-					{#each socialLinks as social}
+					{#each socialLinks as social (social.name)}
 						<a
 							href={social.url}
 							target="_blank"
 							rel="noopener noreferrer"
 							class={[
-								'flex flex-col items-center gap-2 rounded-lg border p-4 transition-all hover:border-primary hover:shadow-lg',
+								'flex flex-col items-center gap-2 rounded-2xl p-4 glass transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-[0_12px_30px_-12px_var(--primary)]',
 								social.color
 							]}
 							title={social.name}
+							aria-label={social.name}
 						>
 							{#if social.icon === ''}
 								<svg

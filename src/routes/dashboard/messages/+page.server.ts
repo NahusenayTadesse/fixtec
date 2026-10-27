@@ -1,6 +1,15 @@
 import { superValidate, message, fail } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { eq } from 'drizzle-orm';
+import { count, desc, eq, isNull, like, or, sql } from 'drizzle-orm';
+import {
+	buildWhere,
+	contains,
+	enumFacet,
+	facetCounts,
+	orderBy,
+	parseTableQuery,
+	serverTable
+} from '$lib/server/table';
 
 import { deleteTestimonial, markRead } from './schema.js';
 import { db } from '$lib/server/db';
@@ -8,28 +17,94 @@ import { contactMessages as paymentMethods } from '$lib/server/db/schema';
 import type { Actions } from './$types.js';
 import type { PageServerLoad } from './$types.js';
 
-export const load: PageServerLoad = async () => {
-	const readForm = await superValidate(zod4(markRead));
-	const deleteForm = await superValidate(zod4(deleteTestimonial));
+export const load: PageServerLoad = async ({ url }) => {
+	const query = parseTableQuery(url, ['subject', 'isRead'], 20, [
+		'name',
+		'phone',
+		'email',
+		'subject',
+		'address',
+		'createdAt',
+		'isRead'
+	]);
 
-	const allPaymentMethods = await db
-		.select({
-			id: paymentMethods.id,
-			name: paymentMethods.name,
-			email: paymentMethods.email,
-			phone: paymentMethods.phone,
-			subject: paymentMethods.subject,
-			isRead: paymentMethods.seen,
-			message: paymentMethods.message,
-			address: paymentMethods.address,
-			submittedAt: paymentMethods.createdAt
+	const spec = {
+		dateColumn: paymentMethods.createdAt,
+		search: (term: string) =>
+			or(
+				like(paymentMethods.name, contains(term)),
+				like(paymentMethods.email, contains(term)),
+				like(paymentMethods.phone, contains(term)),
+				like(paymentMethods.subject, contains(term)),
+				like(paymentMethods.address, contains(term)),
+				like(paymentMethods.message, contains(term))
+			),
+		filters: {
+			subject: (v: string) => eq(paymentMethods.subject, v),
+			// `seen` defaults to null on old rows, which reads as unread.
+			isRead: (v: string) =>
+				v === 'read'
+					? eq(paymentMethods.seen, true)
+					: or(eq(paymentMethods.seen, false), isNull(paymentMethods.seen))
+		}
+	};
+	const where = buildWhere(query, spec);
+	const readState = sql<string>`CASE WHEN ${paymentMethods.seen} THEN 'read' ELSE 'unread' END`;
+
+	const [readForm, deleteForm, allPaymentMethods, [{ total }], facets] = await Promise.all([
+		superValidate(zod4(markRead)),
+		superValidate(zod4(deleteTestimonial)),
+		db
+			.select({
+				id: paymentMethods.id,
+				name: paymentMethods.name,
+				email: paymentMethods.email,
+				phone: paymentMethods.phone,
+				subject: paymentMethods.subject,
+				isRead: paymentMethods.seen,
+				message: paymentMethods.message,
+				address: paymentMethods.address,
+				submittedAt: paymentMethods.createdAt
+			})
+			.from(paymentMethods)
+			.where(where)
+			.orderBy(
+				...(orderBy(query, {
+					name: paymentMethods.name,
+					phone: paymentMethods.phone,
+					email: paymentMethods.email,
+					subject: paymentMethods.subject,
+					address: paymentMethods.address,
+					createdAt: paymentMethods.createdAt,
+					isRead: paymentMethods.seen
+				}) ?? [desc(paymentMethods.createdAt)]),
+				desc(paymentMethods.id)
+			)
+			.limit(query.limit)
+			.offset(query.offset),
+		db.select({ total: count() }).from(paymentMethods).where(where),
+		facetCounts({
+			subject: () =>
+				db
+					.select({ value: paymentMethods.subject, count: count() })
+					.from(paymentMethods)
+					.where(buildWhere(query, spec, { except: 'subject' }))
+					.groupBy(paymentMethods.subject),
+			isRead: () =>
+				db
+					.select({ value: readState, count: count() })
+					.from(paymentMethods)
+					.where(buildWhere(query, spec, { except: 'isRead' }))
+					.groupBy(readState)
+					.then(enumFacet)
 		})
-		.from(paymentMethods);
+	]);
 
 	return {
 		readForm,
 		deleteForm,
-		allPaymentMethods
+		allPaymentMethods,
+		table: serverTable(query, total, facets)
 	};
 };
 

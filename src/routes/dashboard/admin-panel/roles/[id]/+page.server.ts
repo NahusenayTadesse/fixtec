@@ -4,13 +4,14 @@ import { editRoleSchema as schema } from './schema';
 
 import { db } from '$lib/server/db';
 import { roles, user, rolePermissions } from '$lib/server/db/schema';
-import { eq, countDistinct, and } from 'drizzle-orm';
+import { and, asc, count, countDistinct, eq, like, or, sql } from 'drizzle-orm';
+import { buildWhere, contains, orderBy, parseTableQuery, serverTable } from '$lib/server/table';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from 'sveltekit-superforms';
 import { setFlash } from 'sveltekit-flash-message/server';
 import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	const { id } = params;
 
 	const form = await superValidate(zod4(schema));
@@ -34,20 +35,37 @@ export const load: PageServerLoad = async ({ params }) => {
 		return error(404, { message: 'Role not found' });
 	}
 
-	const userList = await db
-		.select({
-			id: user.id,
-			email: user.email,
-			name: user.name
-		})
-		.from(user)
-		.where(eq(user.roleId, Number(id)));
+	const query = parseTableQuery(url, [], 20, ['name', 'email', 'isActive']);
+	const where = buildWhere(query, {
+		base: [eq(user.roleId, Number(id))],
+		search: (term: string) => or(like(user.name, contains(term)), like(user.email, contains(term)))
+	});
+
+	const isActive = sql<boolean>`COALESCE(${user.banned}, FALSE) = FALSE`.mapWith(Boolean);
+
+	const [userList, [{ total }]] = await Promise.all([
+		db
+			.select({
+				id: user.id,
+				email: user.email,
+				name: user.name,
+				// A user is active until banned; `banned` is null on accounts never touched.
+				isActive: isActive
+			})
+			.from(user)
+			.where(where)
+			.orderBy(...(orderBy(query, { name: user.name, email: user.email, isActive }) ?? []), asc(user.id))
+			.limit(query.limit)
+			.offset(query.offset),
+		db.select({ total: count() }).from(user).where(where)
+	]);
 
 	return {
 		singleUser,
 		id,
 		form,
-		userList
+		userList,
+		table: serverTable(query, total)
 	};
 };
 

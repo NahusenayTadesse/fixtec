@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages.js';
+	import SectionGears from '$lib/components/section-gears.svelte';
 	import * as Card from '@nahu/admin-kit/components/ui/card/index.js';
 	import { Badge } from '@nahu/admin-kit/components/ui/badge/index.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
@@ -176,12 +177,13 @@
 	<meta property="twitter:image" content="/tools (4).webp" />
 </svelte:head>
 
-<div class="min-h-screen bg-background text-foreground">
+<div class="min-h-screen text-foreground">
 	<section
-		class="relative flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-contain bg-center px-6 py-20 lg:px-8"
+		class="relative z-0 flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-contain bg-center px-6 py-20 lg:px-8"
 		style="background-image: url('/tools (4).webp')"
 	>
-		<div class="backdrop-blur-xm absolute inset-0 bg-black/40"></div>
+		<div class="absolute inset-0 -z-1 bg-black/40"></div>
+		<SectionGears />
 
 		<div class="relative mx-auto max-w-4xl text-center">
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
@@ -207,7 +209,7 @@
 				</div>
 			</div>
 
-			<Card.Root class="border-border bg-card">
+			<Card.Root class="glass rounded-3xl">
 				<Card.Header>
 					<Card.Title>{m.aboutus_advantage_title()}</Card.Title>
 					<Card.Description>{m.aboutus_advantage_subtitle()}</Card.Description>
@@ -280,7 +282,7 @@
 		</div>
 	</section>
 
-	<section class="bg-accent/50 py-16">
+	<section class="py-16">
 		<div class="mx-auto max-w-5xl px-6 lg:px-8">
 			<div class="mb-12 text-center">
 				<h2 class="text-2xl font-bold tracking-widest text-muted-foreground uppercase">
@@ -292,7 +294,7 @@
 			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 				{#each challenges as challenge (challenge.text)}
 					<div
-						class="flex flex-col items-center rounded-lg border border-border bg-background p-6 text-center shadow-sm"
+						class="flex flex-col items-center glass rounded-2xl p-6 text-center"
 					>
 						<div class="mb-4 rounded-full bg-primary/10 p-3 text-primary">
 							<challenge.icon size={24} />
@@ -305,7 +307,7 @@
 	</section>
 
 	<section class="mx-auto max-w-5xl px-6 py-20 lg:px-8">
-		<div class="rounded-2xl border border-border bg-card p-8 md:p-12">
+		<div class="glass rounded-3xl p-8 md:p-12">
 			<div class="flex flex-col items-center gap-8 md:flex-row">
 				<div class="flex-1">
 					<h3 class="text-2xl font-bold">{m.aboutus_predictable_title()}</h3>
@@ -325,7 +327,7 @@
 	</section>
 </div>
 
-<div class="min-h-screen bg-background text-foreground">
+<div class="min-h-screen text-foreground">
 	<section class="border-b px-6 py-16 lg:px-8">
 		<div class="mx-auto max-w-5xl">
 			<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">
@@ -340,7 +342,7 @@
 	<section class="mx-auto max-w-5xl px-6 py-12 lg:px-8">
 		<div class="grid gap-6 md:grid-cols-3">
 			{#each productCategories as cat (cat)}
-				<Card.Root class="bg-card transition-colors hover:border-primary/50">
+				<Card.Root class="glass rounded-3xl transition-all hover:-translate-y-1 hover:border-primary/50">
 					<Card.Header>
 						<div class="mb-2 text-primary">
 							<cat.icon size={28} />
@@ -362,7 +364,7 @@
 		</div>
 	</section>
 
-	<section class="grid grid-cols-1 items-center gap-12 bg-muted/40 py-20 lg:grid-cols-2 lg:gap-16">
+	<section class="grid grid-cols-1 items-center gap-12 py-20 lg:grid-cols-2 lg:gap-16">
 		<div class="h-full min-h-[400px] w-full lg:h-[600px]">
 			<img
 				src="/tools (4).webp"
@@ -388,7 +390,7 @@
 				<div class="grid gap-4 sm:grid-cols-2">
 					{#each supplySolutions as solution (solution)}
 						<div
-							class="group rounded-2xl border border-border bg-background p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+							class="group glass rounded-2xl p-6 transition-all hover:-translate-y-1 hover:shadow-md"
 						>
 							<h3 class="text-lg font-bold transition-colors group-hover:text-primary">
 								{solution.title}
@@ -414,12 +416,12 @@
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each industries as indu (indu.name)}
 				<div
-					class="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-md"
+					class="group relative flex flex-col gap-3 glass rounded-2xl p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-md"
 				>
 					<div class="flex items-center justify-between">
 						<!-- <span class="text-2xl">{icon}</span> -->
 						<indu.icon />
-						<div class="h-1.5 w-1.5 rounded-full bg-border group-hover:bg-primary" />
+						<div class="h-1.5 w-1.5 rounded-full bg-border group-hover:bg-primary"></div>
 					</div>
 
 					<div>
@@ -436,10 +438,11 @@
 	</section>
 
 	<section
-		class="relative z-0 mx-auto max-w-full border-t border-border/50 bg-contain bg-center px-6 py-24 md:py-32"
+		class="relative z-0 mx-auto max-w-full overflow-hidden border-t border-border/50 bg-contain bg-center px-6 py-24 md:py-32"
 		style="background-image: url('/tools (6).webp');"
 	>
 		<div class="absolute inset-0 -z-1 bg-black/70"></div>
+		<SectionGears />
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-16 md:mb-20">
 				<div class="inline-flex items-center gap-3">
@@ -464,7 +467,7 @@
 			<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:gap-8">
 				{#each partners as p (p)}
 					<div
-						class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/30 hover:shadow-xl"
+						class="group relative flex flex-col gap-5 overflow-hidden glass-dark rounded-3xl p-8 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_0_40px_-10px_var(--primary)]"
 					>
 						<div
 							class="absolute inset-x-0 top-0 h-1 bg-primary opacity-0 transition group-hover:opacity-100"
@@ -472,18 +475,18 @@
 
 						<div class="flex items-center justify-between">
 							<div
-								class="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary"
+								class="flex size-14 items-center justify-center rounded-full bg-primary/20 text-primary ring-1 ring-primary/30"
 							>
 								<p.icon class="size-7" />
 							</div>
-							<span class="text-xs font-bold tracking-widest text-muted-foreground/80 uppercase"
+							<span class="text-xs font-bold tracking-widest text-white/60 uppercase"
 								>{p.short}</span
 							>
 						</div>
 
 						<div class="grow space-y-2">
-							<p class="text-2xl font-semibold tracking-tight text-foreground">{p.name}</p>
-							<p class="text-sm leading-relaxed text-muted-foreground">
+							<p class="text-2xl font-semibold tracking-tight text-white">{p.name}</p>
+							<p class="text-sm leading-relaxed text-zinc-300">
 								{p.description}
 							</p>
 						</div>

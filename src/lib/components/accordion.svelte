@@ -49,12 +49,10 @@
 	];
 </script>
 
-<div
-	class="min-h-dvh bg-linear-to-br from-primary/5 via-background to-accent/5 px-4 py-12 sm:px-6 lg:px-8"
->
+<div class="px-4 py-24 sm:px-6 lg:px-8">
 	<div class="mx-auto w-full">
 		<!-- Header -->
-		<div class="mb-12 text-center">
+		<div data-reveal="up" class="mb-12 text-center">
 			<h1 class="mb-4 text-4xl font-bold text-foreground sm:text-5xl">{m.why_title()}</h1>
 			<p class="text-lg text-muted-foreground">
 				{m.why_text()}
@@ -67,22 +65,24 @@
 			collapsible
 			class="grid w-9/10 grid-cols-1 items-center gap-3 space-y-3 justify-self-center lg:grid-cols-2"
 		>
-			{#each features as feature (feature.id)}
+			{#each features as feature, i (feature.id)}
 				<AccordionItem
 					value={feature.id}
-					class="hover:shadow-lg-md transition-shadow-lg overflow-hidden rounded-lg border border-border shadow-lg duration-200"
+					data-reveal="up"
+					style="--d: {(i % 2) * 120 + Math.floor(i / 2) * 60}ms"
+					class="overflow-hidden rounded-2xl glass transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-18px_var(--primary)]"
 				>
 					<AccordionTrigger
-						class="px-6 py-4 transition-colors duration-200 hover:bg-accent/5 [&[data-state=open]]:bg-primary/5"
+						class="px-6 py-4 transition-colors duration-200 hover:no-underline [&[data-state=open]]:bg-primary/10"
 					>
 						<div class="flex items-center gap-4 text-left">
-							<div class="shrink-0 rounded-lg bg-primary/10 p-2">
-								<svelte:component this={feature.icon} class="size-5 text-primary" />
+							<div class="shrink-0 rounded-xl bg-primary/10 p-2 ring-1 ring-primary/20">
+								<feature.icon class="size-5 text-primary" />
 							</div>
 							<h3 class="text-lg font-semibold text-foreground">{feature.title}</h3>
 						</div>
 					</AccordionTrigger>
-					<AccordionContent class="border-t border-border bg-card/50 px-6 py-4">
+					<AccordionContent class="border-t border-(--glass-border) px-6 py-4">
 						<p class="leading-relaxed text-muted-foreground">{feature.description}</p>
 					</AccordionContent>
 				</AccordionItem>
@@ -90,11 +90,15 @@
 		</Accordion>
 
 		<!-- Footer CTA -->
-		<div class="mt-12 text-center">
+		<div data-reveal="up" class="mt-12 text-center">
 			<p class="mb-4 text-muted-foreground">
 				{m.why_cta_text()}
 			</p>
-			<Button href="/contact-us">{m.why_cta_button()}</Button>
+			<Button
+				href="/contact-us"
+				class="rounded-full px-8 shadow-[0_0_30px_-8px_var(--primary)] transition-shadow hover:shadow-[0_0_45px_-6px_var(--primary)]"
+				>{m.why_cta_button()}</Button
+			>
 		</div>
 	</div>
 </div>

@@ -9,7 +9,8 @@ import {
 	products,
 	orderItems
 } from '$lib/server/db/schema';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, count, desc, eq, exists, inArray, like, or, sql } from 'drizzle-orm';
+import { buildWhere, contains, orderBy, parseTableQuery, serverTable } from '$lib/server/table';
 import type { Actions, PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms';
 import { error, isHttpError } from '@sveltejs/kit';
@@ -18,7 +19,7 @@ import { setFlash } from 'sveltekit-flash-message/server';
 import { duplicateField } from '$lib/server/crud';
 import { normalizeEthiopianPhone } from '$lib/validators/phone';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	try {
 		const id = Number(params.id);
 
@@ -63,16 +64,43 @@ export const load: PageServerLoad = async ({ params }) => {
 			.from(paymentMethods)
 			.where(eq(paymentMethods.isActive, true));
 
-		const allData = await db
-			.select({
-				id: orders.id,
-				name: customers.name,
-				status: orders.status,
-				createdAt: sql<string>`DATE_FORMAT(${orders.createdAt}, '%Y-%m-%d')`
-			})
-			.from(orders)
-			.leftJoin(customers, eq(orders.customerId, customers.id))
-			.where(and(eq(orders.status, 'pending'), eq(orders.customerId, id)));
+		const query = parseTableQuery(url, [], 20, ['createdAt']);
+		const where = buildWhere(query, {
+			base: [eq(orders.status, 'pending'), eq(orders.customerId, id)],
+			// An order matches by its number, or when any of its items is for that product.
+			search: (term: string) =>
+				or(
+					sql`CAST(${orders.id} AS CHAR) = ${term}`,
+					exists(
+						db
+							.select({ one: sql`1` })
+							.from(orderItems)
+							.innerJoin(products, eq(orderItems.productId, products.id))
+							.where(and(eq(orderItems.orderId, orders.id), like(products.name, contains(term))))
+					)
+				)
+		});
+
+		const [allData, [{ total }]] = await Promise.all([
+			db
+				.select({
+					id: orders.id,
+					name: customers.name,
+					status: orders.status,
+					createdAt: sql<string>`DATE_FORMAT(${orders.createdAt}, '%Y-%m-%d')`
+				})
+				.from(orders)
+				.leftJoin(customers, eq(orders.customerId, customers.id))
+				.where(where)
+				.orderBy(
+					...(orderBy(query, { createdAt: orders.createdAt }) ?? [desc(orders.createdAt)]),
+					desc(orders.id)
+				)
+				.limit(query.limit)
+				.offset(query.offset),
+			db.select({ total: count() }).from(orders).where(where)
+		]);
+		const table = serverTable(query, total);
 
 		// Only the items of the orders listed above. A condition inside a LEFT JOIN
 		// filters nothing, which loaded the whole order-items table on every visit.
@@ -99,7 +127,8 @@ export const load: PageServerLoad = async ({ params }) => {
 			allMethods,
 			allData,
 			allItems,
-			orderCounts
+			orderCounts,
+			table
 		};
 	} catch (err) {
 		// Let the 404 above through instead of rendering an empty page.

@@ -1,21 +1,16 @@
+import { rowNumber } from '@nahu/admin-kit/components/Table/row-number';
 import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 import DataTableLinks from '@nahu/admin-kit/components/Table/data-table-links.svelte';
 import DataTableActions from './data-table-actions.svelte';
 import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
 
-const TYPE_LABELS: Record<string, string> = {
-	receive: 'Received',
-	sale: 'Sold',
-	return: 'Returned',
-	damage: 'Damaged',
-	correction: 'Correction'
-};
+import { TYPE_LABELS } from './labels';
 
 export const columns = [
 	{
 		accessorKey: 'index',
 		header: '#',
-		cell: (info) => info.row.index + 1
+		cell: rowNumber
 	},
 
 	{
@@ -49,6 +44,12 @@ export const columns = [
 		accessorKey: 'variant',
 		header: 'Variant',
 		cell: ({ row }) => row.original.variant ?? 'Whole product'
+	},
+
+	{
+		accessorKey: 'supplier',
+		header: 'Supplier',
+		cell: ({ row }) => row.original.supplier ?? '—'
 	},
 
 	{
@@ -91,7 +92,7 @@ export const columns = [
 	{
 		accessorKey: 'reciept',
 		header: 'Reciept',
-		sortable: true,
+		sortable: false,
 		cell: ({ row }) => {
 			// You can pass whatever you need from `row.original` to the component
 			//

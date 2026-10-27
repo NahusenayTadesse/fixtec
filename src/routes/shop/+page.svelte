@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages.js';
 	import ProductCard from '$lib/components/product-card.svelte';
+	import SectionGears from '$lib/components/section-gears.svelte';
 	import { Input } from '@nahu/admin-kit/components/ui/input/index.js';
 	import { Checkbox } from '@nahu/admin-kit/components/ui/checkbox/index.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
@@ -144,10 +145,11 @@
 
 <!-- Hero Banner -->
 <section
-	class="relative flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-cover bg-center px-6 py-20 lg:px-8"
+	class="relative z-0 flex h-96 flex-col items-center justify-center overflow-hidden border-b bg-cover bg-center px-6 py-20 lg:px-8"
 	style="background-image: url('/tools (3).webp')"
 >
-	<div class="absolute inset-0 bg-black/40"></div>
+	<div class="absolute inset-0 -z-1 bg-black/40"></div>
+	<SectionGears />
 	<div class="relative mx-auto max-w-4xl text-center">
 		<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
 			{m.aboutus_products_title()}
@@ -158,9 +160,9 @@
 	</div>
 </section>
 
-<div class="min-h-dvh bg-background pb-8 text-foreground transition-colors duration-300">
+<div class="min-h-dvh pb-8 text-foreground">
 	<!-- Sticky Header + Search -->
-	<header class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
+	<header class="sticky top-0 z-40 border-b glass-strong">
 		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 			<div class="mb-6 flex items-center justify-between">
 				<div>

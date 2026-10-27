@@ -5,6 +5,10 @@
 		<link rel="manifest" href="/manifest.json" />
 
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- Scroll reveals hide their elements only once this has run; see `$lib/reveal`. -->
+		<script>
+			document.documentElement.classList.add('js');
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

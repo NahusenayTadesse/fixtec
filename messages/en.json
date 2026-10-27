@@ -641,5 +641,9 @@
 	"srv_chapa_unreachable": "Could not reach Chapa. Please try again in a moment.",
 	"srv_receipt_received": "Receipt received — we'll confirm your order once we've checked it.",
 	"srv_logout_success": "Logout Successful",
-	"hello_world": "Hello, {name} from en!"
+	"hello_world": "Hello, {name} from en!",
+	"home_products_title": "Our",
+	"home_products_title_highlight": "Products",
+	"home_products_text": "Professional-grade tools and supplies, ready for your next project.",
+	"home_products_view_all": "View all products"
 }

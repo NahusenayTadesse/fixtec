@@ -16,7 +16,9 @@
 		Utensils,
 		Building
 	} from '@lucide/svelte';
+	import SectionGears from '$lib/components/section-gears.svelte';
 	import Slider from '$lib/components/slider.svelte';
+	import ProductsCarousel from '$lib/components/products-carousel.svelte';
 
 	let partners = [
 		{
@@ -85,13 +87,21 @@
 <Hero />
 <About />
 
+{#if data?.productList?.length > 0}
+	<ProductsCarousel products={data.productList} />
+{/if}
+
 <section
-	class="relative z-0 mx-auto max-w-full border-t border-border/50 bg-cover bg-center px-6 py-24 md:py-32"
+	class="relative z-0 mx-auto max-w-full overflow-hidden bg-cover bg-fixed bg-center px-6 py-24 md:py-32"
 	style="background-image: url('/tools (4).webp');"
 >
-	<div class="absolute inset-0 -z-1 bg-black/70"></div>
+	<div class="absolute inset-0 -z-1 bg-linear-to-b from-black/85 via-black/70 to-black/85"></div>
+	<div
+		class="absolute top-1/2 left-1/2 -z-1 size-[40rem] -translate-1/2 rounded-full bg-primary/25 blur-3xl"
+	></div>
+	<SectionGears />
 	<div class="mx-auto max-w-7xl">
-		<div class="mb-16 md:mb-20">
+		<div data-reveal="up" class="mb-16 md:mb-20">
 			<div class="inline-flex items-center gap-3">
 				<!-- <span class="text-xs font-bold tracking-[0.25em] text-white uppercase"
 					>Our Subsideries and Sister Companies</span
@@ -110,29 +120,33 @@
 		</div>
 
 		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:gap-8">
-			{#each partners as p (p)}
+			{#each partners as p, i (p)}
 				<div
-					class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/30 hover:shadow-xl"
+					data-reveal="up"
+					style="--d: {(i % 3) * 120}ms"
+					class="group relative flex flex-col gap-5 overflow-hidden rounded-3xl p-8 glass-dark transition-all duration-500 hover:-translate-y-2 hover:border-primary/40 hover:shadow-[0_24px_60px_-20px_var(--primary)]"
 				>
 					<div
-						class="absolute inset-x-0 top-0 h-1 bg-primary opacity-0 transition group-hover:opacity-100"
+						class="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-linear-to-r from-primary to-cyan-300 transition-transform duration-500 group-hover:scale-x-100"
+					></div>
+					<!-- Light that follows the card's hover -->
+					<div
+						class="pointer-events-none absolute -top-24 -right-24 size-48 rounded-full bg-primary/30 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
 					></div>
 
 					<div class="flex items-center justify-between">
 						<div
-							class="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary"
+							class="flex size-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30 transition-all duration-500 group-hover:rotate-[-8deg] group-hover:bg-primary group-hover:text-primary-foreground"
 						>
 							<p.icon class="size-7" />
 						</div>
-						<span class="text-xs font-bold tracking-widest text-muted-foreground/80 uppercase"
-							>{p.short}</span
-						>
+						<span class="text-xs font-bold tracking-widest text-white/50 uppercase">{p.short}</span>
 					</div>
 
 					<div class="grow space-y-2">
-						<p class="text-2xl font-semibold tracking-tight text-foreground">{p.name}</p>
+						<p class="text-2xl font-semibold tracking-tight text-white">{p.name}</p>
 						<p
-							class="line-clamp-2 text-sm leading-relaxed text-muted-foreground group-hover:line-clamp-none"
+							class="line-clamp-2 text-sm leading-relaxed text-white/70 group-hover:line-clamp-none"
 						>
 							{p.description}
 						</p>
@@ -149,7 +163,7 @@
 {#if data?.allPaymentMethods.length > 0}
 	<main class="flex flex-col items-center justify-center px-4 py-12 md:py-20">
 		<!-- Section Header -->
-		<div class="mb-12 max-w-2xl text-center">
+		<div data-reveal="up" class="mb-12 max-w-2xl text-center">
 			<h2 class="mb-4 text-3xl font-bold text-foreground md:text-4xl">
 				{m.home_testimonials_title()}
 			</h2>
@@ -159,7 +173,9 @@
 		</div>
 
 		<!-- Testimonial Carousel -->
-		<Testimonial testimonials={data?.allPaymentMethods} />
+		<div data-reveal="zoom" class="w-full" style="--d: 120ms">
+			<Testimonial testimonials={data?.allPaymentMethods} />
+		</div>
 	</main>
 {/if}
 <Accordion />
