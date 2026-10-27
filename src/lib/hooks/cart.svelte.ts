@@ -123,11 +123,13 @@ class UseCart {
 	 * from the database, so the two have to be brought together *before* the
 	 * customer is shown a total.
 	 */
-	syncVariant = (priceId: number, price: number, amount: string) => {
+	syncVariant = (priceId: number, price: number, amount: string, productName?: string) => {
 		const index = this.items.findIndex((i) => i.priceId === priceId);
 		if (index >= 0) {
 			this.items[index].price = price;
 			this.items[index].amount = amount;
+			// Follows the visitor's language, so a cart filled in English reads in Amharic.
+			if (productName) this.items[index].productName = productName;
 		}
 	};
 

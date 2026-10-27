@@ -1,3 +1,5 @@
+import { getTextDirection } from '$lib/paraglide/runtime.js';
+import { paraglideMiddleware } from '$lib/paraglide/server.js';
 import { error, type Handle, type RequestEvent } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { building } from '$app/environment';
@@ -53,4 +55,24 @@ const handleAccess = kitHandle({ access, permissions: loadGrant });
 const handleBetterAuth: Handle = ({ event, resolve }) =>
 	svelteKitHandler({ event, resolve, auth, building });
 
-export const handle: Handle = sequence(handleSession, hideDashboard, handleAccess, handleBetterAuth);
+// First, so every later hook, load and action runs inside the request's locale.
+const handleParaglide: Handle = ({ event, resolve }) =>
+	paraglideMiddleware(event.request, ({ request, locale }) => {
+		return resolve(
+			{ ...event, request },
+			{
+				transformPageChunk: ({ html }) =>
+					html
+						.replace('%paraglide.lang%', locale)
+						.replace('%paraglide.dir%', getTextDirection(locale))
+			}
+		);
+	});
+
+export const handle: Handle = sequence(
+	handleParaglide,
+	handleSession,
+	hideDashboard,
+	handleAccess,
+	handleBetterAuth
+);

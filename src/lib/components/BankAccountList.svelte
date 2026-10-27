@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 	import { Check, Copy, Landmark } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
@@ -39,12 +40,12 @@
 	async function copy(account: BankAccount) {
 		try {
 			await writeToClipboard(account.accountNumber);
-			toast.success(`${account.bankName} account number copied`);
+			toast.success(m.bank_copied_toast({ bank: account.bankName }));
 			copiedId = account.id;
 			clearTimeout(resetTimer);
 			resetTimer = setTimeout(() => (copiedId = null), 2000);
 		} catch {
-			toast.error('Could not copy — please copy the number by hand');
+			toast.error(m.bank_copy_failed());
 		}
 	}
 </script>
@@ -67,13 +68,13 @@
 				variant="outline"
 				size="sm"
 				class="shrink-0"
-				aria-label="Copy {account.bankName} account number"
+				aria-label={m.bank_copy_label({ bank: account.bankName })}
 				onclick={() => copy(account)}
 			>
 				{#if copiedId === account.id}
-					<Check class="size-4 text-green-600" /> Copied
+					<Check class="size-4 text-green-600" /> {m.bank_copied()}
 				{:else}
-					<Copy class="size-4" /> Copy
+					<Copy class="size-4" /> {m.bank_copy()}
 				{/if}
 			</Button>
 		</li>

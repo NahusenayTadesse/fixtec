@@ -71,7 +71,9 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
 		.select({
 			id: products.id,
 			name: products.name,
+			nameAm: products.nameAm,
 			description: products.description,
+			descriptionAm: products.descriptionAm,
 			category: productCategories.name,
 			categoryId: productCategories.id,
 			quantity: products.quantity,
@@ -100,6 +102,7 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
 		.select({
 			id: prices.id,
 			amount: prices.amount,
+			amountAm: prices.amountAm,
 			price: sql<number>`CAST(${prices.price} AS DOUBLE)`,
 			sku: prices.sku,
 			quantity: prices.quantity,

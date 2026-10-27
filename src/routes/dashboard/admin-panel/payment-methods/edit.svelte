@@ -16,12 +16,14 @@
 		action = '/dashboard/customers?/addCustomer',
 		id,
 		name,
+		nameAm = null,
 		icon = false
 	}: {
 		data: SuperValidated<Infer<schema>>;
 		action: string;
 		id: number;
 		name: string;
+		nameAm?: string | null;
 		icon: boolean;
 	} = $props();
 
@@ -33,6 +35,7 @@
 
 	$form.id = id;
 	$form.name = name;
+	$form.nameAm = nameAm ?? '';
 
 	import { toast } from 'svelte-sonner';
 	import InputComp from '@nahu/admin-kit/formComponents/InputComp.svelte';
@@ -74,6 +77,14 @@
 						{form}
 						{errors}
 						placeholder="Enter Name of Payment Method"
+					/>
+					<InputComp
+						label="Name (Amharic, optional)"
+						name="nameAm"
+						type="text"
+						{form}
+						{errors}
+						placeholder="Leave empty to show the English name"
 					/>
 
 					<Button type="submit" class="mt-4" form="edit">

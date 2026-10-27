@@ -54,6 +54,14 @@
 				{form}
 				{errors}
 				type="text"
+				name="amountAm"
+				label="Variation (Amharic, optional)"
+				placeholder="ለምሳሌ 500 ግራም — leave empty to show the English label"
+			/>
+			<InputComp
+				{form}
+				{errors}
+				type="text"
 				name="sku"
 				label="SKU"
 				placeholder="Optional stock-keeping code"

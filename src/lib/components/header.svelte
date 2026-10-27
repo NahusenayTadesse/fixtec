@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { MenuIcon, XIcon } from '@lucide/svelte';
 	import DarkMode from '@nahu/admin-kit/components/shell/DarkMode.svelte';
 	import AvatarSettings from './AvatarSettings.svelte';
+	import LanguageSwitcher from './LanguageSwitcher.svelte';
 
 	import { Sheet, SheetContent, SheetTrigger } from '@nahu/admin-kit/components/ui/sheet/index.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
@@ -16,13 +18,13 @@
 	let { data } = $props();
 
 	const menuItems = [
-		{ label: 'Home', href: '/' },
-		{ label: 'Products and Services', href: '/shop' },
+		{ label: m.nav_home(), href: '/' },
+		{ label: m.nav_products_services(), href: '/shop' },
 
-		{ label: 'About Us', href: '/about-us' },
+		{ label: m.nav_about_us(), href: '/about-us' },
 
-		{ label: 'Contact Us', href: '/contact-us' },
-		{ label: 'Orders', href: '/orders' }
+		{ label: m.nav_contact_us(), href: '/contact-us' },
+		{ label: m.nav_orders(), href: '/orders' }
 	];
 </script>
 
@@ -38,7 +40,7 @@
 					width="128"
 					height="96"
 					class="h-12 w-auto object-contain"
-					alt="Lalo Fixtec"
+					alt={m.logo_alt()}
 					fetchpriority="high"
 				/>
 			</a>
@@ -66,13 +68,14 @@
 					{#if data === ''}
 						<!-- Search and Auth -->
 						<div class="item-end hidden gap-4 md:flex">
-							<Button href="/login" variant="ghost" size="sm">Sign In</Button>
-							<Button href="/signup" size="sm">Sign Up</Button>
+							<Button href="/login" variant="ghost" size="sm">{m.nav_sign_in()}</Button>
+							<Button href="/signup" size="sm">{m.nav_sign_up()}</Button>
 						</div>
 					{:else}
 						<AvatarSettings {data} />
 					{/if}
 				</div>
+				<LanguageSwitcher />
 				<DarkMode />
 			</div>
 
@@ -94,8 +97,8 @@
 						<div class="border-b bg-muted/20 p-6">
 							{#if data === ''}
 								<div class="space-y-1">
-									<h2 class="text-lg font-bold tracking-tight">Welcome</h2>
-									<p class="text-xs text-muted-foreground">Sign in to sync your progress</p>
+									<h2 class="text-lg font-bold tracking-tight">{m.nav_welcome()}</h2>
+									<p class="text-xs text-muted-foreground">{m.nav_sign_in_hint()}</p>
 								</div>
 							{:else}
 								<div class="flex items-center gap-4">
@@ -104,10 +107,10 @@
 									</div>
 									<div class="flex flex-col overflow-hidden">
 										<span class="truncate text-sm font-semibold">
-											{data.user?.name ?? 'Account'}
+											{data.user?.name ?? m.nav_account()}
 										</span>
 										<span class="truncate text-xs text-muted-foreground">
-											{data.user?.email ?? 'Member'}
+											{data.user?.email ?? m.nav_member()}
 										</span>
 									</div>
 								</div>
@@ -132,17 +135,20 @@
 
 						<div class="space-y-4 border-t bg-muted/10 p-4">
 							<div class="flex items-center justify-between px-2">
-								<span class="text-sm font-medium text-muted-foreground">Interface</span>
-								<DarkMode />
+								<span class="text-sm font-medium text-muted-foreground">{m.nav_interface()}</span>
+								<div class="flex items-center gap-1">
+									<LanguageSwitcher />
+									<DarkMode />
+								</div>
 							</div>
 
 							{#if data === ''}
 								<div class="grid grid-cols-2 gap-2">
 									<Button onclick={handleMenuClick} variant="outline" class="h-11" href="/login"
-										>Log In</Button
+										>{m.nav_log_in()}</Button
 									>
 									<Button onclick={handleMenuClick} class="h-11 shadow-sm" href="/signup"
-										>Join</Button
+										>{m.nav_join()}</Button
 									>
 								</div>
 							{/if}

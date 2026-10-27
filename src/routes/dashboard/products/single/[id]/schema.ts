@@ -17,6 +17,17 @@ export const edit = z.object({
 		.string()
 		.max(500, { message: "Product description can't be more than 500 characters." })
 		.optional(),
+	// Optional Amharic copy; the storefront shows the English fields where these are empty.
+	productNameAm: z
+		.string()
+		.trim()
+		.max(100, 'Amharic name can be at most 100 characters.')
+		.optional(),
+	descriptionAm: z
+		.string()
+		.trim()
+		.max(500, "Amharic description can't be more than 500 characters.")
+		.optional(),
 	// No `quantity`: stock only changes through the Adjust dialog, which keeps the
 	// ledger. Editing it here overwrote whatever deliveries had changed since the
 	// page loaded, with no record of why.
@@ -119,6 +130,8 @@ export type EditGallery = z.infer<typeof editGallery>;
 const variantFields = {
 	price: z.coerce.number('Price must be a number').positive('Price must be greater than 0'),
 	amount: z.string('Product Variation is required').trim().min(1, 'Product Variation is required'),
+	// Optional Amharic label; the storefront shows `amount` when it is empty.
+	amountAm: z.string().trim().max(255, 'Amharic label is too long').optional(),
 	sku: z.string().trim().max(64, 'SKU is too long').optional(),
 	// Empty means "use the product's reorder level".
 	reorderLevel: z.coerce

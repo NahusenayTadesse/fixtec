@@ -1,11 +1,13 @@
 import { db } from '$lib/server/db';
 import { products, productCategories, prices } from '$lib/server/db/schema';
 import type { PageServerLoad } from './$types';
+import { localized } from '$lib/localized';
 import {
 	eq,
 	sql,
 	and,
 	like,
+	or,
 	asc,
 	countDistinct,
 	inArray,
@@ -40,7 +42,12 @@ export const load: PageServerLoad = async ({ url }) => {
 	// so that a product matches when *any* of its variants is in range.
 	const whereClause = and(
 		eq(products.isActive, true),
-		search ? like(products.name, `%${escapeLike(search)}%`) : undefined,
+		search
+			? or(
+					like(products.name, `%${escapeLike(search)}%`),
+					like(products.nameAm, `%${escapeLike(search)}%`)
+				)
+			: undefined,
 		selectedCats.length > 0 ? inArray(productCategories.name, selectedCats) : undefined
 	);
 
@@ -66,22 +73,27 @@ export const load: PageServerLoad = async ({ url }) => {
 		LIMIT 1
 	)`;
 
+	// `name` stays the filter's value (it is what goes in the URL); `label` is what's shown.
 	const categories = await db
-		.select({ name: productCategories.name })
+		.select({ name: productCategories.name, nameAm: productCategories.nameAm })
 		.from(productCategories)
-		.groupBy(productCategories.name);
+		.groupBy(productCategories.name, productCategories.nameAm)
+		.then((rows) => rows.map((c) => ({ name: c.name, label: localized(c.name, c.nameAm) })));
 
 	const productsData = await db
 		.select({
 			productId: products.id,
 			productName: products.name,
+			productNameAm: products.nameAm,
 			// All three come from the same `prices` row, so the label and the
 			// price a customer sees always belong to the same variant.
 			priceId: prices.id,
 			price: prices.price,
 			amount: prices.amount,
+			amountAm: prices.amountAm,
 			image: products.featuredImage,
-			category: productCategories.name
+			category: productCategories.name,
+			categoryAm: productCategories.nameAm
 		})
 		.from(products)
 		.leftJoin(productCategories, eq(productCategories.id, products.categoryId))
@@ -116,15 +128,18 @@ export const load: PageServerLoad = async ({ url }) => {
 		? await db.select().from(prices).where(inArray(prices.productId, productIds))
 		: [];
 
-	const productList = productsData.map((p) => ({
+	const productList = productsData.map(({ productNameAm, amountAm, categoryAm, ...p }) => ({
 		...p,
+		productName: localized(p.productName, productNameAm),
+		amount: localized(p.amount, amountAm),
+		category: localized(p.category, categoryAm),
 		priceList: allPrices
 			.filter((price) => price.productId === p.productId)
 			.map((price) => ({
 				// `id` is what identifies a variant everywhere downstream — the cart
 				// keys on it and the server re-prices from it.
 				id: price.id,
-				amount: price.amount,
+				amount: localized(price.amount, price.amountAm),
 				price: price.price
 			}))
 	}));

@@ -2,6 +2,7 @@ import { db } from '$lib/server/db';
 import { products, productCategories, prices } from '$lib/server/db/schema';
 import { eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
 import type { LayoutServerLoad } from './$types';
+import { localized } from '$lib/localized';
 
 export const load: LayoutServerLoad = async () => {
 	const oneMonthAgo = new Date();
@@ -20,11 +21,14 @@ export const load: LayoutServerLoad = async () => {
 		.select({
 			productId: products.id,
 			productName: products.name,
+			productNameAm: products.nameAm,
 			priceId: prices.id,
 			price: prices.price,
 			amount: prices.amount,
+			amountAm: prices.amountAm,
 			image: products.featuredImage,
-			category: productCategories.name
+			category: productCategories.name,
+			categoryAm: productCategories.nameAm
 		})
 		.from(products)
 		.leftJoin(productCategories, eq(productCategories.id, products.categoryId))
@@ -41,14 +45,17 @@ export const load: LayoutServerLoad = async () => {
 				.orderBy(asc(prices.price), asc(prices.id))
 		: [];
 
-	const productList = productsData.map((p) => ({
+	const productList = productsData.map(({ productNameAm, amountAm, categoryAm, ...p }) => ({
 		...p,
+		productName: localized(p.productName, productNameAm),
+		amount: localized(p.amount, amountAm),
+		category: localized(p.category, categoryAm),
 		priceList: allPrices
 			.filter((price) => price.productId === p.productId)
 			.map((price) => ({
 				// `id` identifies the variant — the cart keys on it and checkout re-prices from it.
 				id: price.id,
-				amount: price.amount,
+				amount: localized(price.amount, price.amountAm),
 				price: price.price
 			}))
 	}));

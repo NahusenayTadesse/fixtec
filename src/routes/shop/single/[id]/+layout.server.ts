@@ -2,6 +2,7 @@ import { db } from '$lib/server/db';
 import { productCategories, products, prices, productImages } from '$lib/server/db/schema';
 import { eq, sql, and, ne, asc } from 'drizzle-orm';
 import type { LayoutServerLoad } from './$types';
+import { localized } from '$lib/localized';
 
 import { error } from '@sveltejs/kit';
 
@@ -23,8 +24,11 @@ export const load: LayoutServerLoad = async ({ params }) => {
 		.select({
 			productId: products.id,
 			productName: products.name,
+			productNameAm: products.nameAm,
 			description: products.description,
+			descriptionAm: products.descriptionAm,
 			category: productCategories.name,
+			categoryAm: productCategories.nameAm,
 			image: products.featuredImage,
 			categoryId: products.categoryId
 		})
@@ -32,7 +36,18 @@ export const load: LayoutServerLoad = async ({ params }) => {
 		.leftJoin(productCategories, eq(productCategories.id, products.categoryId))
 		.where(and(eq(products.id, productId), eq(products.isActive, true)))
 		.limit(1)
-		.then((rows) => rows[0]);
+		.then((rows) => rows[0])
+		.then(
+			(row) =>
+				row && {
+					productId: row.productId,
+					productName: localized(row.productName, row.productNameAm),
+					description: localized(row.description, row.descriptionAm),
+					category: localized(row.category, row.categoryAm),
+					image: row.image,
+					categoryId: row.categoryId
+				}
+		);
 
 	if (!product) {
 		error(404, 'Product not found');
@@ -66,11 +81,14 @@ export const load: LayoutServerLoad = async ({ params }) => {
 					.select({
 						productId: products.id,
 						productName: products.name,
+						productNameAm: products.nameAm,
 						priceId: prices.id,
 						price: prices.price,
 						amount: prices.amount,
+						amountAm: prices.amountAm,
 						image: products.featuredImage,
-						category: productCategories.name
+						category: productCategories.name,
+						categoryAm: productCategories.nameAm
 					})
 					.from(products)
 					.leftJoin(productCategories, eq(productCategories.id, products.categoryId))
@@ -82,7 +100,15 @@ export const load: LayoutServerLoad = async ({ params }) => {
 							ne(products.id, productId)
 						)
 					)
-					.limit(10);
+					.limit(10)
+					.then((rows) =>
+						rows.map(({ productNameAm, amountAm, categoryAm, ...p }) => ({
+							...p,
+							productName: localized(p.productName, productNameAm),
+							amount: localized(p.amount, amountAm),
+							category: localized(p.category, categoryAm)
+						}))
+					);
 
 	// `id` identifies the variant downstream — the cart keys on it and checkout
 	// re-prices from it. Ordered so "the first variant" means the cheapest rather
@@ -91,11 +117,15 @@ export const load: LayoutServerLoad = async ({ params }) => {
 		.select({
 			id: prices.id,
 			amount: prices.amount,
+			amountAm: prices.amountAm,
 			price: sql<number>`CAST(${prices.price} AS DOUBLE)`
 		})
 		.from(prices)
 		.where(eq(prices.productId, productId))
-		.orderBy(asc(prices.price), asc(prices.id));
+		.orderBy(asc(prices.price), asc(prices.id))
+		.then((rows) =>
+			rows.map(({ amountAm, ...v }) => ({ ...v, amount: localized(v.amount, amountAm) }))
+		);
 
 	return {
 		// `price` is the "from" figure used in the page's metadata. It comes off the

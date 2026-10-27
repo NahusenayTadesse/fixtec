@@ -18,6 +18,8 @@ export const paymentMethods = mysqlTable('payment_methods', {
 	id: int('id').primaryKey().autoincrement(),
 	name: varchar('name', { length: 100 }).notNull().unique(),
 	description: varchar('description', { length: 255 }),
+	// Optional Amharic display name; the storefront falls back to `name`.
+	nameAm: varchar('name_am', { length: 100 }),
 	...secureFields
 });
 /**
@@ -45,6 +47,8 @@ export const placeNames = mysqlTable('place_names', {
 	id: int('id').primaryKey().autoincrement(),
 	name: varchar('name', { length: 100 }).notNull().unique(),
 	fee: decimal('fee', { precision: 10, scale: 2 }).notNull(),
+	// Display only: orders still store and match on `name`.
+	nameAm: varchar('name_am', { length: 100 }),
 	...secureFields
 });
 
@@ -53,6 +57,10 @@ export const products = mysqlTable('products', {
 	name: varchar('name', { length: 50 }).notNull(),
 	featuredImage: varchar('featured_image', { length: 255 }),
 	description: varchar('description', { length: 255 }),
+	// Optional Amharic copy. Nullable with no default, so adding them leaves existing
+	// rows untouched; the storefront shows the English text wherever these are empty.
+	nameAm: varchar('name_am', { length: 100 }),
+	descriptionAm: varchar('description_am', { length: 500 }),
 	categoryId: int('category_id').references(() => productCategories.id, { onDelete: 'set null' }),
 	// Cached total of the product's variants' stock, kept in step by
 	// `$lib/server/inventory`. Stock itself lives on the variants and their batches.
@@ -75,6 +83,8 @@ export const prices = mysqlTable('prices', {
 	productId: int('product_id').references(() => products.id, { onDelete: 'cascade' }),
 	price: decimal('price', { precision: 10, scale: 2 }).notNull(),
 	amount: varchar('amount', { length: 255 }).notNull(),
+	// Optional Amharic label for the package ("500 ግራም"); falls back to `amount`.
+	amountAm: varchar('amount_am', { length: 255 }),
 	sku: varchar('sku', { length: 64 }).unique(),
 	quantity: int('quantity').notNull().default(0),
 	// NULL falls back to the product's `reorderLevel`.
@@ -145,6 +155,8 @@ export const productCategories = mysqlTable('product_categories', {
 	id: int('id').autoincrement().primaryKey(),
 	name: varchar('name', { length: 50 }).notNull().unique(),
 	description: varchar('description', { length: 255 }),
+	nameAm: varchar('name_am', { length: 100 }),
+	descriptionAm: varchar('description_am', { length: 255 }),
 	manual: varchar('manual', { length: 255 }),
 	...secureFields
 });
@@ -320,6 +332,8 @@ export const testimonials = mysqlTable('testimonials', {
 	name: varchar('name', { length: 255 }).notNull(),
 	position: varchar('position', { length: 255 }),
 	message: text('message').notNull(),
+	positionAm: varchar('position_am', { length: 255 }),
+	messageAm: text('message_am'),
 	avatar: varchar('avatar', { length: 255 }),
 	...secureFields
 });

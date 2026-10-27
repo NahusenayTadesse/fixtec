@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import {
 		Card,
 		CardContent,
@@ -60,7 +61,7 @@
 			<div class="min-w-0 flex-1">
 				<CardTitle class="truncate text-lg">{order.name}</CardTitle>
 				<CardDescription class="text-sm">
-					Order ID: <span class="font-mono text-foreground">#{order.id}</span>
+					{m.orders_order_id()} <span class="font-mono text-foreground">#{order.id}</span>
 					{#if order.createdAt}
 						<span class="ml-2">• {formatDate(order.createdAt)}</span>
 					{/if}
@@ -77,12 +78,12 @@
 	<CardContent class="pt-4">
 		<!-- Order Items Summary -->
 		<div class="mb-4">
-			<h4 class="mb-2 text-sm font-semibold">Items ({totalItems})</h4>
+			<h4 class="mb-2 text-sm font-semibold">{m.orders_items_count({ count: totalItems })}</h4>
 			<div class="flex flex-col gap-2">
 				{#if orderItems.length > 0}
 					{#each orderItems.slice(0, 3) as item (item.id)}
 						<div class="flex items-center justify-between text-sm">
-							<span class="truncate text-muted-foreground">{item.name || 'Item'}</span>
+							<span class="truncate text-muted-foreground">{item.name || m.orders_item_fallback()}</span>
 							<span class="font-medium">
 								{item.quantity}x {currency}
 								{item?.price ?? '0.00'}
@@ -91,11 +92,11 @@
 					{/each}
 					{#if orderItems.length > 3}
 						<div class="pt-2 text-sm text-muted-foreground">
-							+{orderItems.length - 3} more items
+							{m.orders_more_items({ count: orderItems.length - 3 })}
 						</div>
 					{/if}
 				{:else}
-					<p class="text-sm text-muted-foreground">No items</p>
+					<p class="text-sm text-muted-foreground">{m.orders_no_items()}</p>
 				{/if}
 			</div>
 		</div>
@@ -103,7 +104,7 @@
 		<!-- Total Price -->
 		{#if totalPrice > 0}
 			<div class="flex items-center justify-between border-t pt-2">
-				<span class="text-sm font-semibold">Total:</span>
+				<span class="text-sm font-semibold">{m.orders_total_label()}</span>
 				<span class="text-lg font-bold text-primary">
 					{currency}
 					{totalPrice.toFixed(2)}

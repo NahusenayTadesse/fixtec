@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { Card, CardContent } from '@nahu/admin-kit/components/ui/card/index.js';
 	import {
 		ShieldCheckIcon,
@@ -13,33 +14,33 @@
 	const highPerformanceDrivers = [
 		{
 			icon: ShieldCheckIcon,
-			label: 'Reliability',
-			description: 'Consistency in bulk procurement and fulfillment.'
+			label: m.about_driver_reliability(),
+			description: m.about_driver_reliability_desc()
 		},
 		{
 			icon: ZapIcon,
-			label: 'Operational Continuity',
-			description: 'Reducing downtime through secure supply chains.'
+			label: m.about_driver_continuity(),
+			description: m.about_driver_continuity_desc()
 		},
 		{
 			icon: ScaleIcon,
-			label: 'Volume Capacity',
-			description: 'Tailored logistics for large-scale infrastructure.'
+			label: m.about_driver_volume(),
+			description: m.about_driver_volume_desc()
 		},
 		{
 			icon: FactoryIcon,
-			label: 'Structured Supply',
-			description: 'Managed solutions for industrial facilities.'
+			label: m.about_driver_structured(),
+			description: m.about_driver_structured_desc()
 		}
 	];
 
 	const targetSectors = [
-		'Large Construction Contractors',
-		'Infrastructure Development',
-		'Industrial Manufacturing',
-		'Engineering & Maintenance',
-		'Government & Institutional',
-		'National Hardware Distribution'
+		m.sector_construction(),
+		m.sector_infrastructure(),
+		m.sector_manufacturing(),
+		m.sector_engineering(),
+		m.sector_government(),
+		m.sector_hardware()
 	];
 
 	const groupPartners = [
@@ -66,14 +67,13 @@
 			class="mb-20 flex flex-col gap-4 border-l-4 border-primary pl-6 text-left"
 		>
 			<h2 class="text-4xl font-black tracking-tight text-foreground uppercase sm:text-5xl">
-				Corporate Overview
+				{m.about_overview_title()}
 			</h2>
 			<p class="max-w-3xl text-xl font-medium text-foreground/70">
-				Fixtec operates under <span
-					class="font-bold text-foreground underline decoration-primary underline-offset-4"
-					>Lalo Import and Export</span
-				>, a diversified group with established import channels and cross-sector distribution
-				expertise.
+				{m.about_overview_before()}
+				<span class="font-bold text-foreground underline decoration-primary underline-offset-4"
+					>{m.about_overview_group()}</span
+				>{m.about_overview_after()}
 			</p>
 		</div>
 
@@ -81,7 +81,7 @@
 			<div transition:fly={{ x: -20, duration: 600, delay: 100 }} class="lg:col-span-2">
 				<div class="rounded-2xl border border-primary/10 bg-primary/5 p-8">
 					<h3 class="mb-6 text-lg font-bold tracking-widest text-primary uppercase">
-						Specialized Sectors
+						{m.about_sectors_title()}
 					</h3>
 					<ul class="space-y-4">
 						{#each targetSectors as sector (sector)}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import ProductCard from '$lib/components/product-card.svelte';
 	import { Input } from '@nahu/admin-kit/components/ui/input/index.js';
 	import { Checkbox } from '@nahu/admin-kit/components/ui/checkbox/index.js';
@@ -89,31 +90,19 @@
 </script>
 
 <svelte:head>
-	<title>New Arrival | Industrial & Construction Supply Solutions</title>
+	<title>{m.newarrival_meta_title()}</title>
 
-	<meta
-		name="description"
-		content="Procure professional-grade mechanical hand tools, construction materials, and bulk industrial supplies. Fixtec provides high-capacity solutions for contractors and infrastructure projects."
-	/>
-	<meta
-		name="keywords"
-		content="industrial hand tools, construction bulk supply, mechanical tools distributor, infrastructure procurement, Fixtec tools, Lalo General Trading supply"
-	/>
+	<meta name="description" content={m.home_meta_description()} />
+	<meta name="keywords" content={m.home_meta_keywords()} />
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Fixtec: Strategic Supply Partner for Global Operations" />
-	<meta
-		property="og:description"
-		content="Secure your supply chain with Fixtec. Professional-grade tools and materials tailored for large-scale construction and industrial facilities."
-	/>
+	<meta property="og:title" content={m.home_og_title()} />
+	<meta property="og:description" content={m.home_og_description()} />
 	<meta property="og:image" content="/tools (1).webp" />
 
 	<meta property="twitter:card" content="summary_large_image" />
-	<meta property="twitter:title" content="Fixtec | Professional Industrial & Construction Supply" />
-	<meta
-		property="twitter:description"
-		content="We do not simply sell tools; we secure supply chains. Explore our bulk solutions for contractors and industrial developers."
-	/>
+	<meta property="twitter:title" content={m.home_twitter_title()} />
+	<meta property="twitter:description" content={m.home_twitter_description()} />
 	<meta property="twitter:image" content="/tools (1).webp" />
 </svelte:head>
 
@@ -123,10 +112,9 @@
 		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 			<div class="mb-6 flex items-center justify-between">
 				<div>
-					<h1 class="text-3xl font-bold">New Arrival</h1>
+					<h1 class="text-3xl font-bold">{m.newarrival_title()}</h1>
 					<p class="mt-1 text-muted-foreground">
-						Our product portfolio is continuously updated to meet evolving industry standards,
-						technological improvements, and contractor demand for higher-performance tools.
+						{m.newarrival_text()}
 					</p>
 				</div>
 			</div>
@@ -136,7 +124,7 @@
 				<SearchIcon class="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground" />
 				<Input
 					type="text"
-					placeholder="Search by product name or category..."
+					placeholder={m.newarrival_search_placeholder()}
 					bind:value={searchQuery}
 					class="h-11 rounded-lg pl-10"
 				/>
@@ -152,22 +140,22 @@
 				<div class="sticky top-24 space-y-6">
 					<!-- Filter Header -->
 					<div class="flex items-center justify-between">
-						<h2 class="text-lg font-semibold">Filters</h2>
+						<h2 class="text-lg font-semibold">{m.shop_filters()}</h2>
 						{#if hasActiveFilters}
 							<Button variant="ghost" size="sm" onclick={resetFilters} class="h-8 text-xs">
 								<XIcon size={14} />
-								Reset
+								{m.reset()}
 							</Button>
 						{/if}
 					</div>
 
 					<!-- Price Range Filter -->
 					<div class="flex flex-col gap-4 border-b pb-6">
-						<h3 class="text-sm font-medium">Price Range</h3>
+						<h3 class="text-sm font-medium">{m.shop_price_range()}</h3>
 						<div class="space-y-3">
 							<div class="flex gap-2">
 								<div class="flex-1">
-									<Label class="mb-1 block text-xs text-muted-foreground">Min</Label>
+									<Label class="mb-1 block text-xs text-muted-foreground">{m.shop_min()}</Label>
 									<Input
 										type="number"
 										bind:value={minPrice}
@@ -177,7 +165,7 @@
 									/>
 								</div>
 								<div class="flex-1">
-									<Label class="mb-1 block text-xs text-muted-foreground">Max</Label>
+									<Label class="mb-1 block text-xs text-muted-foreground">{m.shop_max()}</Label>
 									<Input
 										type="number"
 										bind:value={maxPrice}
@@ -202,14 +190,14 @@
 								class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary"
 							/>
 							<p class="text-xs text-muted-foreground">
-								${minPrice.toFixed(0)} - ${maxPrice.toFixed(0)}
+								{m.newarrival_price_span({ min: minPrice.toFixed(0), max: maxPrice.toFixed(0) })}
 							</p>
 						</div>
 					</div>
 
 					<!-- Category Filter -->
 					<div class="flex flex-col gap-4">
-						<h3 class="text-sm font-medium">Categories</h3>
+						<h3 class="text-sm font-medium">{m.shop_categories()}</h3>
 						<div class="flex items-center gap-3">
 							<Checkbox
 								id="category-all"
@@ -217,7 +205,7 @@
 								onCheckedChange={() => (selectedCategories = categories)}
 								class="cursor-pointer"
 							/>
-							<Label for="category-all" class="flex-1 cursor-pointer text-sm">All</Label>
+							<Label for="category-all" class="flex-1 cursor-pointer text-sm">{m.shop_all()}</Label>
 						</div>
 						{#each categories as category (category)}
 							<div class="flex items-center gap-3">
@@ -241,10 +229,13 @@
 				<!-- Results Info -->
 				<div class="mb-8">
 					<p class="text-sm text-muted-foreground">
-						Showing <span class="font-semibold text-foreground">{resultCount}</span>
-						{resultCount === 1 ? 'product' : 'products'}
-						{searchQuery && `for "${searchQuery}"`}
-						{selectedCategories.length > 0 && `in ${selectedCategories.join(', ')}`}
+						{m.newarrival_showing()}
+						<span class="font-semibold text-foreground">{resultCount}</span>
+						{resultCount === 1 ? m.newarrival_product() : m.newarrival_products()}
+						{#if searchQuery}{m.newarrival_for({ query: searchQuery })}{/if}
+						{#if selectedCategories.length > 0}
+							{m.newarrival_in({ categories: selectedCategories.join(', ') })}
+						{/if}
 					</p>
 				</div>
 
@@ -261,14 +252,13 @@
 					<!-- Empty State -->
 					<div class="flex flex-col items-center justify-center py-20">
 						<SearchIcon class="mb-4 size-16 text-muted-foreground/30" />
-						<h3 class="mb-2 text-xl font-semibold">No products found</h3>
+						<h3 class="mb-2 text-xl font-semibold">{m.shop_no_products()}</h3>
 						<p class="max-w-sm text-center text-muted-foreground">
-							We couldn't find any products matching your filters. Try adjusting your search terms
-							or price range.
+							{m.newarrival_empty()}
 						</p>
 						{#if hasActiveFilters}
 							<Button variant="outline" size="sm" onclick={resetFilters} class="mt-4"
-								>Reset Filters</Button
+								>{m.shop_reset_filters()}</Button
 							>
 						{/if}
 					</div>

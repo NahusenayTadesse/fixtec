@@ -30,6 +30,7 @@
 				return renderComponent(Edit, {
 					id: row.original.id,
 					name: row.original.name,
+					nameAm: row.original.nameAm,
 					action: '?/edit',
 					data: data.editForm,
 					icon: false
@@ -64,6 +65,7 @@
 				return renderComponent(Edit, {
 					id: row.original.id,
 					name: row.original.name,
+					nameAm: row.original.nameAm,
 					action: '?/edit',
 					data: data.editForm,
 					icon: true
@@ -98,6 +100,14 @@
 <DialogComp title="+ Add New Payment Method" variant="default">
 	<form action="?/add" use:enhance id="main" class="flex flex-col gap-4" method="post">
 		<InputComp {form} {errors} label="name" type="text" name="name" required={true} />
+		<InputComp
+			{form}
+			{errors}
+			label="Name (Amharic, optional)"
+			type="text"
+			name="nameAm"
+			placeholder="Leave empty to show the English name"
+		/>
 
 		<Button type="submit" form="main">
 			{#if $delayed}

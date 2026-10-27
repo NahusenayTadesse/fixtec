@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 	import * as Card from '@nahu/admin-kit/components/ui/card/index.js';
 
@@ -50,11 +51,11 @@
 <Card.Root class="mx-auto flex w-full max-w-md flex-col justify-center justify-self-center ">
 	<Card.Header>
 		<div class="flex w-full flex-col items-center justify-center">
-			<img src="/logo.webp" class="block h-24 w-24 dark:hidden" alt="Logo" />
-			<img src="/logoWhite.webp" class="hidden h-24 w-24 dark:block" alt="Logo" />
+			<img src="/logo.webp" class="block h-24 w-24 dark:hidden" alt={m.logo_alt_short()} />
+			<img src="/logoWhite.webp" class="hidden h-24 w-24 dark:block" alt={m.logo_alt_short()} />
 		</div>
-		<Card.Title class="flex flex-row justify-between text-2xl">Sign Up</Card.Title>
-		<Card.Description>Enter your email below to login to your account</Card.Description>
+		<Card.Title class="flex flex-row justify-between text-2xl">{m.signup_title()}</Card.Title>
+		<Card.Description>{m.signup_desc()}</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<form method="POST" id={formId} {action} use:enhance>
@@ -62,24 +63,24 @@
 
 			<div class="grid gap-4">
 				<InputComp
-					label="Full Name"
+					label={m.field_full_name()}
 					name="name"
 					type="text"
 					{form}
 					{errors}
-					placeholder="John Doe"
+					placeholder={m.field_full_name_placeholder()}
 				/>
 			</div>
 			<InputComp
-				label="Email Address"
+				label={m.field_email()}
 				name="email"
 				type="email"
 				{form}
 				{errors}
-				placeholder="john@example.com"
+				placeholder={m.field_email_placeholder()}
 			/>
 			<InputComp
-				label="Phone Number"
+				label={m.field_phone()}
 				name="phone"
 				type="tel"
 				{form}
@@ -87,26 +88,26 @@
 				placeholder="+251 9-11-00-00-00"
 			/>
 			<InputComp
-				label="General Address"
+				label={m.field_general_address()}
 				name="address"
 				type="select"
 				{form}
 				{errors}
-				placeholder="Select your area"
+				placeholder={m.field_general_address_placeholder()}
 				items={placeList}
 			/>
 			<InputComp
-				label="Specific Delivery Address"
+				label={m.field_delivery_address()}
 				name="deliveryAddress"
 				type="text"
 				{form}
 				{errors}
-				placeholder="Mexico, Edna Mall, 2nd Floor, Apt 201"
+				placeholder={m.field_delivery_address_placeholder()}
 			/>
 
 			<div class="mt-2 grid gap-2">
 				<div class="flex items-center">
-					<Label for="{formId}-password">Password</Label>
+					<Label for="{formId}-password">{m.login_password()}</Label>
 				</div>
 				<div class="relative">
 					<Input
@@ -116,7 +117,7 @@
 						bind:value={$form.password}
 						required
 					/>
-					<button type="button" onclick={() => (eye = !eye)} title="Make Password Visible">
+					<button type="button" onclick={() => (eye = !eye)} title={m.password_toggle()}>
 						<EyeIcon
 							class="absolute top-0.5 right-2 h-6 w-6 transition-transform duration-300 ease-in-out"
 						/>
@@ -126,9 +127,9 @@
 			</div>
 			<Button type="submit" form={formId} disabled={$delayed} class="h-12 w-full text-lg shadow-md">
 				{#if $delayed}
-					<LoadingBtn name="Signing You Up" />
+					<LoadingBtn name={m.signup_loading()} />
 				{:else}
-					Sign Up
+					{m.signup_submit()}
 				{/if}
 			</Button>
 		</form>

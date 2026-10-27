@@ -13,6 +13,7 @@
 		price,
 		id,
 		amount,
+		amountAm = null,
 		sku = null,
 		reorderLevel = null
 	}: {
@@ -20,6 +21,7 @@
 		price: number | string;
 		id: number;
 		amount: string;
+		amountAm?: string | null;
 		sku?: string | null;
 		reorderLevel?: number | null;
 	} = $props();
@@ -43,6 +45,7 @@
 
 	$form.price = Number(price);
 	$form.amount = amount;
+	$form.amountAm = amountAm ?? '';
 	$form.id = id;
 	$form.sku = sku ?? '';
 	$form.reorderLevel = reorderLevel ?? '';
@@ -67,6 +70,14 @@
 				label="Variation of Product"
 				placeholder="Enter Product Variation"
 				required
+			/>
+			<InputComp
+				{form}
+				{errors}
+				type="text"
+				name="amountAm"
+				label="Variation (Amharic, optional)"
+				placeholder="ለምሳሌ 500 ግራም — leave empty to show the English label"
 			/>
 			<InputComp
 				{form}

@@ -75,6 +75,14 @@
 		<InputComp
 			{form}
 			{errors}
+			type="text"
+			name="productNameAm"
+			label="Product Name (Amharic, optional)"
+			placeholder="የምርት ስም — leave empty to show the English name"
+		/>
+		<InputComp
+			{form}
+			{errors}
 			type="select"
 			name="category"
 			label="Product Category"
@@ -91,6 +99,14 @@
 			label="Product Discription"
 			placeholder="Enter Product Description"
 			required
+		/>
+		<InputComp
+			{form}
+			{errors}
+			type="textarea"
+			name="descriptionAm"
+			label="Product Description (Amharic, optional)"
+			placeholder="የምርት መግለጫ — leave empty to show the English description"
 		/>
 
 		<InputComp

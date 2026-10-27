@@ -1,3 +1,4 @@
+import { localizedColumn } from '$lib/server/localized-sql';
 import { db } from '$lib/server/db';
 import { orders, customers, products, orderItems } from '$lib/server/db/schema';
 import { eq, sql, inArray } from 'drizzle-orm';
@@ -47,7 +48,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 					.select({
 						id: orderItems.id,
 						orderId: orderItems.orderId,
-						product: products.name,
+						product: localizedColumn(products.name, products.nameAm),
 						quantity: orderItems.quantity,
 						productId: orderItems.productId,
 						// A decimal comes back from mysql2 as a string; the page calls `.toFixed`

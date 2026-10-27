@@ -1,3 +1,5 @@
+import { m } from '$lib/paraglide/messages.js';
+import { localized } from '$lib/localized';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { asc, eq } from 'drizzle-orm';
 import { message, setError, superValidate } from 'sveltekit-superforms';
@@ -9,6 +11,7 @@ import {
 	orders,
 	paymentMethods,
 	products,
+	placeNames,
 	transactions
 } from '$lib/server/db/schema';
 import { PICKUP_LABEL } from '$lib/delivery';
@@ -68,6 +71,8 @@ async function orderSummary(orderId: number) {
 			phone: customers.phone,
 			paymentStatus: transactions.paymentStatus,
 			paymentMethod: paymentMethods.name,
+			paymentMethodAm: paymentMethods.nameAm,
+			areaAm: placeNames.nameAm,
 			settledTxnRef: transactions.settledTxnRef,
 			paymentUpdatedAt: transactions.updatedAt
 		})
@@ -75,12 +80,15 @@ async function orderSummary(orderId: number) {
 		.innerJoin(customers, eq(orders.customerId, customers.id))
 		.leftJoin(transactions, eq(orders.transactionId, transactions.id))
 		.leftJoin(paymentMethods, eq(transactions.paymentMethodId, paymentMethods.id))
+		// Orders store the area by its English name; this only fetches its Amharic label.
+		.leftJoin(placeNames, eq(placeNames.name, orders.address))
 		.where(eq(orders.id, orderId));
 
 	const items = await db
 		.select({
 			id: orderItems.id,
 			product: products.name,
+			productAm: products.nameAm,
 			variant: orderItems.amount,
 			quantity: orderItems.quantity,
 			price: orderItems.price
@@ -103,17 +111,17 @@ async function orderSummary(orderId: number) {
 		},
 		fulfilment: pickup
 			? { type: 'pickup' as const }
-			: { type: 'delivery' as const, area: order.address, address: order.deliveryAddress },
-		items: items.map((item) => ({
+			: { type: 'delivery' as const, area: localized(order.address, order.areaAm), address: order.deliveryAddress },
+		items: items.map(({ productAm, ...item }) => ({
 			...item,
-			product: item.product ?? 'Product no longer listed',
+			product: localized(item.product, productAm) ?? m.srv_product_unlisted(),
 			price: Number(item.price),
 			lineTotal: Number(item.price) * item.quantity
 		})),
 		fee: Number(order.fee ?? 0),
 		payment: {
 			paid,
-			method: order.paymentMethod,
+			method: localized(order.paymentMethod, order.paymentMethodAm),
 			// Chapa's reference only once it's the one that actually paid.
 			reference: order.settledTxnRef,
 			paidAt: paid && order.paymentUpdatedAt ? order.paymentUpdatedAt.toISOString() : null
@@ -131,10 +139,10 @@ async function orderSummary(orderId: number) {
  */
 export const load: PageServerLoad = async ({ url }) => {
 	const ref = url.searchParams.get('ref');
-	if (!ref) error(404, 'Payment not found');
+	if (!ref) error(404, m.srv_payment_not_found());
 
 	const outcome = await settleOnlinePayment(ref);
-	if (outcome.orderId === null) error(404, 'This payment link has expired or is not valid.');
+	if (outcome.orderId === null) error(404, m.srv_payment_link_invalid());
 
 	const [state, order] = await Promise.all([
 		orderPaymentState(outcome.orderId),
@@ -165,7 +173,7 @@ export const actions: Actions = {
 	retry: async ({ url }) => {
 		const ref = url.searchParams.get('ref');
 		const orderId = await orderForRef(ref);
-		if (!orderId) return fail(404, { message: 'This payment link has expired.' });
+		if (!orderId) return fail(404, { message: m.srv_payment_link_expired() });
 
 		let checkoutUrl: string;
 		try {
@@ -175,7 +183,7 @@ export const actions: Actions = {
 			console.error(`Could not restart payment for order #${orderId}:`, err);
 			// The attempt already moved to a new reference, so this page's is stale.
 			if (err instanceof PaymentStartError) redirect(303, `${err.paymentPage}&chapa=unavailable`);
-			return fail(502, { message: 'Could not reach Chapa. Please try again in a moment.' });
+			return fail(502, { message: m.srv_chapa_unreachable() });
 		}
 		redirect(303, checkoutUrl);
 	},
@@ -185,15 +193,15 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(transfer));
 		const orderId = await orderForRef(url.searchParams.get('ref'));
 		if (!orderId) {
-			return message(form, { type: 'error', text: 'This payment link has expired.' }, { status: 404 });
+			return message(form, { type: 'error', text: m.srv_payment_link_expired() }, { status: 404 });
 		}
 		if (!form.valid) {
-			return message(form, { type: 'error', text: 'Please check the form' }, { status: 400 });
+			return message(form, { type: 'error', text: m.srv_check_form() }, { status: 400 });
 		}
 
 		const { methods } = await bankTransferOptions();
 		if (!methods.some((m) => m.value === form.data.paymentMethod)) {
-			return setError(form, 'paymentMethod', 'Choose how you paid');
+			return setError(form, 'paymentMethod', m.srv_choose_payment());
 		}
 
 		let recieptLink: string | undefined;
@@ -208,14 +216,14 @@ export const actions: Actions = {
 			console.error(`Could not record a transfer for order #${orderId}:`, err);
 			return message(
 				form,
-				{ type: 'error', text: 'Could not upload your receipt. Please try again.' },
+				{ type: 'error', text: m.srv_receipt_upload_failed() },
 				{ status: 500 }
 			);
 		}
 
 		return message(form, {
 			type: 'success',
-			text: "Receipt received — we'll confirm your order once we've checked it."
+			text: m.srv_receipt_received()
 		});
 	}
 };

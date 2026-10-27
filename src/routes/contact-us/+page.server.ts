@@ -1,3 +1,4 @@
+import { m } from '$lib/paraglide/messages.js';
 import { superValidate, message } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { eq } from 'drizzle-orm';
@@ -32,14 +33,10 @@ export const actions: Actions = {
 		// The action emails whatever address is typed in, so without a limit it is an
 		// open relay for anyone scripting the form.
 		if (!contactLimiter.allow(getClientAddress())) {
-			return message(
-				form,
-				{ type: 'error', text: 'Too many messages. Please try again later.' },
-				{ status: 429 }
-			);
+			return message(form, { type: 'error', text: m.srv_too_many_messages() }, { status: 429 });
 		}
 		if (!form.valid) {
-			return message(form, { type: 'error', text: 'Please check the form for Errors' });
+			return message(form, { type: 'error', text: m.srv_check_form() });
 		}
 
 		// The schema has already accepted the number; this only settles which of the
@@ -73,14 +70,10 @@ export const actions: Actions = {
 				console.error('Email Error (Customer):', err)
 			);
 
-			return message(form, { type: 'success', text: 'Message Successfully Sent!' });
+			return message(form, { type: 'success', text: m.srv_message_sent() });
 		} catch (err) {
 			console.error('Contact form: could not save message:', err);
-			return message(
-				form,
-				{ type: 'error', text: 'Could not send your message. Please try again.' },
-				{ status: 500 }
-			);
+			return message(form, { type: 'error', text: m.srv_message_failed() }, { status: 500 });
 		}
 	}
 };

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { Input } from '@nahu/admin-kit/components/ui/input/index.js';
 	import { Label } from '@nahu/admin-kit/components/ui/label/index.js';
 
@@ -52,7 +53,7 @@
 </script>
 
 <svelte:head>
-	<title>Change Password</title>
+	<title>{m.change_password_title()}</title>
 </svelte:head>
 {#snippet fe(label = '', name = '', placeholder = '', required = false, min = '', max = '')}
 	<div class="relative flex w-full flex-col justify-start gap-2">
@@ -74,7 +75,7 @@
 			<button
 				type="button"
 				onclick={() => (eye = !eye)}
-				title="Toggle Password Visibility"
+				title={m.password_toggle_visibility()}
 				class="absolute inset-y-0 right-2 flex items-center pr-3 text-gray-500 hover:text-gray-700"
 			>
 				<EyeIcon
@@ -93,23 +94,22 @@
 
 <Card.Root class="my-8 flex w-full flex-col gap-4 justify-self-center lg:w-lg">
 	<Card.Header>
-		<Card.Title class="text-2xl">Change Password</Card.Title>
+		<Card.Title class="text-2xl">{m.change_password_title()}</Card.Title>
 	</Card.Header>
 	<Card.Content>
 		<form use:enhance action="?/changePassword" id="main" class="flex flex-col gap-4" method="POST">
 			<Errors allErrors={$allErrors} />
-			{@render fe('Current Password', 'currentPassword', 'Enter your current password', true)}
-			{@render fe('New Password', 'newPassword', 'Enter your new password', true)}
+			{@render fe(m.password_current(), 'currentPassword', m.password_current_placeholder(), true)}
+			{@render fe(m.password_new(), 'newPassword', m.password_new_placeholder(), true)}
 			{@render fe(
-				'Confirm New Password',
+				m.password_confirm_new(),
 				'confirmPassword',
-
-				'Confirm New password',
+				m.password_confirm_placeholder(),
 				true
 			)}
 
 			{#if $form.newPassword !== $form.confirmPassword && $form.confirmPassword.length > 0}
-				<span class="text-red-500">Passwords do not match</span>
+				<span class="text-red-500">{m.password_mismatch()}</span>
 			{/if}
 
 			<Button
@@ -119,11 +119,11 @@
 				form="main"
 			>
 				{#if $delayed}
-					<LoadingBtn name="Changing Password" />
+					<LoadingBtn name={m.password_changing()} />
 				{:else}
 					<Plus class="h-4 w-4" />
 
-					Change Password
+					{m.change_password_title()}
 				{/if}
 			</Button>
 		</form>

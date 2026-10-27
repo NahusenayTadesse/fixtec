@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { onMount } from 'svelte';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 	import {
@@ -15,13 +16,13 @@
 
 	const stats = [
 		{
-			label: 'Supply Reliability',
+			label: m.hero_stat_reliability(),
 			value: '99.9%',
 			icon: ShieldCheckIcon,
 			pos: 'top-[10%] right-[15%]'
 		},
-		{ label: 'Products', value: '1000+', icon: BoxesIcon, pos: 'top-[45%] right-[5%]' },
-		{ label: 'Customers', value: '300+', icon: User, pos: 'bottom-[15%] right-[40%]' }
+		{ label: m.hero_stat_products(), value: '1000+', icon: BoxesIcon, pos: 'top-[45%] right-[5%]' },
+		{ label: m.hero_stat_customers(), value: '300+', icon: User, pos: 'bottom-[15%] right-[40%]' }
 	];
 
 	const images = ['/tools (1).webp', '/tools (2).webp', '/tools (3).webp', '/tools (4).webp'];
@@ -57,33 +58,31 @@
 					<div class="mb-6 flex items-center gap-3">
 						<div class="h-px w-12 bg-primary"></div>
 						<span class="text-xs font-bold tracking-[0.3em] text-primary uppercase"
-							>Supply Chain Excellence</span
+							>{m.hero_eyebrow()}</span
 						>
 					</div>
 
 					<h1
 						class="text-5xl leading-[0.9] font-black tracking-tighter text-white sm:text-7xl lg:text-8xl"
 					>
-						FIXTEC <br />
+						{m.hero_title()} <br />
 						<span class="text-3xl font-light tracking-normal text-zinc-400 sm:text-5xl"
-							>Strategic Partners</span
+							>{m.hero_subtitle()}</span
 						>
 					</h1>
 				</div>
 
 				<div transition:fly={{ y: 20, duration: 800, delay: 200 }} class="max-w-xl space-y-6">
 					<p class="text-xl leading-relaxed font-medium text-zinc-200">
-						Professional-grade mechanical tools and bulk supply solutions for infrastructure,
-						industrial, and distribution operations.
+						{m.hero_text()}
 					</p>
 
 					<div class="rounded-xl border-l-4 border-primary bg-white/5 p-5 backdrop-blur-md">
 						<p class="mb-1 text-sm font-semibold tracking-wide text-primary uppercase">
-							Our Core Mandate
+							{m.hero_mandate_label()}
 						</p>
 						<p class="text-lg text-white">
-							We do not simply sell tools. We secure supply chains, reduce procurement risk, and
-							support operational continuity.
+							{m.hero_mandate_text()}
 						</p>
 					</div>
 				</div>
@@ -94,7 +93,7 @@
 						href="/shop"
 						class="h-14 px-10 text-base font-bold tracking-wider uppercase"
 					>
-						Products
+						{m.hero_cta_products()}
 					</Button>
 					<Button
 						variant="outline"
@@ -102,7 +101,7 @@
 						href="/contact-us"
 						class="h-14 border-white/20 bg-transparent px-10 text-white hover:bg-white/10"
 					>
-						Request Corporate Profile
+						{m.hero_cta_profile()}
 					</Button>
 				</div>
 			</div>

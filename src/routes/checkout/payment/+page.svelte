@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { enhance as formEnhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms/client';
@@ -48,35 +49,35 @@
 				icon: CircleCheckBig,
 				tone: 'text-green-600 bg-green-600/10',
 				badge: 'border-green-600/30 bg-green-600/10 text-green-700 dark:text-green-400',
-				label: 'Paid',
-				title: 'Payment received',
-				text: 'Your order is fully paid. Nothing more is due on delivery or pickup.'
+				label: m.pay_label_paid(),
+				title: m.pay_title_paid(),
+				text: m.pay_text_paid()
 			};
 		if (data.receiptSent)
 			return {
 				icon: FileCheck,
 				tone: 'text-primary bg-primary/10',
 				badge: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400',
-				label: 'Awaiting confirmation',
-				title: 'Receipt received',
-				text: "We've got your transfer receipt and will confirm your order once we've checked it."
+				label: m.pay_label_awaiting(),
+				title: m.pay_title_receipt(),
+				text: m.pay_text_receipt()
 			};
 		if (data.status === 'failed')
 			return {
 				icon: CircleX,
 				tone: 'text-destructive bg-destructive/10',
 				badge: 'border-destructive/30 bg-destructive/10 text-destructive',
-				label: 'Failed',
-				title: "Payment didn't go through",
-				text: 'Your order is placed, but the payment failed. Try again, pay by bank transfer, or pay on delivery or pickup.'
+				label: m.pay_label_failed(),
+				title: m.pay_title_failed(),
+				text: m.pay_text_failed()
 			};
 		return {
 			icon: Clock,
 			tone: 'text-amber-600 bg-amber-500/10',
 			badge: 'border-border bg-muted text-muted-foreground',
-			label: 'Not paid yet',
-			title: 'Payment not confirmed yet',
-			text: `${data.reason ?? ''} If you finished paying on Chapa, check again in a moment — or pay now, by bank transfer, or on delivery or pickup.`
+			label: m.pay_label_unpaid(),
+			title: m.pay_title_pending(),
+			text: `${data.reason ?? ''} ${m.pay_text_pending()}`
 		};
 	});
 
@@ -105,7 +106,7 @@
 </script>
 
 <svelte:head>
-	<title>Order #{data.orderId} · Payment - Lalo Fixtec</title>
+	<title>{m.pay_meta_title({ id: data.orderId })}</title>
 </svelte:head>
 
 <div class="mx-auto w-full max-w-5xl px-4 pt-6 pb-24 sm:py-10">
@@ -116,7 +117,7 @@
 		</div>
 		<div class="min-w-0 flex-1 space-y-2">
 			<div class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-				<span class="font-mono font-semibold text-foreground">Order #{data.orderId}</span>
+				<span class="font-mono font-semibold text-foreground">{m.order_number({ id: data.orderId })}</span>
 				<span aria-hidden="true">·</span>
 				<time datetime={order.placedAt}>{dateTime.format(new Date(order.placedAt))}</time>
 				<span
@@ -134,7 +135,7 @@
 		<p
 			class="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-300"
 		>
-			Chapa isn't available right now. Try again in a minute, or pay by bank transfer below.
+			{m.pay_chapa_unavailable()}
 		</p>
 	{/if}
 
@@ -161,32 +162,32 @@
 			>
 				<Button type="submit" size="lg" class="w-full sm:w-auto" disabled={retrying}>
 					<CreditCard class="size-4" />
-					{retrying ? 'Opening Chapa…' : `Pay ${amount} with Chapa`}
+					{retrying ? m.pay_opening_chapa() : m.pay_with_chapa({ amount })}
 				</Button>
 			</form>
 			{#if data.bankTransfer.accounts.length && !showTransfer}
 				<Button size="lg" variant="outline" class="w-full sm:w-auto" onclick={() => (showTransfer = true)}>
 					<Landmark class="size-4" />
-					{data.receiptSent ? 'Upload a different receipt' : 'Pay by bank transfer'}
+					{data.receiptSent ? m.pay_upload_different() : m.pay_by_bank()}
 				</Button>
 			{/if}
 			{#if data.status === 'pending' && !data.receiptSent}
 				<Button size="lg" variant="outline" class="w-full sm:w-auto" onclick={checkAgain} disabled={checking}>
-					<RefreshCw class="size-4 {checking ? 'animate-spin' : ''}" /> Check again
+					<RefreshCw class="size-4 {checking ? 'animate-spin' : ''}" /> {m.pay_check_again()}
 				</Button>
 			{/if}
 		{/if}
 		<Button size="lg" variant="ghost" class="w-full sm:w-auto" href="/shop">
-			<ShoppingBag class="size-4" /> Continue shopping
+			<ShoppingBag class="size-4" /> {m.pay_continue_shopping()}
 		</Button>
 	</div>
 
 	{#if showTransfer && !paid}
 		<Card.Root class="mt-6">
 			<Card.Header>
-				<Card.Title>Pay by bank transfer</Card.Title>
+				<Card.Title>{m.pay_by_bank()}</Card.Title>
 				<Card.Description>
-					Transfer {amount} to one of our accounts, then upload a screenshot or PDF of the transfer.
+					{m.pay_bank_desc({ amount })}
 				</Card.Description>
 			</Card.Header>
 			<Card.Content class="flex flex-col gap-4">
@@ -199,7 +200,7 @@
 					class="flex flex-col gap-3"
 				>
 					<InputComp
-						label="Payment method"
+						label={m.checkout_payment_method()}
 						name="paymentMethod"
 						type="select"
 						{form}
@@ -207,19 +208,19 @@
 						items={data.bankTransfer.methods}
 					/>
 					<InputComp
-						label="Transfer receipt"
+						label={m.checkout_receipt()}
 						name="reciept"
 						type="file"
 						{form}
 						{errors}
-						placeholder="Screenshot or PDF of your transfer (max 10MB)"
+						placeholder={m.checkout_receipt_placeholder()}
 					/>
 					<div class="grid gap-2 sm:flex sm:justify-end">
 						<Button type="submit" size="lg" class="w-full sm:order-2 sm:w-auto" disabled={$delayed}>
 							{#if $delayed}
-								<LoadingBtn name="Uploading" />
+								<LoadingBtn name={m.pay_uploading()} />
 							{:else}
-								<Upload class="size-4" /> Send receipt
+								<Upload class="size-4" /> {m.pay_send_receipt()}
 							{/if}
 						</Button>
 						<Button
@@ -229,7 +230,7 @@
 							class="w-full sm:order-1 sm:w-auto"
 							onclick={() => (showTransfer = false)}
 						>
-							Cancel
+							{m.cancel()}
 						</Button>
 					</div>
 				</form>
@@ -242,10 +243,12 @@
 		<Card.Root class="min-w-0">
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
-					<Package class="size-5 text-muted-foreground" /> Items
+					<Package class="size-5 text-muted-foreground" /> {m.pay_items()}
 				</Card.Title>
 				<Card.Description>
-					{itemCount} item{itemCount === 1 ? '' : 's'}
+					{itemCount === 1
+						? m.pay_item_count_one({ count: itemCount })
+						: m.pay_item_count_other({ count: itemCount })}
 				</Card.Description>
 			</Card.Header>
 			<Card.Content class="px-0 sm:px-6">
@@ -270,11 +273,11 @@
 					<Table.Root>
 						<Table.Header>
 							<Table.Row>
-								<Table.Head>Product</Table.Head>
-								<Table.Head>Package</Table.Head>
-								<Table.Head class="text-right">Qty</Table.Head>
-								<Table.Head class="text-right">Unit price</Table.Head>
-								<Table.Head class="text-right">Total</Table.Head>
+								<Table.Head>{m.col_product()}</Table.Head>
+								<Table.Head>{m.col_package()}</Table.Head>
+								<Table.Head class="text-right">{m.col_qty()}</Table.Head>
+								<Table.Head class="text-right">{m.col_unit_price()}</Table.Head>
+								<Table.Head class="text-right">{m.col_total()}</Table.Head>
 							</Table.Row>
 						</Table.Header>
 						<Table.Body>
@@ -295,27 +298,27 @@
 
 				<dl class="mt-4 space-y-2 px-4 text-sm sm:px-0">
 					<div class="flex justify-between gap-4">
-						<dt class="text-muted-foreground">Subtotal</dt>
+						<dt class="text-muted-foreground">{m.cart_subtotal()}</dt>
 						<dd class="tabular-nums">{etb.format(subtotal)}</dd>
 					</div>
 					<div class="flex justify-between gap-4">
 						<dt class="text-muted-foreground">
-							{order.fulfilment.type === 'pickup' ? 'Store pickup' : 'Delivery'}
+							{order.fulfilment.type === 'pickup' ? m.pay_store_pickup() : m.pay_delivery()}
 						</dt>
-						<dd class="tabular-nums">{order.fee > 0 ? etb.format(order.fee) : 'Free'}</dd>
+						<dd class="tabular-nums">{order.fee > 0 ? etb.format(order.fee) : m.checkout_free()}</dd>
 					</div>
 					<div class="flex justify-between gap-4 border-t pt-2 text-base font-semibold">
-						<dt>Total</dt>
+						<dt>{m.checkout_total()}</dt>
 						<dd class="tabular-nums">{amount}</dd>
 					</div>
 					<div class="flex justify-between gap-4">
-						<dt class="text-muted-foreground">Paid</dt>
+						<dt class="text-muted-foreground">{m.pay_paid()}</dt>
 						<dd class="tabular-nums {paid ? 'text-green-700 dark:text-green-400' : ''}">
 							{etb.format(paid ? data.total : 0)}
 						</dd>
 					</div>
 					<div class="flex justify-between gap-4 font-medium">
-						<dt>Balance due</dt>
+						<dt>{m.pay_balance_due()}</dt>
 						<dd class="tabular-nums">{etb.format(paid ? 0 : data.total)}</dd>
 					</div>
 				</dl>
@@ -327,13 +330,13 @@
 			<Card.Root>
 				<Card.Header>
 					<Card.Title class="flex items-center gap-2">
-						<CreditCard class="size-5 text-muted-foreground" /> Payment
+						<CreditCard class="size-5 text-muted-foreground" /> {m.checkout_payment()}
 					</Card.Title>
 				</Card.Header>
 				<Card.Content>
 					<dl class="space-y-3 text-sm">
 						<div class="flex items-center justify-between gap-3">
-							<dt class="text-muted-foreground">Status</dt>
+							<dt class="text-muted-foreground">{m.pay_status()}</dt>
 							<dd>
 								<span
 									class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium {view.badge}"
@@ -343,16 +346,16 @@
 							</dd>
 						</div>
 						<div class="flex justify-between gap-3">
-							<dt class="text-muted-foreground">Method</dt>
-							<dd class="text-right">{order.payment.method ?? 'On delivery or pickup'}</dd>
+							<dt class="text-muted-foreground">{m.pay_method()}</dt>
+							<dd class="text-right">{order.payment.method ?? m.pay_method_default()}</dd>
 						</div>
 						<div class="flex justify-between gap-3">
-							<dt class="text-muted-foreground">Amount paid</dt>
+							<dt class="text-muted-foreground">{m.pay_amount_paid()}</dt>
 							<dd class="text-right tabular-nums">{etb.format(paid ? data.total : 0)}</dd>
 						</div>
 						{#if order.payment.paidAt}
 							<div class="flex justify-between gap-3">
-								<dt class="text-muted-foreground">Paid on</dt>
+								<dt class="text-muted-foreground">{m.pay_paid_on()}</dt>
 								<dd class="text-right">
 									<time datetime={order.payment.paidAt}>
 										{dateTime.format(new Date(order.payment.paidAt))}
@@ -362,7 +365,7 @@
 						{/if}
 						{#if order.payment.reference}
 							<div class="flex flex-col gap-1">
-								<dt class="text-muted-foreground">Chapa reference</dt>
+								<dt class="text-muted-foreground">{m.pay_chapa_ref()}</dt>
 								<dd class="font-mono text-xs break-all">{order.payment.reference}</dd>
 							</div>
 						{/if}
@@ -374,7 +377,7 @@
 			<Card.Root>
 				<Card.Header>
 					<Card.Title class="flex items-center gap-2">
-						<User class="size-5 text-muted-foreground" /> Ordered by
+						<User class="size-5 text-muted-foreground" /> {m.pay_ordered_by()}
 					</Card.Title>
 				</Card.Header>
 				<Card.Content class="space-y-4 text-sm">
@@ -391,13 +394,13 @@
 						{#if order.fulfilment.type === 'pickup'}
 							<Store class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
 							<div>
-								<p class="font-medium">Store pickup</p>
-								<p class="text-muted-foreground">Collect your order from our shop.</p>
+								<p class="font-medium">{m.pay_store_pickup()}</p>
+								<p class="text-muted-foreground">{m.pay_collect()}</p>
 							</div>
 						{:else}
 							<MapPin class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
 							<div class="min-w-0">
-								<p class="font-medium">Delivery to {order.fulfilment.area}</p>
+								<p class="font-medium">{m.pay_delivery_to({ area: order.fulfilment.area ?? '' })}</p>
 								{#if order.fulfilment.address}
 									<p class="break-words text-muted-foreground">{order.fulfilment.address}</p>
 								{/if}

@@ -18,6 +18,8 @@ export const load: PageServerLoad = async () => {
 			id: department.id,
 			name: department.name,
 			description: department.description,
+			nameAm: department.nameAm,
+			descriptionAm: department.descriptionAm,
 			status: department.isActive
 		})
 		.from(department);
@@ -37,11 +39,13 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Please check the form for Errors' });
 		}
 
-		const { name, description, status } = form.data;
+		const { name, description, nameAm, descriptionAm, status } = form.data;
 
 		try {
 			await db.insert(department).values({
 				name,
+				nameAm: nameAm || null,
+				descriptionAm: descriptionAm || null,
 
 				description,
 				isActive: status,
@@ -68,12 +72,19 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		const { id, name, description, status } = form.data;
+		const { id, name, description, nameAm, descriptionAm, status } = form.data;
 
 		try {
 			await db
 				.update(department)
-				.set({ name, description, isActive: status, updatedBy: locals?.user?.id })
+				.set({
+					name,
+					description,
+					nameAm: nameAm || null,
+					descriptionAm: descriptionAm || null,
+					isActive: status,
+					updatedBy: locals?.user?.id
+				})
 				.where(eq(department.id, Number(id)));
 			return message(form, { type: 'success', text: 'Category Successfully Updated' });
 		} catch (err) {

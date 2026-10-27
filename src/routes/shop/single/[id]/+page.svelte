@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import ProductDetail from '$lib/components/product-detail.svelte';
 	import Gallery from '$lib/components/gallery.svelte';
 	import ProductCard from '$lib/components/product-card.svelte';
@@ -49,13 +50,16 @@
 </script>
 
 <svelte:head>
-	<title>{data?.product.productName} | Lalo Fixtec</title>
+	<title>{m.single_meta_title({ name: data?.product.productName ?? '' })}</title>
 	{#if data?.product.description}
 		<meta name="description" content={data.product.description.substring(0, 160)} />
 	{/if}
 
 	<meta property="og:type" content="product" />
-	<meta property="og:title" content="{data?.product.productName} - Lalo Fixtec" />
+	<meta
+		property="og:title"
+		content={m.single_og_title({ name: data?.product.productName ?? '' })}
+	/>
 	{#if data?.product.description}
 		<meta property="og:description" content={data.product.description} />
 	{/if}
@@ -90,13 +94,17 @@
 		<div class="mx-auto mt-12 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="mb-8 flex items-end justify-between border-b pb-4">
 				<div>
-					<h2 class="text-3xl font-bold tracking-tight text-slate-900">Product Gallery</h2>
+					<h2 class="text-3xl font-bold tracking-tight text-slate-900">
+						{m.single_gallery_title()}
+					</h2>
 					<p class="mt-2 text-sm text-slate-500">
-						A detailed look at the {data?.product?.productName || 'product'} features.
+						{m.single_gallery_text({
+							name: data?.product?.productName || m.single_product_fallback()
+						})}
 					</p>
 				</div>
 				<span class="text-xs font-medium tracking-widest text-slate-400 uppercase">
-					{data?.images?.length || 0} Images
+					{m.single_images_count({ count: data?.images?.length || 0 })}
 				</span>
 			</div>
 
@@ -119,7 +127,7 @@
 			<h2
 				class="bg-linear-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl"
 			>
-				Related Products
+				{m.single_related()}
 			</h2>
 		</div>
 
@@ -154,7 +162,7 @@
 			</Carousel.Root>
 		</div>
 		<Button href="/shop" size="lg" class="justify-self-center!">
-			See All Products
+			{m.single_see_all()}
 			<ArrowBigRight />
 		</Button>
 	</section>

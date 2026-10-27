@@ -16,6 +16,7 @@ export const load: PageServerLoad = async () => {
 		.select({
 			id: paymentMethods.id,
 			name: paymentMethods.name,
+			nameAm: paymentMethods.nameAm,
 			createdBy: user.name,
 			createdById: paymentMethods.createdBy
 		})
@@ -37,11 +38,12 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Please check the form for Errors' });
 		}
 
-		const { name } = form.data;
+		const { name, nameAm } = form.data;
 
 		try {
 			await db.insert(paymentMethods).values({
 				name,
+				nameAm: nameAm || null,
 				createdBy: locals.user?.id
 			});
 
@@ -64,12 +66,12 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		const { id, name } = form.data;
+		const { id, name, nameAm } = form.data;
 
 		try {
 			await db
 				.update(paymentMethods)
-				.set({ name, updatedBy: locals?.user?.id })
+				.set({ name, nameAm: nameAm || null, updatedBy: locals?.user?.id })
 				.where(eq(paymentMethods.id, id));
 			return message(form, { type: 'success', text: 'Payment Method Successfully Updated' });
 		} catch (err: any) {

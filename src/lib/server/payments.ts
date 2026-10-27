@@ -1,3 +1,4 @@
+import { localized } from '$lib/localized';
 // Online (Chapa) payments for orders.
 //
 // An order becomes "paid online" in exactly one place: `settleOnlinePayment()`.
@@ -388,14 +389,19 @@ export async function bankTransferOptions() {
 			accountName: bankAccounts.accountName,
 			accountNumber: bankAccounts.accountNumber,
 			paymentMethodId: paymentMethods.id,
-			paymentMethodName: paymentMethods.name
+			paymentMethodName: paymentMethods.name,
+			paymentMethodNameAm: paymentMethods.nameAm
 		})
 		.from(bankAccounts)
 		.innerJoin(paymentMethods, eq(bankAccounts.paymentMethodId, paymentMethods.id))
 		.where(and(eq(bankAccounts.isActive, true), eq(paymentMethods.isActive, true)))
 		.orderBy(asc(paymentMethods.name), asc(bankAccounts.bankName), asc(bankAccounts.id));
 
-	const methods = [...new Map(accounts.map((a) => [a.paymentMethodId, a.paymentMethodName])).entries()].map(
+	const methods = [
+		...new Map(
+			accounts.map((a) => [a.paymentMethodId, localized(a.paymentMethodName, a.paymentMethodNameAm)])
+		).entries()
+	].map(
 		([value, name]) => ({ value, name })
 	);
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import ProductCard from '$lib/components/product-card.svelte';
 	import { Input } from '@nahu/admin-kit/components/ui/input/index.js';
 	import { Checkbox } from '@nahu/admin-kit/components/ui/checkbox/index.js';
@@ -137,11 +138,8 @@
 </script>
 
 <svelte:head>
-	<title>Products | Industrial & Construction Supply Solutions</title>
-	<meta
-		name="description"
-		content="Procure professional-grade mechanical hand tools, construction materials, and bulk industrial supplies."
-	/>
+	<title>{m.shop_meta_title()}</title>
+	<meta name="description" content={m.shop_meta_description()} />
 </svelte:head>
 
 <!-- Hero Banner -->
@@ -152,11 +150,10 @@
 	<div class="absolute inset-0 bg-black/40"></div>
 	<div class="relative mx-auto max-w-4xl text-center">
 		<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
-			Products & Solutions
+			{m.aboutus_products_title()}
 		</h1>
 		<p class="mt-6 text-2xl leading-8 font-bold text-gray-100 text-shadow-sm">
-			Professional-grade equipment and structured procurement models designed to meet high-frequency
-			industrial demands.
+			{m.aboutus_products_text()}
 		</p>
 	</div>
 </section>
@@ -167,12 +164,13 @@
 		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 			<div class="mb-6 flex items-center justify-between">
 				<div>
-					<h2 class="text-3xl font-bold">Shop</h2>
-					<p class="mt-1 text-muted-foreground">Industrial & Construction Supply Solutions</p>
+					<h2 class="text-3xl font-bold">{m.shop_title()}</h2>
+					<p class="mt-1 text-muted-foreground">{m.shop_subtitle()}</p>
 				</div>
 				{#if hasActiveFilters}
 					<Button variant="outline" size="sm" onclick={resetFilters}>
-						<XIcon size={14} class="mr-1" /> Reset Filters
+						<XIcon size={14} class="mr-1" />
+						{m.shop_reset_filters()}
 					</Button>
 				{/if}
 			</div>
@@ -180,7 +178,7 @@
 				<SearchIcon class="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground" />
 				<Input
 					type="text"
-					placeholder="Search by product name..."
+					placeholder={m.shop_search_placeholder()}
 					bind:value={searchQuery}
 					oninput={handleSearch}
 					class="h-11 rounded-lg pl-10"
@@ -196,15 +194,15 @@
 			<aside class="lg:col-span-1">
 				<div class="sticky top-36 space-y-6">
 					<div class="flex items-center justify-between">
-						<h3 class="text-lg font-semibold">Filters</h3>
+						<h3 class="text-lg font-semibold">{m.shop_filters()}</h3>
 					</div>
 
 					<!-- Price Range -->
 					<div class="flex flex-col gap-4 border-b pb-6">
-						<h4 class="text-sm font-medium">Price Range</h4>
+						<h4 class="text-sm font-medium">{m.shop_price_range()}</h4>
 						<div class="flex gap-2">
 							<div class="flex-1">
-								<Label class="mb-1 block text-xs text-muted-foreground">Min</Label>
+								<Label class="mb-1 block text-xs text-muted-foreground">{m.shop_min()}</Label>
 								<Input
 									type="number"
 									bind:value={minPrice}
@@ -213,7 +211,7 @@
 								/>
 							</div>
 							<div class="flex-1">
-								<Label class="mb-1 block text-xs text-muted-foreground">Max</Label>
+								<Label class="mb-1 block text-xs text-muted-foreground">{m.shop_max()}</Label>
 								<Input
 									type="number"
 									bind:value={maxPrice}
@@ -239,14 +237,14 @@
 							class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary"
 						/>
 						<div class="flex justify-between text-xs text-muted-foreground">
-							<span>{minPrice} ETB</span>
-							<span>{maxPrice} ETB</span>
+							<span>{m.shop_price_etb({ price: minPrice })}</span>
+							<span>{m.shop_price_etb({ price: maxPrice })}</span>
 						</div>
 					</div>
 
 					<!-- Categories -->
 					<div class="flex flex-col gap-3">
-						<h4 class="text-sm font-medium">Categories</h4>
+						<h4 class="text-sm font-medium">{m.shop_categories()}</h4>
 						<div class="flex items-center gap-3">
 							<Checkbox
 								id="category-all"
@@ -254,7 +252,7 @@
 								onCheckedChange={clearCategories}
 								class="cursor-pointer"
 							/>
-							<Label for="category-all" class="flex-1 cursor-pointer text-sm">All</Label>
+							<Label for="category-all" class="flex-1 cursor-pointer text-sm">{m.shop_all()}</Label>
 						</div>
 						{#each data?.categories as category (category.name)}
 							<div class="flex items-center gap-3">
@@ -267,7 +265,7 @@
 									class="cursor-pointer"
 								/>
 								<Label for={`category-${category.name}`} class="flex-1 cursor-pointer text-sm">
-									{category.name}
+									{category.label}
 								</Label>
 							</div>
 						{/each}
@@ -280,11 +278,13 @@
 				{#if data.productList.length === 0}
 					<div class="flex flex-col items-center justify-center py-24 text-center">
 						<SearchIcon class="mb-4 size-12 text-muted-foreground/40" />
-						<h3 class="text-lg font-semibold">No products found</h3>
+						<h3 class="text-lg font-semibold">{m.shop_no_products()}</h3>
 						<p class="mt-1 text-sm text-muted-foreground">
-							Try adjusting your filters or search term.
+							{m.shop_no_products_hint()}
 						</p>
-						<Button variant="outline" class="mt-4" onclick={resetFilters}>Clear Filters</Button>
+						<Button variant="outline" class="mt-4" onclick={resetFilters}
+							>{m.shop_clear_filters()}</Button
+						>
 					</div>
 				{:else}
 					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -301,6 +301,7 @@
 								size="sm"
 								disabled={!data.pagination.hasPrevPage}
 								onclick={() => goToPage(data.pagination.currentPage - 1)}
+								aria-label={m.shop_prev_page()}
 							>
 								<ChevronLeft size={16} />
 							</Button>
@@ -325,6 +326,7 @@
 								size="sm"
 								disabled={!data.pagination.hasNextPage}
 								onclick={() => goToPage(data.pagination.currentPage + 1)}
+								aria-label={m.shop_next_page()}
 							>
 								<ChevronRight size={16} />
 							</Button>

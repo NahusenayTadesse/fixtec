@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { renderComponent } from '@nahu/admin-kit/components/ui/data-table/index.js';
 	import DataTable from '@nahu/admin-kit/components/Table/data-table.svelte';
 	import DataTableSort from '@nahu/admin-kit/components/Table/data-table-sort.svelte';
@@ -123,18 +124,18 @@
 </script>
 
 <svelte:head>
-	<title>All Orders</title>
+	<title>{m.orders_meta_title()}</title>
 </svelte:head>
 
 <div
 	class="mt-16 flex min-h-dvh w-full! flex-col bg-linear-to-br from-primary/5 via-accent/5 to-background px-8 text-foreground"
 >
 	<div class="mb-12 text-center">
-		<h2 class="mb-4 text-4xl font-bold sm:text-5xl">Orders</h2>
-		<p class="mx-auto max-w-2xl text-lg text-muted-foreground">Edit and Update your orders</p>
+		<h2 class="mb-4 text-4xl font-bold sm:text-5xl">{m.orders_title()}</h2>
+		<p class="mx-auto max-w-2xl text-lg text-muted-foreground">{m.orders_subtitle()}</p>
 	</div>
 	<div class="ml-8">
-		<DialogComp title="+ Add New Order" variant="default">
+		<DialogComp title={m.orders_add_new()} variant="default">
 			<form
 				action="?/add"
 				use:enhance
@@ -143,11 +144,11 @@
 				method="post"
 				enctype="multipart/form-data"
 			>
-				<InputComp label="Customer" name="customer" type="hidden" {form} {errors} />
+				<InputComp label={m.orders_customer()} name="customer" type="hidden" {form} {errors} />
 				<div class="mb-4 flex justify-end">
 					<Button type="button" size="sm" class="gap-2" onclick={() => addProduct()}>
 						<Plus class="h-4 w-4" />
-						<span>Add Product</span>
+						<span>{m.orders_add_product()}</span>
 					</Button>
 				</div>
 
@@ -160,7 +161,7 @@
 							class="mb-4 flex items-center justify-between border-b border-slate-100 pb-2 dark:border-white/5"
 						>
 							<span class="text-xs font-bold tracking-widest text-muted-foreground uppercase">
-								Product Entry #{i + 1}
+								{m.orders_product_entry({ index: i + 1 })}
 							</span>
 
 							<Button
@@ -174,13 +175,13 @@
 								}}
 							>
 								<X class="h-4 w-4" />
-								<span class="sr-only">Remove item</span>
+								<span class="sr-only">{m.orders_remove_item()}</span>
 							</Button>
 						</div>
 
 						<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 							<div class="space-y-1.5">
-								<Label class="text-xs font-medium text-slate-500">Selling Product</Label>
+								<Label class="text-xs font-medium text-slate-500">{m.orders_selling_product()}</Label>
 								<ComboboxComp
 									items={data?.fetchedProducts}
 									name="selectedProducts"
@@ -195,13 +196,13 @@
 							</div>
 
 							<div class="space-y-1.5">
-								<Label class="text-xs font-medium text-slate-500">Price Amount</Label>
+								<Label class="text-xs font-medium text-slate-500">{m.orders_price_amount()}</Label>
 								<ComboboxComp
 									items={$form.selectedProducts[i].product
 										? data?.fetchedPrices.filter(
 												(p) => Number(p.productId) === $form.selectedProducts[i].product
 											)
-										: [{ value: '', name: 'Select a product first' }]}
+										: [{ value: '', name: m.orders_select_product_first() }]}
 									name="selectedProducts"
 									required={true}
 									bind:value={$form.selectedProducts[i].amount}
@@ -214,11 +215,11 @@
 							</div>
 
 							<div class="space-y-1.5 lg:col-span-2">
-								<Label class="text-xs font-medium text-slate-500">Quantity</Label>
+								<Label class="text-xs font-medium text-slate-500">{m.product_quantity()}</Label>
 								<Input
 									type="number"
 									min="1"
-									placeholder="Enter quantity..."
+									placeholder={m.orders_quantity_placeholder()}
 									bind:value={$form.selectedProducts[i].quantity}
 								/>
 								{#if $errors.selectedProducts?.[i]?.quantity}
@@ -233,9 +234,9 @@
 
 				<Button type="submit" form="main">
 					{#if $delayed}
-						<LoadingBtn name="Adding Order" />
+						<LoadingBtn name={m.orders_adding()} />
 					{:else}
-						<Plus /> Add Order
+						<Plus /> {m.orders_add()}
 					{/if}
 				</Button>
 			</form>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import Button from '@nahu/admin-kit/components/ui/button/button.svelte';
 	import { ShoppingCart } from '@lucide/svelte';
 	import type { PageData } from './$types';
@@ -47,7 +48,7 @@
 </script>
 
 <svelte:head>
-	<title>Order History - Lalo Fixtec</title>
+	<title>{m.hist_meta_title()}</title>
 </svelte:head>
 
 <div class="mx-auto min-h-screen max-w-7xl space-y-8 bg-background p-6 text-foreground">
@@ -56,19 +57,19 @@
 	>
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight">
-				Welcome back, {customer?.customerName ?? 'Customer'}
+				{m.hist_welcome({ name: customer?.customerName ?? m.hist_customer_fallback() })}
 			</h1>
 			<p class="mt-1 text-muted-foreground">
-				Manage your orders, items, and billing configurations.
+				{m.hist_subtitle()}
 			</p>
 		</div>
 		<div class="flex gap-2">
-			<Button href="/shop"><ShoppingCart /> New Order</Button>
+			<Button href="/shop"><ShoppingCart /> {m.hist_new_order()}</Button>
 		</div>
 	</header>
 
 	<section aria-labelledby="metrics-title">
-		<h2 id="metrics-title" class="sr-only">Order Metrics</h2>
+		<h2 id="metrics-title" class="sr-only">{m.hist_metrics()}</h2>
 		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 			{#each orderCounts as metric}
 				{@const styles = getStatusStyles(metric.status)}
@@ -77,7 +78,7 @@
 				>
 					<div class="space-y-1">
 						<p class="text-sm font-medium tracking-tight text-muted-foreground capitalize">
-							{metric.status} Orders
+							{m.hist_status_orders({ status: metric.status ?? '' })}
 						</p>
 						<div class="text-2xl font-bold">{metric.count}</div>
 					</div>
@@ -93,25 +94,27 @@
 	<div class="grid gap-6">
 		<div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
 			<div class="p-6">
-				<h3 class="text-lg leading-none font-semibold tracking-tight">Recent Orders</h3>
+				<h3 class="text-lg leading-none font-semibold tracking-tight">{m.hist_recent()}</h3>
 				<p class="mt-1 text-sm text-muted-foreground">
-					A historical view of your generated invoices.
+					{m.hist_recent_hint()}
 				</p>
 			</div>
 			<div class="overflow-x-auto border-t border-border">
 				<table class="w-full text-left text-sm">
 					<thead class="border-b border-border bg-muted/50 font-medium text-muted-foreground">
 						<tr>
-							<th class="p-4">Order ID</th>
-							<th class="p-4">Customer</th>
-							<th class="p-4">Date</th>
-							<th class="p-4 text-right">Status</th>
+							<th class="p-4">{m.col_order_id()}</th>
+							<th class="p-4">{m.col_customer()}</th>
+							<th class="p-4">{m.col_date()}</th>
+							<th class="p-4 text-right">{m.col_status()}</th>
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-border">
 						{#if allData.length === 0}
 							<tr>
-								<td colspan="4" class="p-8 text-center text-muted-foreground">No orders found.</td>
+								<td colspan="4" class="p-8 text-center text-muted-foreground"
+									>{m.hist_no_orders()}</td
+								>
 							</tr>
 						{:else}
 							{#each allData as order}
@@ -138,26 +141,28 @@
 
 	<div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
 		<div class="p-6">
-			<h3 class="text-lg leading-none font-semibold tracking-tight">Pending Order Breakdown</h3>
+			<h3 class="text-lg leading-none font-semibold tracking-tight">
+				{m.hist_pending_breakdown()}
+			</h3>
 			<p class="mt-1 text-sm text-muted-foreground">
-				Items linked exclusively to your open queries.
+				{m.hist_pending_hint()}
 			</p>
 		</div>
 		<div class="overflow-x-auto border-t border-border">
 			<table class="w-full text-left text-sm">
 				<thead class="border-b border-border bg-muted/50 font-medium text-muted-foreground">
 					<tr>
-						<th class="p-4">Product Name</th>
-						<th class="p-4 text-center">Quantity</th>
-						<th class="p-4 text-right">Unit Price</th>
-						<th class="p-4 text-right">Total</th>
+						<th class="p-4">{m.col_product_name()}</th>
+						<th class="p-4 text-center">{m.col_quantity()}</th>
+						<th class="p-4 text-right">{m.col_unit_price()}</th>
+						<th class="p-4 text-right">{m.col_total()}</th>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-border">
 					{#if allItems.filter((i) => i.orderId !== null).length === 0}
 						<tr>
 							<td colspan="4" class="p-8 text-center text-muted-foreground"
-								>No active pending items found.</td
+								>{m.hist_no_pending()}</td
 							>
 						</tr>
 					{:else}
@@ -168,8 +173,11 @@
 										{item.product}
 									</td>
 									<td class="p-4 text-center font-mono">{item.quantity}</td>
-									<td class="p-4 text-right font-mono">ETB {item.price.toFixed(2)}</td>
-									<td class="p-4 text-right font-mono font-semibold">ETB {item.total.toFixed(2)}</td
+									<td class="p-4 text-right font-mono"
+										>{m.amount_etb({ amount: item.price.toFixed(2) })}</td
+									>
+									<td class="p-4 text-right font-mono font-semibold"
+										>{m.amount_etb({ amount: item.total.toFixed(2) })}</td
 									>
 								</tr>
 							{/if}

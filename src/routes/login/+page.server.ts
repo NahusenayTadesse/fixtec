@@ -1,3 +1,4 @@
+import { m } from '$lib/paraglide/messages.js';
 // import { encodeBase32LowerCase } from '@oslojs/encoding';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -29,7 +30,7 @@ export const actions: Actions = {
 				form,
 				{
 					type: 'error',
-					text: 'Please Check the form}'
+					text: m.srv_check_form()
 				},
 				{
 					status: 500
@@ -49,13 +50,13 @@ export const actions: Actions = {
 			});
 
 			if (!result.user) {
-				setError(form, 'email', 'Invalid email or password');
-				setError(form, 'password', 'Invalid email or password');
+				setError(form, 'email', m.srv_invalid_login());
+				setError(form, 'password', m.srv_invalid_login());
 				return message(
 					form,
 					{
 						type: 'error',
-						text: 'An error occurred while logging in'
+						text: m.srv_login_error()
 					},
 					{
 						status: 500
@@ -65,7 +66,7 @@ export const actions: Actions = {
 
 			return message(form, {
 				type: 'success',
-				text: 'Sign Up Successful!'
+				text: m.srv_signup_success()
 			});
 		} catch (error) {
 			if (error instanceof APIError) {
@@ -84,7 +85,7 @@ export const actions: Actions = {
 				form,
 				{
 					type: 'error',
-					text: 'Registration Failed'
+					text: m.srv_registration_failed()
 				},
 				{
 					status: 500

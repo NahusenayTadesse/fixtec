@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import './layout.css';
 	import { getFlash } from 'sveltekit-flash-message';
 	import { page, updated } from '$app/state';
@@ -47,10 +48,10 @@
 		if (Notification.permission === 'granted') {
 			notifyBrowser(
 				page.data.flash?.type === 'success'
-					? 'Success'
+					? m.notify_success()
 					: page.data.flash?.type === 'error'
-						? 'Error'
-						: 'Message',
+						? m.notify_error()
+						: m.notify_message(),
 				$flash.message
 			);
 		}
@@ -70,9 +71,9 @@
 {#if updated.current}
 	<div class={toastmsg} transition:fly={{ x: 20, duration: 300 }}>
 		<p>
-			A new version of the app is available
+			{m.update_available()}
 
-			<Button onclick={() => location.reload()}>Reload the page</Button>
+			<Button onclick={() => location.reload()}>{m.update_reload()}</Button>
 		</p>
 	</div>
 {/if}

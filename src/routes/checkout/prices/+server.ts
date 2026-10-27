@@ -1,3 +1,4 @@
+import { localizedColumn } from '$lib/server/localized-sql';
 import { json, error } from '@sveltejs/kit';
 import { and, eq, inArray } from 'drizzle-orm';
 
@@ -41,7 +42,14 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (!priceIds.length) return json([]);
 
 	const rows = await db
-		.select({ id: prices.id, price: prices.price, amount: prices.amount })
+		// Labels in the visitor's language: the cart shows them, while orders are priced
+		// and recorded from the database by `id`, never from these strings.
+		.select({
+			id: prices.id,
+			price: prices.price,
+			amount: localizedColumn(prices.amount, prices.amountAm),
+			productName: localizedColumn(products.name, products.nameAm)
+		})
 		.from(prices)
 		.innerJoin(products, eq(prices.productId, products.id))
 		.where(and(inArray(prices.id, priceIds), eq(products.isActive, true)));

@@ -27,6 +27,8 @@
 					id: row.original.id,
 					name: row.original.name,
 					description: row.original.description,
+					nameAm: row.original.nameAm,
+					descriptionAm: row.original.descriptionAm,
 					action: '?/edit',
 					data: data?.editForm,
 					icon: false,
@@ -56,6 +58,8 @@
 					id: row.original.id,
 					name: row.original.name,
 					description: row.original.description,
+					nameAm: row.original.nameAm,
+					descriptionAm: row.original.descriptionAm,
 					action: '?/edit',
 					data: data?.editForm,
 					icon: true,
@@ -101,6 +105,22 @@
 			placeholder="Enter Product Description"
 			required={true}
 			rows={10}
+		/>
+		<InputComp
+			{form}
+			{errors}
+			label="Name (Amharic, optional)"
+			type="text"
+			name="nameAm"
+			placeholder="Leave empty to show the English name"
+		/>
+		<InputComp
+			{form}
+			{errors}
+			label="Description (Amharic, optional)"
+			type="textarea"
+			name="descriptionAm"
+			placeholder="Leave empty to show the English description"
 		/>
 		<InputComp
 			label="Status"

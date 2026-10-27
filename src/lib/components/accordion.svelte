@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import {
 		Accordion,
 		AccordionItem,
@@ -11,44 +12,38 @@
 	const features = [
 		{
 			id: 'bulk-supply',
-			title: 'Scalable Bulk Supply Capacity',
-			description:
-				'Equipped to manage high-volume procurement for large-scale projects with a sourcing network that ensures consistent quality and schedules.',
+			title: m.why_bulk_title(),
+			description: m.why_bulk_desc(),
 			icon: Layers
 		},
 		{
 			id: 'supply-chain',
-			title: 'Integrated Supply Chain Management',
-			description:
-				'Established international partnerships and logistics systems ensure consistent availability, predictable lead times, and efficient customs handling.',
+			title: m.why_chain_title(),
+			description: m.why_chain_desc(),
 			icon: Route
 		},
 		{
 			id: 'industry-network',
-			title: 'Multi-Industry Network Strength',
-			description:
-				'Leveraging the Lalo General Trading portfolio to provide superior sourcing leverage, logistics coordination, and financial stability.',
+			title: m.why_network_title(),
+			description: m.why_network_desc(),
 			icon: Network
 		},
 		{
 			id: 'contractor-support',
-			title: 'Structured Contractor Support',
-			description:
-				'Tailored services including project-based planning, technical recommendations, and consolidated shipments to minimize operational downtime.',
+			title: m.why_contractor_title(),
+			description: m.why_contractor_desc(),
 			icon: HardHat
 		},
 		{
 			id: 'compliance-quality',
-			title: 'Compliance & Quality Assurance',
-			description:
-				'Products sourced from verified manufacturers and evaluated for durability, safety compliance, and industrial performance standards.',
+			title: m.why_quality_title(),
+			description: m.why_quality_desc(),
 			icon: ShieldCheck
 		},
 		{
 			id: 'commercial-terms',
-			title: 'Competitive Commercial Terms',
-			description:
-				'Structured pricing models designed for project contracts, framework agreements, and long-term distributor partnerships.',
+			title: m.why_terms_title(),
+			description: m.why_terms_desc(),
 			icon: Handshake
 		}
 	];
@@ -60,9 +55,9 @@
 	<div class="mx-auto w-full">
 		<!-- Header -->
 		<div class="mb-12 text-center">
-			<h1 class="mb-4 text-4xl font-bold text-foreground sm:text-5xl">WHY PARTNER WITH FIXTEC</h1>
+			<h1 class="mb-4 text-4xl font-bold text-foreground sm:text-5xl">{m.why_title()}</h1>
 			<p class="text-lg text-muted-foreground">
-				Our goal is to support cost control without compromising operational reliability.
+				{m.why_text()}
 			</p>
 		</div>
 
@@ -97,9 +92,9 @@
 		<!-- Footer CTA -->
 		<div class="mt-12 text-center">
 			<p class="mb-4 text-muted-foreground">
-				Ready to elevate your professional-grade mechanical tools?
+				{m.why_cta_text()}
 			</p>
-			<Button href="/contact-us">Get Started Today</Button>
+			<Button href="/contact-us">{m.why_cta_button()}</Button>
 		</div>
 	</div>
 </div>

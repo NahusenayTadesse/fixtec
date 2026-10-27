@@ -64,6 +64,13 @@
       "when": 1792926495940,
       "tag": "0008_variant_batches",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1793119290079,
+      "tag": "0009_amharic_fields",
+      "breakpoints": true
     }
   ]
 }

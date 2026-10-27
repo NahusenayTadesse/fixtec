@@ -1,3 +1,5 @@
+import { localizedColumn } from '$lib/server/localized-sql';
+import { m } from '$lib/paraglide/messages.js';
 import { superValidate, message } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { eq, and, sql, or, inArray } from 'drizzle-orm';
@@ -39,7 +41,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const fetchedProducts = await db
 		.select({
 			value: products.id,
-			name: products.name
+			name: localizedColumn(products.name, products.nameAm)
 		})
 		.from(products)
 		.where(eq(products.isActive, true));
@@ -47,7 +49,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const fetchedPrices = await db
 		.select({
 			value: sql<string>`CONCAT(${prices.price}, ' ', ${prices.amount})`,
-			name: sql<string>`CONCAT(${prices.price}, ' ', ${prices.amount}, ' pieces')`,
+			// Label only — `value` stays English, as the order actions match variants on it.
+			name: sql<string>`CONCAT(${prices.price}, ' ', ${localizedColumn(prices.amount, prices.amountAm)})`,
 			productId: prices.productId,
 			price: prices.price,
 			amount: prices.amount
@@ -108,7 +111,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				.select({
 					id: orderItems.id,
 					orderId: orderItems.orderId,
-					product: products.name,
+					product: localizedColumn(products.name, products.nameAm),
 					amount: orderItems.amount,
 					quantity: orderItems.quantity,
 					productId: orderItems.productId,
@@ -139,16 +142,16 @@ export const actions: Actions = {
 		// `load` cannot protect this: actions run *before* any load, so the guard above
 		// only ever affects the re-render. Each action has to check for itself.
 		if (!locals.user) {
-			return message(form, { type: 'error', text: 'Please sign in' }, { status: 401 });
+			return message(form, { type: 'error', text: m.srv_sign_in() }, { status: 401 });
 		}
 
 		if (!form.valid) {
-			return message(form, { type: 'error', text: 'Please check the form for Errors' });
+			return message(form, { type: 'error', text: m.srv_check_form() });
 		}
 
 		const ownCustomerId = await getOwnCustomerId(locals.user.id);
 		if (ownCustomerId === undefined) {
-			return message(form, { type: 'error', text: 'No customer profile found' }, { status: 403 });
+			return message(form, { type: 'error', text: m.srv_no_customer() }, { status: 403 });
 		}
 
 		const { selectedProducts } = form.data;
@@ -176,10 +179,10 @@ export const actions: Actions = {
 				}
 			});
 
-			return message(form, { type: 'success', text: 'Order Successfully Added' });
+			return message(form, { type: 'success', text: m.srv_order_added() });
 		} catch (err) {
 			console.error('Failed to add order:', err);
-			return message(form, { type: 'error', text: 'Could not add the order' }, { status: 500 });
+			return message(form, { type: 'error', text: m.srv_order_add_failed() }, { status: 500 });
 		}
 	},
 
@@ -187,16 +190,16 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(edit));
 
 		if (!locals.user) {
-			return message(form, { type: 'error', text: 'Please sign in' }, { status: 401 });
+			return message(form, { type: 'error', text: m.srv_sign_in() }, { status: 401 });
 		}
 
 		if (!form.valid) {
-			return message(form, { type: 'error', text: 'Please check the form for Errors' });
+			return message(form, { type: 'error', text: m.srv_check_form() });
 		}
 
 		const ownCustomerId = await getOwnCustomerId(locals.user.id);
 		if (ownCustomerId === undefined) {
-			return message(form, { type: 'error', text: 'No customer profile found' }, { status: 403 });
+			return message(form, { type: 'error', text: m.srv_no_customer() }, { status: 403 });
 		}
 
 		const { id, selectedProducts } = form.data;
@@ -220,7 +223,7 @@ export const actions: Actions = {
 				.then((rows) => rows[0]);
 
 			if (!existing) {
-				return message(form, { type: 'error', text: 'Order not found' }, { status: 404 });
+				return message(form, { type: 'error', text: m.srv_order_not_found() }, { status: 404 });
 			}
 
 			// Once paid (online or by hand), changing the items would leave the order
@@ -232,7 +235,7 @@ export const actions: Actions = {
 			if (payment?.paymentStatus === 'paid') {
 				return message(
 					form,
-					{ type: 'error', text: 'This order is already paid and can no longer be changed. Please contact us.' },
+					{ type: 'error', text: m.srv_order_paid_locked() },
 					{ status: 409 }
 				);
 			}
@@ -241,7 +244,7 @@ export const actions: Actions = {
 					form,
 					{
 						type: 'error',
-						text: 'A payment for this order is already under way, so it can no longer be changed. Please contact us.'
+						text: m.srv_order_payment_locked()
 					},
 					{ status: 409 }
 				);
@@ -277,10 +280,10 @@ export const actions: Actions = {
 				}
 			});
 
-			return message(form, { type: 'success', text: 'Order Successfully Updated' });
+			return message(form, { type: 'success', text: m.srv_order_updated() });
 		} catch (err) {
 			console.error('Failed to update order:', err);
-			return message(form, { type: 'error', text: 'Could not update the order' }, { status: 500 });
+			return message(form, { type: 'error', text: m.srv_order_update_failed() }, { status: 500 });
 		}
 	}
 };

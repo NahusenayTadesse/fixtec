@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import * as DropdownMenu from '@nahu/admin-kit/components/ui/dropdown-menu/index.js';
 	import * as Avatar from '@nahu/admin-kit/components/ui/avatar/index.js';
 
@@ -26,14 +27,14 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content class="p-2">
 		<DropdownMenu.Group>
-			<DropdownMenu.Label>My Account</DropdownMenu.Label>
+			<DropdownMenu.Label>{m.account_menu_title()}</DropdownMenu.Label>
 			<DropdownMenu.Separator />
 			<DropdownMenu.Item onclick={() => goto('/account')}>
-				<User /> My Account
+				<User /> {m.account_menu_title()}
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item onclick={() => goto('/change-password')}>
-				<KeyRound /> Change Password
+				<KeyRound /> {m.account_menu_change_password()}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item>
 				<form
@@ -56,9 +57,9 @@
 						class="flex flex-row items-center justify-center gap-2"
 					>
 						{#if deleting}
-							<LoadingBtn name="Logging Out" />
+							<LoadingBtn name={m.logging_out()} />
 						{:else}
-							<LogOut class="" /> Logout
+							<LogOut class="" /> {m.logout()}
 						{/if}
 					</button>
 				</form></DropdownMenu.Item

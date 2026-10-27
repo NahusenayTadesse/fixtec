@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { useCart, type ProductPrice } from '$lib/hooks/cart.svelte.js';
 	import { Card, CardContent } from '@nahu/admin-kit/components/ui/card/index.js';
 	import { Badge } from '@nahu/admin-kit/components/ui/badge/index.js';
@@ -61,8 +62,8 @@
 		});
 		justAdded = true;
 
-		toast.success(`${productName} added to cart`, {
-			description: `Total in cart: ${quantityInCart + 1}`
+		toast.success(m.product_added({ name: productName }), {
+			description: m.product_total_in_cart({ count: quantityInCart + 1 })
 		});
 
 		setTimeout(() => {
@@ -99,7 +100,7 @@
 
 			{#if quantityInCart > 0}
 				<Badge variant="default" class="animate-in duration-200 zoom-in-50">
-					{quantityInCart} in cart
+					{m.product_in_cart({ count: quantityInCart })}
 				</Badge>
 			{/if}
 		</div>

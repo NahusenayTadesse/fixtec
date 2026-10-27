@@ -1,3 +1,5 @@
+import { localized } from '$lib/localized';
+import { m } from '$lib/paraglide/messages.js';
 import { message, setError, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -18,10 +20,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const placeList = await db
 		.select({
 			value: placeNames.name,
-			name: placeNames.name
+			name: placeNames.name,
+			nameAm: placeNames.nameAm
 		})
 		.from(placeNames)
-		.where(eq(placeNames.isActive, true));
+		.where(eq(placeNames.isActive, true))
+		// `value` stays the English name — it is what orders store and the fee lookup
+		// matches on; only the label is localized.
+		.then((rows) => rows.map(({ nameAm, ...p }) => ({ ...p, name: localized(p.name, nameAm) })));
 
 	const singleUser = await db
 		.select({
@@ -42,7 +48,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.then((rows) => rows[0]);
 
 	if (!singleUser) {
-		error(404, { message: 'User not found, It has been Deleted or does not exist' });
+		error(404, { message: m.srv_user_not_found() });
 	}
 
 	const orderCounts = await db
@@ -55,7 +61,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.groupBy(orders.status);
 
 	if (!singleUser) {
-		error(404, 'User with this ID not found');
+		error(404, m.srv_user_not_found());
 	}
 
 	return {
@@ -75,7 +81,7 @@ export const actions: Actions = {
 
 		if (!form.valid) {
 			// Stay on the same page and set a flash message
-			return message(form, { type: 'error', text: 'Please check your form data.' });
+			return message(form, { type: 'error', text: m.srv_check_form() });
 		}
 
 		const { name, email, address, deliveryAddress } = form.data;
@@ -91,12 +97,12 @@ export const actions: Actions = {
 
 			if (existingUser) {
 				if (existingUser.id !== id) {
-					setError(form, 'email', 'User with this email already exists, change your email.');
+					setError(form, 'email', m.srv_user_email_exists());
 					return message(
 						form,
 						{
 							type: 'error',
-							text: 'User with this email already exists, change your email.'
+							text: m.srv_user_email_exists()
 						},
 						{ status: 400 }
 					);
@@ -141,7 +147,7 @@ export const actions: Actions = {
 			// Client-side (to sync the changes)
 
 			// Stay on the same page and set a flash message
-			return message(form, { type: 'success', text: 'Your Details have Updated Successfully' });
+			return message(form, { type: 'success', text: m.srv_details_updated() });
 		} catch (err) {
 			console.error(err);
 
@@ -150,7 +156,7 @@ export const actions: Actions = {
 					form,
 					{
 						type: 'error',
-						text: 'User with this email already exists, change your email.'
+						text: m.srv_user_email_exists()
 					},
 					{ status: 400 }
 				);
@@ -159,7 +165,7 @@ export const actions: Actions = {
 				form,
 				{
 					type: 'error',
-					text: 'Update Failed: ' + err?.message
+					text: m.srv_update_failed() + err?.message
 				},
 				{ status: 500 }
 			);

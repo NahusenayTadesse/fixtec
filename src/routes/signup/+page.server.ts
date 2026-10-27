@@ -1,3 +1,5 @@
+import { localized } from '$lib/localized';
+import { m } from '$lib/paraglide/messages.js';
 // import { encodeBase32LowerCase } from '@oslojs/encoding';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -32,10 +34,14 @@ export const load: PageServerLoad = async (event) => {
 	const placeList = await db
 		.select({
 			value: placeNames.name,
-			name: placeNames.name
+			name: placeNames.name,
+			nameAm: placeNames.nameAm
 		})
 		.from(placeNames)
-		.where(eq(placeNames.isActive, true));
+		.where(eq(placeNames.isActive, true))
+		// `value` stays the English name — it is what orders store and the fee lookup
+		// matches on; only the label is localized.
+		.then((rows) => rows.map(({ nameAm, ...p }) => ({ ...p, name: localized(p.name, nameAm) })));
 
 	return { form, placeList };
 };
@@ -48,7 +54,7 @@ export const actions: Actions = {
 				form,
 				{
 					type: 'error',
-					text: 'Please check the form for errors'
+					text: m.srv_check_form()
 				},
 				{
 					status: 400
@@ -79,12 +85,8 @@ export const actions: Actions = {
 			.then((rows) => rows[0]);
 
 		if (existingCustomer?.userId) {
-			setError(form, 'email', 'An account already uses this email. Please sign in instead.');
-			return message(
-				form,
-				{ type: 'error', text: 'An account already uses this email. Please sign in instead.' },
-				{ status: 400 }
-			);
+			setError(form, 'email', m.srv_email_taken());
+			return message(form, { type: 'error', text: m.srv_email_taken() }, { status: 400 });
 		}
 
 		const hasGuestOrders = Boolean(existingCustomer);
@@ -132,9 +134,7 @@ export const actions: Actions = {
 			sendEmail(email, subject, html).catch((err) => console.error('Email Error (Welcome):', err));
 			return message(form, {
 				type: 'success',
-				text: hasGuestOrders
-					? "Sign Up Successful! Confirm your email from the link we sent and we'll add your earlier orders to your account."
-					: 'Sign Up Successful!'
+				text: hasGuestOrders ? m.srv_signup_success_guest() : m.srv_signup_success()
 			});
 		} catch (error) {
 			// Undo the account (its sessions and sign-in rows cascade) so the email is
@@ -162,7 +162,7 @@ export const actions: Actions = {
 				form,
 				{
 					type: 'error',
-					text: 'Registration Failed'
+					text: m.srv_registration_failed()
 				},
 				{
 					status: 500

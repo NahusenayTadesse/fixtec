@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	// Svelte 5 Runes
 	import { enhance } from '$app/forms';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
@@ -9,7 +10,7 @@
 </script>
 
 <svelte:head>
-	<title>Live Order Tracking - Lalo Fixtec</title>
+	<title>{m.track_meta_title()}</title>
 </svelte:head>
 
 <div class="mx-auto min-h-screen max-w-5xl space-y-8 bg-background p-6 text-foreground">
@@ -21,10 +22,10 @@
 				></span>
 				<span class="relative inline-flex h-3 w-3 rounded-full bg-primary"></span>
 			</span>
-			<h1 class="text-3xl font-bold tracking-tight">Live Order Tracking</h1>
+			<h1 class="text-3xl font-bold tracking-tight">{m.track_title()}</h1>
 		</div>
 		<p class="mt-1 text-muted-foreground">
-			Real-time status configurations of your open, processing receipts.
+			{m.track_subtitle()}
 		</p>
 	</header>
 
@@ -51,9 +52,9 @@
 					stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="m16 10-4 4-2-2" /></svg
 				>
 			</div>
-			<h3 class="text-lg font-semibold">No active shipments</h3>
+			<h3 class="text-lg font-semibold">{m.track_empty()}</h3>
 			<p class="mt-1 max-w-sm text-sm text-muted-foreground">
-				You do not currently have any pending transactions requiring tracking parameters.
+				{m.track_empty_hint()}
 			</p>
 		</div>
 	{:else}
@@ -68,7 +69,7 @@
 						<div class="space-y-1">
 							<div class="flex items-center gap-2">
 								<span class="font-mono text-sm font-semibold text-muted-foreground"
-									>Order ID: #{order.id}</span
+									>{m.track_order_id({ id: order.id })}</span
 								>
 								<span
 									class="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary capitalize"
@@ -79,25 +80,25 @@
 									<span
 										class="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400"
 									>
-										Receipt sent — awaiting check
+										{m.track_receipt_sent()}
 									</span>
 								{/if}
 								{#if order.paid}
 									<span
 										class="inline-flex items-center rounded-full border border-green-600/25 bg-green-600/10 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400"
 									>
-										Paid
+										{m.pay_label_paid()}
 									</span>
 								{/if}
 							</div>
 							<p class="text-xs text-muted-foreground">
-								Initiated on {order.createdAt} • Updated {order.updatedAt}
+								{m.track_dates({ created: order.createdAt, updated: order.updatedAt })}
 							</p>
 						</div>
 						<div class="text-sm sm:text-right">
-							<p class="text-xs font-medium text-muted-foreground">Estimated Expenditure</p>
+							<p class="text-xs font-medium text-muted-foreground">{m.track_estimated()}</p>
 							<p class="font-mono text-xl font-bold text-foreground">
-								ETB {order.orderTotal.toFixed(2)}
+								{m.amount_etb({ amount: order.orderTotal.toFixed(2) })}
 							</p>
 							{#if !order.paid && !order.receiptSent}
 								<form
@@ -114,7 +115,7 @@
 								>
 									<input type="hidden" name="orderId" value={order.id} />
 									<Button type="submit" size="sm" disabled={paying !== null}>
-										{paying === order.id ? 'Opening Chapa…' : 'Pay online'}
+										{paying === order.id ? m.pay_opening_chapa() : m.track_pay_online()}
 									</Button>
 								</form>
 							{/if}
@@ -133,7 +134,7 @@
 
 					<div class="bg-muted/10 p-6">
 						<h4 class="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-							Shipment Manifest
+							{m.track_manifest()}
 						</h4>
 						<ul
 							class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-background"
@@ -145,10 +146,10 @@
 									<div class="space-y-0.5">
 										<p class="font-medium text-foreground">{item.productName}</p>
 										<p class="font-mono text-xs text-muted-foreground">
-											Qty: {item.quantity} × ETB {item?.price}
+											{m.track_qty_line({ qty: item.quantity, price: item?.price })}
 										</p>
 									</div>
-									<span class="font-mono font-medium text-foreground">ETB {item?.total} </span>
+									<span class="font-mono font-medium text-foreground">{m.amount_etb({ amount: item?.total })}</span>
 								</li>
 							{/each}
 						</ul>

@@ -17,6 +17,17 @@ export const add = z.object({
 		.string()
 		.max(500, { message: "Product description can't be more than 500 characters." })
 		.optional(),
+	// Optional Amharic copy; the storefront shows the English fields where these are empty.
+	productNameAm: z
+		.string()
+		.trim()
+		.max(100, 'Amharic name can be at most 100 characters.')
+		.optional(),
+	descriptionAm: z
+		.string()
+		.trim()
+		.max(500, "Amharic description can't be more than 500 characters.")
+		.optional(),
 	// No `quantity`: stock belongs to a variant, and a new product has none yet.
 	// It is received per variant, as a batch, from the product's page.
 

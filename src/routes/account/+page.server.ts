@@ -1,3 +1,4 @@
+import { localizedColumn } from '$lib/server/localized-sql';
 import { error, isHttpError, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
@@ -94,7 +95,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 						amount: transactions.amount,
 						paymentStatus: transactions.paymentStatus,
 						receiptLink: transactions.recieptLink,
-						productName: products.name,
+						productName: localizedColumn(products.name, products.nameAm),
 						quantity: orderItems.quantity,
 						price: orderItems.price
 					})
@@ -144,7 +145,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				name: discounts.name,
 				description: discounts.description,
 				amount: discounts.amount,
-				productName: products.name
+				productName: localizedColumn(products.name, products.nameAm)
 			})
 			.from(discounts)
 			.leftJoin(products, eq(discounts.productId, products.id))

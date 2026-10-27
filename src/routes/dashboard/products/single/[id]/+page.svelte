@@ -47,10 +47,12 @@
 
 	let singleTable = $derived([
 		{ name: 'Name', value: data.product?.name },
+		{ name: 'Name (Amharic)', value: data.product?.nameAm || '—' },
 		{ name: 'Category', value: data.product?.category },
 		{ name: 'Price', value: data.product?.price },
 		{ name: 'Total Stock (all variants)', value: data.product?.quantity },
 		{ name: 'Product Description', value: data.product?.description },
+		{ name: 'Description (Amharic)', value: data.product?.descriptionAm || '—' },
 		{ name: 'Default Reorder Level', value: data.product?.reorderLevel },
 		{ name: 'Product Supplier', value: data?.product?.supplier },
 		{ name: 'Added On', value: data.product?.createdAt },
@@ -81,8 +83,10 @@
 		if (!product) return;
 		untrack(() => {
 			$form.productName = product.name;
+			$form.productNameAm = product.nameAm ?? '';
 			$form.category = product.categoryId;
 			$form.description = product.description;
+			$form.descriptionAm = product.descriptionAm ?? '';
 			$form.reorderLevel = product.reorderLevel;
 			$form.supplier = product.supplierId;
 		});
@@ -172,6 +176,7 @@
 					id: row.original.id,
 					price: row.original.price,
 					amount: row.original.amount,
+					amountAm: row.original.amountAm,
 					sku: row.original.sku,
 					reorderLevel: row.original.reorderLevel,
 					data: data?.priceEdit
@@ -349,6 +354,14 @@
 				<InputComp
 					{form}
 					{errors}
+					type="text"
+					name="productNameAm"
+					label="Product Name (Amharic, optional)"
+					placeholder="የምርት ስም — leave empty to show the English name"
+				/>
+				<InputComp
+					{form}
+					{errors}
 					type="select"
 					name="category"
 					label="Product Category"
@@ -368,6 +381,14 @@
 					label="Product Discription"
 					placeholder="Enter Product Description"
 					required
+				/>
+				<InputComp
+					{form}
+					{errors}
+					type="textarea"
+					name="descriptionAm"
+					label="Product Description (Amharic, optional)"
+					placeholder="የምርት መግለጫ — leave empty to show the English description"
 				/>
 
 				<InputComp

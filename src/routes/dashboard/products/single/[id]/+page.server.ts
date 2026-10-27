@@ -30,14 +30,26 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		const { productName, category, description, supplier, reorderLevel, image } = form.data;
+		const {
+			productName,
+			productNameAm,
+			category,
+			description,
+			descriptionAm,
+			supplier,
+			reorderLevel,
+			image
+		} = form.data;
 
 		try {
 			await db
 				.update(products)
 				.set({
 					name: productName,
+					// Cleared fields become NULL, so the storefront falls back to English.
+					nameAm: productNameAm || null,
 					description,
+					descriptionAm: descriptionAm || null,
 					categoryId: category,
 					// An empty supplier used to be stored as supplier #1.
 					supplierId: supplier || null,
@@ -311,7 +323,7 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Invalid form data' });
 		}
 
-		const { id, price, amount, sku, reorderLevel } = form.data;
+		const { id, price, amount, amountAm, sku, reorderLevel } = form.data;
 
 		if (sku && (await skuTaken(sku, id))) {
 			return message(form, { type: 'error', text: `SKU ${sku} is already used` }, { status: 400 });
@@ -323,6 +335,7 @@ export const actions: Actions = {
 				.set({
 					price: String(price),
 					amount,
+					amountAm: amountAm || null,
 					sku: sku || null,
 					reorderLevel: reorderLevel === '' || reorderLevel === undefined ? null : reorderLevel
 				})
@@ -342,7 +355,7 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Invalid form data' });
 		}
 
-		const { price, amount, sku, reorderLevel } = form.data;
+		const { price, amount, amountAm, sku, reorderLevel } = form.data;
 
 		if (sku && (await skuTaken(sku))) {
 			return message(form, { type: 'error', text: `SKU ${sku} is already used` }, { status: 400 });
@@ -353,6 +366,7 @@ export const actions: Actions = {
 				productId: Number(id),
 				price: String(price),
 				amount,
+				amountAm: amountAm || null,
 				sku: sku || null,
 				reorderLevel: reorderLevel === '' || reorderLevel === undefined ? null : reorderLevel
 			});

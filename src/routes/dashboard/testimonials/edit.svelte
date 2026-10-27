@@ -18,6 +18,8 @@
 		name,
 		position,
 		testimonial,
+		positionAm = null,
+		testimonialAm = null,
 		avatar,
 		icon = false
 	}: {
@@ -28,6 +30,8 @@
 		position?: string;
 		avatar?: string;
 		testimonial?: string;
+		positionAm?: string | null;
+		testimonialAm?: string | null;
 		icon: boolean;
 	} = $props();
 
@@ -41,6 +45,8 @@
 	$form.name = name;
 	$form.position = position;
 	$form.testimonial = testimonial;
+	$form.positionAm = positionAm ?? '';
+	$form.testimonialAm = testimonialAm ?? '';
 
 	import { toast } from 'svelte-sonner';
 	import InputComp from '@nahu/admin-kit/formComponents/InputComp.svelte';
@@ -91,6 +97,22 @@
 					/>
 					<InputComp {form} {errors} label="Position" type="text" name="position" />
 					<InputComp {form} {errors} label="Testimonial" type="textarea" name="testimonial" />
+					<InputComp
+						{form}
+						{errors}
+						label="Position (Amharic, optional)"
+						type="text"
+						name="positionAm"
+						placeholder="Leave empty to show the English position"
+					/>
+					<InputComp
+						{form}
+						{errors}
+						label="Testimonial (Amharic, optional)"
+						type="textarea"
+						name="testimonialAm"
+						placeholder="Leave empty to show the English testimonial"
+					/>
 					<InputComp
 						{form}
 						{errors}

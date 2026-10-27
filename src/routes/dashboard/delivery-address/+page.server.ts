@@ -25,6 +25,7 @@ export const load: PageServerLoad = async () => {
 		.select({
 			id: department.id,
 			name: department.name,
+			nameAm: department.nameAm,
 			fee: department.fee,
 			status: department.isActive
 		})
@@ -47,11 +48,12 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Please check the form for Errors' });
 		}
 
-		const { name, fee, status } = form.data;
+		const { name, nameAm, fee, status } = form.data;
 
 		try {
 			await db.insert(department).values({
 				name,
+				nameAm: nameAm || null,
 				fee: String(fee),
 				isActive: status,
 				createdBy: locals?.user?.id
@@ -81,12 +83,18 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		const { id, name, fee, status } = form.data;
+		const { id, name, nameAm, fee, status } = form.data;
 
 		try {
 			await db
 				.update(department)
-				.set({ name, fee: String(fee), isActive: status, updatedBy: locals?.user?.id })
+				.set({
+					name,
+					nameAm: nameAm || null,
+					fee: String(fee),
+					isActive: status,
+					updatedBy: locals?.user?.id
+				})
 				.where(eq(department.id, Number(id)));
 			return message(form, { type: 'success', text: 'Delivery Address Successfully Updated' });
 		} catch (err: any) {

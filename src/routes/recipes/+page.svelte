@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import RecipeCard from './recipe-card.svelte';
 	import RecipeModal from './recipe-modal.svelte';
 	import { Input } from '@nahu/admin-kit/components/ui/input/index.js';
@@ -50,7 +51,7 @@
 				<div class="rounded-lg bg-primary p-2">
 					<ChefHat class="size-6 text-primary-foreground" />
 				</div>
-				<h1 class="text-2xl font-bold">RecipeHub</h1>
+				<h1 class="text-2xl font-bold">{m.recipes_brand()}</h1>
 			</div>
 		</div>
 	</header>
@@ -60,12 +61,12 @@
 		<!-- Search Section -->
 		<div class="mb-8 flex flex-col gap-4">
 			<div class="flex flex-col gap-2">
-				<h2 class="text-3xl font-bold">Discover Recipes</h2>
-				<p class="text-muted-foreground">Browse our collection of delicious recipes</p>
+				<h2 class="text-3xl font-bold">{m.recipes_title()}</h2>
+				<p class="text-muted-foreground">{m.recipes_subtitle()}</p>
 			</div>
 			<div class="relative">
 				<SearchIcon class="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground" />
-				<Input type="text" placeholder="Search recipes..." bind:value={searchQuery} class="pl-10" />
+				<Input type="text" placeholder={m.recipes_search()} bind:value={searchQuery} class="pl-10" />
 			</div>
 		</div>
 
@@ -82,8 +83,8 @@
 			>
 				<ChefHat class="size-12 text-muted-foreground" />
 				<div class="flex flex-col items-center gap-2 text-center">
-					<h3 class="text-lg font-semibold">No recipes found</h3>
-					<p class="text-sm text-muted-foreground">Try adjusting your search query</p>
+					<h3 class="text-lg font-semibold">{m.recipes_empty()}</h3>
+					<p class="text-sm text-muted-foreground">{m.recipes_empty_hint()}</p>
 				</div>
 			</div>
 		{/if}

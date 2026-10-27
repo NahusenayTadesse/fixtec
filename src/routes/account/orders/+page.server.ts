@@ -1,3 +1,4 @@
+import { localizedColumn } from '$lib/server/localized-sql';
 import { error, fail, isHttpError, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
@@ -34,7 +35,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				recieptLink: transactions.recieptLink,
 				// Example tracking steps field if you have it, otherwise mock calculated on frontend
 				itemId: orderItems.id,
-				productName: products.name,
+				productName: localizedColumn(products.name, products.nameAm),
 				quantity: orderItems.quantity,
 				price: orderItems.price,
 				total: sql<number>`${orderItems.quantity} * ${orderItems.price}`.mapWith(Number)

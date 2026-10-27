@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	let { data } = $props();
 
 	import Hero from '$lib/components/hero.svelte';
@@ -19,52 +20,45 @@
 
 	let partners = [
 		{
-			name: 'Lalo Coffee Exports',
-			description:
-				'Global commodity supply chain coordination and international logistics management.',
+			name: m.partner_coffee_name(),
+			description: m.partner_coffee_desc(),
 			icon: Coffee,
 			short: 'LAL_EXP'
 		},
 
 		{
-			name: 'Lalo Laundry',
-			description:
-				'Commercial-scale linen and textile services for major hospitality and industrial clients.',
+			name: m.partner_laundry_name(),
+			description: m.partner_laundry_desc(),
 			icon: WashingMachine,
 			short: 'LAL_LAU'
 		},
 		{
-			name: 'Lalo Bakery Solutions',
-			description:
-				'Advanced commercial equipment, ingredients, and operational workflows for high-volume bakeries.',
+			name: m.partner_bakery_solutions_name(),
+			description: m.partner_bakery_solutions_desc(),
 			icon: Microwave,
 			short: 'LAL_BAK'
 		},
 		{
-			name: 'Lalo Bakery',
-			description:
-				'A bakery experience focused on handcrafted pastries, expertly brewed coffee, and high-quality ingredients sourced with care.',
+			name: m.partner_bakery_name(),
+			description: m.partner_bakery_desc(),
 			icon: Croissant,
 			short: 'LAL_BAK'
 		},
 		{
-			name: 'Lalo Cafe',
-			description:
-				'Curated beverage and food services integrated within corporate and commercial environments.',
+			name: m.partner_cafe_name(),
+			description: m.partner_cafe_desc(),
 			icon: Utensils,
 			short: 'LAL_CAF'
 		},
 		{
-			name: 'Lalo Apartments',
-			description:
-				'Comprehensive residential property management services encompassing leasing, maintenance, and daily administrative operations.',
+			name: m.partner_apartments_name(),
+			description: m.partner_apartments_desc(),
 			icon: Building,
 			short: 'LAL_APT'
 		},
 		{
-			name: 'Fahem General Trading',
-			description:
-				'Diversified international trade operations across key industrial and material sectors.',
+			name: m.partner_fahem_name(),
+			description: m.partner_fahem_desc(),
 			icon: Globe,
 			short: 'FAH_GEN'
 		}
@@ -72,31 +66,19 @@
 </script>
 
 <svelte:head>
-	<title>Lalo Fixtec | Industrial & Construction Supply Solutions</title>
+	<title>{m.home_meta_title()}</title>
 
-	<meta
-		name="description"
-		content="Procure professional-grade mechanical hand tools, construction materials, and bulk industrial supplies. Fixtec provides high-capacity solutions for contractors and infrastructure projects."
-	/>
-	<meta
-		name="keywords"
-		content="industrial hand tools, construction bulk supply, mechanical tools distributor, infrastructure procurement, Fixtec tools, Lalo Import and Export supply"
-	/>
+	<meta name="description" content={m.home_meta_description()} />
+	<meta name="keywords" content={m.home_meta_keywords()} />
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Fixtec: Strategic Supply Partner for Global Operations" />
-	<meta
-		property="og:description"
-		content="Secure your supply chain with Fixtec. Professional-grade tools and materials tailored for large-scale construction and industrial facilities."
-	/>
+	<meta property="og:title" content={m.home_og_title()} />
+	<meta property="og:description" content={m.home_og_description()} />
 	<meta property="og:image" content="/tools (1).webp" />
 
 	<meta property="twitter:card" content="summary_large_image" />
-	<meta property="twitter:title" content="Fixtec | Professional Industrial & Construction Supply" />
-	<meta
-		property="twitter:description"
-		content="We do not simply sell tools; we secure supply chains. Explore our bulk solutions for contractors and industrial developers."
-	/>
+	<meta property="twitter:title" content={m.home_twitter_title()} />
+	<meta property="twitter:description" content={m.home_twitter_description()} />
 	<meta property="twitter:image" content="/tools (1).webp" />
 </svelte:head>
 
@@ -118,12 +100,12 @@
 			</div>
 
 			<h3 class="mt-4 text-4xl font-semibold tracking-tighter text-primary sm:text-5xl lg:text-6xl">
-				Our Subsidiaries and <span class="text-white">Sister Companies</span>
+				{m.home_subsidiaries_title()}
+				<span class="text-white">{m.home_subsidiaries_title_highlight()}</span>
 			</h3>
 
 			<p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/90">
-				Our procurement expertise is reinforced by a diverse and robust network of synergistic
-				operations, ensuring unparalleled logistical agility and market knowledge.
+				{m.home_subsidiaries_text()}
 			</p>
 		</div>
 
@@ -168,9 +150,11 @@
 	<main class="flex flex-col items-center justify-center px-4 py-12 md:py-20">
 		<!-- Section Header -->
 		<div class="mb-12 max-w-2xl text-center">
-			<h2 class="mb-4 text-3xl font-bold text-foreground md:text-4xl">What Our Customers Say</h2>
+			<h2 class="mb-4 text-3xl font-bold text-foreground md:text-4xl">
+				{m.home_testimonials_title()}
+			</h2>
 			<p class="text-lg text-muted-foreground">
-				Don't just take our word for it. Here's what people are saying about their experience.
+				{m.home_testimonials_text()}
 			</p>
 		</div>
 

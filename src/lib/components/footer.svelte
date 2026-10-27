@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import {
 		MailIcon,
 		PhoneIcon,
@@ -41,16 +42,16 @@
 	];
 
 	const menuItems = [
-		{ label: 'Home', href: '/' },
+		{ label: m.nav_home(), href: '/' },
 
-		{ label: 'About Us', href: '/about-us' },
-		{ label: 'Products and Solutions', href: '/shop' },
-		{ label: 'Industries', href: '/industries' },
-		{ label: 'New Arrivals', href: '/new-arrival' },
+		{ label: m.nav_about_us(), href: '/about-us' },
+		{ label: m.nav_products_solutions(), href: '/shop' },
+		{ label: m.nav_industries(), href: '/industries' },
+		{ label: m.nav_new_arrivals(), href: '/new-arrival' },
 
-		{ label: 'Orders', href: '/orders' },
+		{ label: m.nav_orders(), href: '/orders' },
 
-		{ label: 'Contact Us', href: '/contact-us' }
+		{ label: m.nav_contact_us(), href: '/contact-us' }
 	];
 </script>
 
@@ -64,8 +65,8 @@
 		>
 			<!-- Company Info -->
 			<div>
-				<img src="/logo.webp" class="w-30" alt="Lalo Logo" />
-				<h4 class="mb-4 font-semibold">Lalo Fixtec</h4>
+				<img src="/logo.webp" class="w-30" alt={m.logo_alt()} />
+				<h4 class="mb-4 font-semibold">{m.footer_company()}</h4>
 
 				<div class="flex flex-col gap-2 text-sm">
 					<a
@@ -75,7 +76,7 @@
 						class="flex items-center gap-2 text-foreground/70"
 					>
 						<MapPinIcon class="size-4 shrink-0" />
-						<span>Sengatera, In Front of Addis Ababa University, Addis Ababa</span>
+						<span>{m.footer_address()}</span>
 					</a>
 					<a
 						href="tel:+25152838383"
@@ -109,7 +110,7 @@
 
 			<!-- Quick Links -->
 			<div class="lg:w-lg">
-				<h4 class="mb-4 font-semibold">Quick Links</h4>
+				<h4 class="mb-4 font-semibold">{m.footer_quick_links()}</h4>
 				<ul class="flex flex-col gap-2 text-sm">
 					{#each menuItems as item (item.href)}
 						<li>
@@ -123,7 +124,7 @@
 
 			<!-- Customer Service -->
 			<div>
-				<h4 class="mb-4 flex gap-2 font-semibold"><MapPin /> Location</h4>
+				<h4 class="mb-4 flex gap-2 font-semibold"><MapPin /> {m.footer_location()}</h4>
 				<section class="relative h-32 w-full">
 					<iframe
 						src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d985.1384495229566!2d38.74882050370965!3d9.01313956646654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b85c4825658a3%3A0xf3efdd57bb307c1e!2sAddis%20Ababa%20University%20School%20of%20Commerce!5e0!3m2!1sen!2set!4v1775076333145!5m2!1sen!2set"
@@ -131,14 +132,14 @@
 						class="w-full rounded-3xl"
 						loading="lazy"
 						referrerpolicy="no-referrer-when-downgrade"
-						title="Map"
+						title={m.footer_map_title()}
 					></iframe>
 				</section>
 			</div>
 
 			<!-- Social Links -->
 			<div class="flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
-				<p class="text-sm text-foreground/70">Follow us on social media</p>
+				<p class="text-sm text-foreground/70">{m.footer_follow()}</p>
 				<div class="grid grid-cols-4 gap-3">
 					{#each socialLinks as social}
 						<a
@@ -174,7 +175,7 @@
 
 			<!-- Copyright -->
 			<div class="mt-8 border-t pt-8 text-center text-sm text-foreground/70">
-				<p>&copy; {new Date().getFullYear()} Lalo Fixtec. All rights reserved.</p>
+				<p>{m.footer_rights({ year: new Date().getFullYear() })}</p>
 			</div>
 		</div>
 	</div>

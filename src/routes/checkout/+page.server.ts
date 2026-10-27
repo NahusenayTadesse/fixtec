@@ -1,3 +1,5 @@
+import { localized } from '$lib/localized';
+import { m } from '$lib/paraglide/messages.js';
 import { superValidate, message, setError } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { eq, and, inArray } from 'drizzle-orm';
@@ -42,10 +44,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.select({
 			value: placeNames.name,
 			name: placeNames.name,
+			nameAm: placeNames.nameAm,
 			fee: placeNames.fee
 		})
 		.from(placeNames)
-		.where(eq(placeNames.isActive, true));
+		.where(eq(placeNames.isActive, true))
+		// `value` stays the English name — it is what orders store and the fee lookup
+		// matches on; only the label is localized.
+		.then((rows) => rows.map(({ nameAm, ...p }) => ({ ...p, name: localized(p.name, nameAm) })));
 
 	let customerInfo;
 	if (locals?.user) {
@@ -87,7 +93,7 @@ export const actions: Actions = {
 		form.data.guest = isGuest;
 
 		if (!form.valid) {
-			return message(form, { type: 'error', text: 'Please check the form for Errors' });
+			return message(form, { type: 'error', text: m.srv_check_form() });
 		}
 
 		// `fee` and each item's `price` are deliberately *not* read out of the form —
@@ -105,7 +111,7 @@ export const actions: Actions = {
 		// one returns a *success* result for a valid form, and the checkout page used to
 		// read that as "order placed" and empty the customer's cart.
 		if (!selectedProducts.length) {
-			return message(form, { type: 'error', text: 'Your cart is empty' }, { status: 400 });
+			return message(form, { type: 'error', text: m.srv_cart_empty() }, { status: 400 });
 		}
 
 		// A guest's contact details are validated here but the `customers` row is
@@ -124,7 +130,7 @@ export const actions: Actions = {
 			// row is in one shape no matter which form was typed.
 			const phone = normalizeEthiopianPhone(form.data.guestPhone);
 
-			if (name.length < 2) return setError(form, 'guestName', 'Your name is required');
+			if (name.length < 2) return setError(form, 'guestName', m.srv_name_required());
 			if (!email) return setError(form, 'guestEmail', 'A valid email is required');
 			if (!phone) return setError(form, 'guestPhone', INVALID_PHONE_MESSAGE);
 
@@ -136,11 +142,7 @@ export const actions: Actions = {
 			lineItems = await resolveLineItems(selectedProducts);
 		} catch (err) {
 			console.error('Checkout: could not price the cart:', err);
-			return message(
-				form,
-				{ type: 'error', text: 'One of the items in your cart is no longer available' },
-				{ status: 409 }
-			);
+			return message(form, { type: 'error', text: m.srv_item_unavailable() }, { status: 409 });
 		}
 
 		const productNames = new Map(lineItems.map((item) => [item.productId, item.productName]));
@@ -151,12 +153,8 @@ export const actions: Actions = {
 		const fee = await resolveDeliveryFee(address, subtotal);
 
 		if (fee === undefined) {
-			setError(form, 'address', 'We do not deliver to that area');
-			return message(
-				form,
-				{ type: 'error', text: 'We do not deliver to that area' },
-				{ status: 400 }
-			);
+			setError(form, 'address', m.srv_no_delivery_area());
+			return message(form, { type: 'error', text: m.srv_no_delivery_area() }, { status: 400 });
 		}
 
 		let customer: { value: number; email: string | null } | undefined;
@@ -170,18 +168,10 @@ export const actions: Actions = {
 				});
 			} catch (err) {
 				if (err instanceof RegisteredEmailError) {
-					return setError(
-						form,
-						'guestEmail',
-						'An account already uses this email. Please sign in to place your order.'
-					);
+					return setError(form, 'guestEmail', m.srv_email_taken_checkout());
 				}
 				console.error('Checkout: could not create a guest customer:', err);
-				return message(
-					form,
-					{ type: 'error', text: 'Could not save your details. Please try again.' },
-					{ status: 500 }
-				);
+				return message(form, { type: 'error', text: m.srv_save_details_failed() }, { status: 500 });
 			}
 		} else {
 			// No `customers.email` while earlier guest orders await verification — the
@@ -196,7 +186,7 @@ export const actions: Actions = {
 		}
 
 		if (!customer) {
-			return message(form, { type: 'error', text: 'No customer profile found' }, { status: 403 });
+			return message(form, { type: 'error', text: m.srv_no_customer() }, { status: 403 });
 		}
 
 		const total = subtotal + Number(fee);
@@ -209,7 +199,7 @@ export const actions: Actions = {
 		if (paymentOption === 'bank') {
 			const { methods } = await bankTransferOptions();
 			if (!methods.some((m) => m.value === form.data.paymentMethod)) {
-				return setError(form, 'paymentMethod', 'Choose how you paid');
+				return setError(form, 'paymentMethod', m.srv_choose_payment());
 			}
 			try {
 				transfer = {
@@ -220,7 +210,7 @@ export const actions: Actions = {
 				console.error('Checkout: could not save the receipt:', err);
 				return message(
 					form,
-					{ type: 'error', text: 'Could not upload your receipt. Please try again.' },
+					{ type: 'error', text: m.srv_receipt_upload_failed() },
 					{ status: 500 }
 				);
 			}
@@ -282,7 +272,7 @@ export const actions: Actions = {
 		} catch (err) {
 			if (transfer) await deleteUploadedFile(transfer.recieptLink);
 			console.error('Checkout: failed to place order:', err);
-			return message(form, { type: 'error', text: 'Could not place your order' }, { status: 500 });
+			return message(form, { type: 'error', text: m.srv_order_failed() }, { status: 500 });
 		}
 
 		// Priced from `lineItems`, so the confirmation email can never quote a
@@ -324,7 +314,7 @@ export const actions: Actions = {
 				// retry Chapa or pay by bank transfer instead.
 				return message(form, {
 					type: 'success',
-					text: "Order placed, but Chapa couldn't be reached. Retry, pay by bank transfer, or pay on delivery.",
+					text: m.srv_chapa_unreachable_order(),
 					orderId: newOrderId,
 					paymentPage: err instanceof PaymentStartError ? err.paymentPage : undefined
 				});
@@ -334,10 +324,10 @@ export const actions: Actions = {
 		return message(form, {
 			type: 'success',
 			text: checkoutUrl
-				? 'Order placed — taking you to Chapa to pay'
+				? m.srv_order_to_chapa()
 				: transfer
-					? "Order placed — we'll confirm your transfer once we've checked the receipt"
-					: 'Order Successfully Added',
+					? m.srv_order_transfer()
+					: m.srv_order_added(),
 			// Where the browser goes next to pay; see `+page.svelte`.
 			checkoutUrl,
 			// The client clears the cart only when this is present — see `+page.svelte`.

@@ -55,8 +55,10 @@ export const actions: Actions = {
 
 		const {
 			productName,
+			productNameAm,
 			category,
 			description,
+			descriptionAm,
 			supplier,
 			reorderLevel,
 			image,
@@ -80,8 +82,10 @@ export const actions: Actions = {
 					.insert(inventory)
 					.values({
 						name: productName,
+						nameAm: productNameAm || null,
 						categoryId: category,
 						description,
+						descriptionAm: descriptionAm || null,
 						supplierId: supplier || null,
 						reorderLevel,
 						featuredImage,

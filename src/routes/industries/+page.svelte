@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import * as Card from '@nahu/admin-kit/components/ui/card/index.js';
 	import { Badge } from '@nahu/admin-kit/components/ui/badge/index.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
@@ -15,61 +16,68 @@
 
 	const productCategories = [
 		{
-			title: 'Mechanical Hand Tools',
+			title: m.cat_hand_tools(),
 			icon: Wrench,
-			items: ['Wrench systems', 'Impact hammers', 'Cutting tools', 'Measuring instruments']
+			items: [
+				m.cat_hand_tools_1(),
+				m.cat_hand_tools_2(),
+				m.cat_hand_tools_3(),
+				m.cat_hand_tools_4()
+			]
 		},
 		{
-			title: 'Construction Materials',
+			title: m.cat_construction(),
 			icon: Construction,
-			items: ['Structural hardware', 'Fasteners & anchors', 'Reinforcement', 'Site consumables']
+			items: [
+				m.cat_construction_1(),
+				m.cat_construction_2(),
+				m.cat_construction_3(),
+				m.cat_construction_4()
+			]
 		},
 		{
-			title: 'Industrial & Workshop',
+			title: m.cat_workshop(),
 			icon: LayoutGrid,
-			items: ['Tool storage', 'Safety equipment', 'Maintenance kits', 'Handling accessories']
+			items: [m.cat_workshop_1(), m.cat_workshop_2(), m.cat_workshop_3(), m.cat_workshop_4()]
 		}
 	];
 
 	const supplySolutions = [
-		{ title: 'Project-Based Supply', desc: 'Aligned with construction milestones and schedules.' },
-		{
-			title: 'Long-Term Agreements',
-			desc: 'Framework agreements for consistent, extended supply.'
-		},
-		{ title: 'Wholesale Programs', desc: 'Partnerships for retailers and regional distributors.' },
-		{ title: 'Custom Sourcing', desc: 'Sourcing based on project-specific technical requirements.' }
+		{ title: m.supply_project(), desc: m.supply_project_desc() },
+		{ title: m.supply_long_term(), desc: m.supply_long_term_desc() },
+		{ title: m.supply_wholesale(), desc: m.supply_wholesale_desc() },
+		{ title: m.supply_custom(), desc: m.supply_custom_desc() }
 	];
 
 	const industries = [
 		{
-			name: 'Construction & Infrastructure',
-			description: 'Scalable solutions for large-scale urban development and civil engineering.',
+			name: m.ind_construction(),
+			description: m.ind_construction_desc(),
 			icon: '🏗️'
 		},
 		{
-			name: 'Manufacturing Plants',
-			description: 'Optimizing production lines with smart automation and industrial IoT.',
+			name: m.ind_manufacturing(),
+			description: m.ind_manufacturing_desc(),
 			icon: '🏭'
 		},
 		{
-			name: 'Engineering Services',
-			description: 'Precision-driven consulting and technical design for complex systems.',
+			name: m.ind_engineering(),
+			description: m.ind_engineering_desc(),
 			icon: '📐'
 		},
 		{
-			name: 'Public Sector Projects',
-			description: 'Compliance-ready frameworks for governmental and community initiatives.',
+			name: m.ind_public(),
+			description: m.ind_public_desc(),
 			icon: '🏛️'
 		},
 		{
-			name: 'Hardware Distribution',
-			description: 'Streamlined logistics and supply chain management for global hardware.',
+			name: m.ind_hardware(),
+			description: m.ind_hardware_desc(),
 			icon: '📦'
 		},
 		{
-			name: 'Facility Management',
-			description: 'Sustainable operations and maintenance for modern commercial spaces.',
+			name: m.ind_facility(),
+			description: m.ind_facility_desc(),
 			icon: '🏢'
 		}
 	];
@@ -78,10 +86,11 @@
 <div class="min-h-screen bg-background text-foreground">
 	<section class="border-b px-6 py-16 lg:px-8">
 		<div class="mx-auto max-w-5xl">
-			<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Products & Solutions</h1>
+			<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">
+				{m.aboutus_products_title()}
+			</h1>
 			<p class="mt-4 max-w-2xl text-lg text-muted-foreground">
-				Professional-grade equipment and structured procurement models designed to meet
-				high-frequency industrial demands.
+				{m.aboutus_products_text()}
 			</p>
 		</div>
 	</section>
@@ -115,11 +124,10 @@
 		<div class="mx-auto max-w-5xl px-6 lg:px-8">
 			<div class="flex flex-col gap-8 lg:flex-col lg:items-center">
 				<div class="lg:w-1/3">
-					<Badge variant="outline" class="mb-4">Procurement</Badge>
-					<h2 class="text-3xl font-bold tracking-tight">Structured Supply Models</h2>
+					<Badge variant="outline" class="mb-4">{m.aboutus_procurement_badge()}</Badge>
+					<h2 class="text-3xl font-bold tracking-tight">{m.aboutus_models_title()}</h2>
 					<p class="mt-4 text-muted-foreground">
-						We move beyond simple transactions to provide supply chain integration that respects
-						your budget and timelines.
+						{m.industries_models_text()}
 					</p>
 				</div>
 				<div class="grid flex-1 gap-4 sm:grid-cols-2">
@@ -136,9 +144,9 @@
 
 	<section class="mx-auto max-w-5xl px-6 py-20 lg:px-8">
 		<div class="text-center">
-			<h2 class="text-2xl font-bold tracking-tight">Industries We Serve</h2>
+			<h2 class="text-2xl font-bold tracking-tight">{m.aboutus_industries_title()}</h2>
 			<p class="mt-2 text-muted-foreground">
-				Specialized support across diverse industrial sectors.
+				{m.aboutus_industries_text()}
 			</p>
 		</div>
 
@@ -170,11 +178,11 @@
 			class="flex flex-col items-center justify-between gap-6 rounded-2xl bg-primary p-8 text-primary-foreground md:flex-row md:p-12"
 		>
 			<div>
-				<h2 class="text-2xl font-bold">Ready to streamline your procurement?</h2>
-				<p class="opacity-90">Get in touch for custom sourcing or long-term supply agreements.</p>
+				<h2 class="text-2xl font-bold">{m.aboutus_cta_title()}</h2>
+				<p class="opacity-90">{m.aboutus_cta_text()}</p>
 			</div>
 			<Button variant="secondary" href="/contact-us" size="lg" class="font-bold"
-				>Contact Our Experts</Button
+				>{m.aboutus_cta_button()}</Button
 			>
 		</div>
 	</section>
