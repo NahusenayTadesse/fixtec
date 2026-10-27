@@ -645,5 +645,22 @@
 	"home_products_title": "የእኛ",
 	"home_products_title_highlight": "ምርቶች",
 	"home_products_text": "ለቀጣዩ ፕሮጀክትዎ ዝግጁ የሆኑ ሙያዊ ደረጃ ያላቸው መሣሪያዎችና ቁሳቁሶች።",
-	"home_products_view_all": "ሁሉንም ምርቶች ይመልከቱ"
+	"home_products_view_all": "ሁሉንም ምርቶች ይመልከቱ",
+	"pwa_install": "መተግበሪያውን ያውርዱ",
+	"pwa_installed": "ላሎ ፊክስቴክ ተጭኗል። ከመነሻ ማያ ገጽዎ ይክፈቱት።",
+	"pwa_install_title": "ላሎ ፊክስቴክን ይጫኑ",
+	"pwa_install_desc": "መተግበሪያውን በመሣሪያዎ ላይ ያግኙ — አፕ ስቶር አያስፈልግም።",
+	"pwa_ios_step1": "በSafari የመሣሪያ አሞሌ ላይ የ«አጋራ» ቁልፉን ይንኩ",
+	"pwa_ios_step2": "«ወደ መነሻ ማያ ገጽ አክል» የሚለውን ይምረጡ",
+	"pwa_ios_step3": "ከላይ ጥግ ላይ «አክል» የሚለውን ይንኩ",
+	"pwa_android_step1": "የአሳሽዎን ምናሌ ይክፈቱ",
+	"pwa_android_step2": "«መተግበሪያ ጫን» ወይም «ወደ መነሻ ማያ ገጽ አክል» የሚለውን ይንኩ",
+	"pwa_desktop_step1": "በአድራሻ አሞሌው ላይ ያለውን የመጫኛ ምልክት ይጫኑ፣ ወይም የአሳሹን ምናሌ ይክፈቱ",
+	"pwa_desktop_step2": "«ላሎ ፊክስቴክን ጫን» የሚለውን ይምረጡ",
+	"pwa_benefit_fast": "በፍጥነት እና በሙሉ ማያ ገጽ ይከፈታል",
+	"pwa_benefit_offline": "የጎበኟቸው ገጾች ከኢንተርኔት ውጭ ሆነውም ይከፈታሉ",
+	"pwa_benefit_home": "ከመነሻ ማያ ገጽዎ በአንድ ንክኪ፣ ወደ ሱቅ እና ትዕዛዞች አቋራጮች ጋር",
+	"pwa_got_it": "ገባኝ",
+	"pwa_offline": "ከኢንተርኔት ውጭ ነዎት። የጎበኟቸው ገጾች አሁንም ይገኛሉ።",
+	"pwa_back_online": "ወደ ኢንተርኔት ተመልሰዋል።"
 }

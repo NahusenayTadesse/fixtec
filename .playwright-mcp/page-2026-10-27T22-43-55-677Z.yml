@@ -1,0 +1,173 @@
+- generic [ref=f9e2]:
+  - region "Notifications alt+T"
+  - generic [ref=f9e3]:
+    - banner [ref=f9e4]:
+      - generic [ref=f9e5]:
+        - link [ref=f9e7] [cursor=pointer]:
+          - /url: /
+          - img "Lalo Fixtec" [ref=f9e8]
+        - generic [ref=f9e9]:
+          - button "Download App" [ref=f9e10]
+          - button [ref=f9e12]
+    - generic [ref=f9e15]:
+      - heading "Products & Solutions" [level=1] [ref=f9e16]
+      - paragraph [ref=f9e17]: Professional-grade equipment and structured procurement models designed to meet high-frequency industrial demands.
+    - generic [ref=f9e18]:
+      - banner [ref=f9e19]:
+        - generic [ref=f9e20]:
+          - generic [ref=f9e22]:
+            - heading "Shop" [level=2] [ref=f9e23]
+            - paragraph [ref=f9e24]: Industrial & Construction Supply Solutions
+          - textbox "Search by product name..." [ref=f9e29]
+      - main [ref=f9e30]:
+        - generic [ref=f9e31]:
+          - complementary [ref=f9e32]:
+            - generic [ref=f9e33]:
+              - heading "Filters" [level=3] [ref=f9e35]
+              - generic [ref=f9e36]:
+                - heading "Price Range" [level=4] [ref=f9e37]
+                - generic [ref=f9e38]:
+                  - generic [ref=f9e39]:
+                    - generic [ref=f9e40]: Min
+                    - spinbutton [ref=f9e41]: "2900"
+                  - generic [ref=f9e42]:
+                    - generic [ref=f9e43]: Max
+                    - spinbutton [ref=f9e44]: "23500"
+                - slider [ref=f9e45] [cursor=pointer]: "2900"
+                - slider [ref=f9e46] [cursor=pointer]: "23500"
+                - generic [ref=f9e47]:
+                  - generic [ref=f9e48]: 2900 ETB
+                  - generic [ref=f9e49]: 23500 ETB
+              - generic [ref=f9e50]:
+                - heading "Categories" [level=4] [ref=f9e51]
+                - generic [ref=f9e52]:
+                  - checkbox "All" [checked] [ref=f9e53] [cursor=pointer]
+                  - generic [ref=f9e57] [cursor=pointer]: All
+                - generic [ref=f9e58]:
+                  - checkbox "Construction Materials" [ref=f9e59] [cursor=pointer]
+                  - generic [ref=f9e60] [cursor=pointer]: Construction Materials
+                - generic [ref=f9e61]:
+                  - checkbox "Industrial & Workshop Equipment" [ref=f9e62] [cursor=pointer]
+                  - generic [ref=f9e63] [cursor=pointer]: Industrial & Workshop Equipment
+                - generic [ref=f9e64]:
+                  - checkbox "Mechanical Hand Tools" [ref=f9e65] [cursor=pointer]
+                  - generic [ref=f9e66] [cursor=pointer]: Mechanical Hand Tools
+          - generic [ref=f9e68]:
+            - generic [ref=f9e69]:
+              - link "Fixtec 20V Cordless Drill Industrial & Workshop Equipment" [ref=f9e70] [cursor=pointer]:
+                - /url: /shop/single/1
+                - img "Fixtec 20V Cordless Drill" [ref=f9e71]
+                - generic [ref=f9e72]: Industrial & Workshop Equipment
+              - link [ref=f9e75] [cursor=pointer]:
+                - /url: /shop/single/1
+                - heading "Fixtec 20V Cordless Drill" [level=3] [ref=f9e76]
+            - generic [ref=f9e77]:
+              - link "Fixtec 750W Impact Drill Construction Materials" [ref=f9e78] [cursor=pointer]:
+                - /url: /shop/single/2
+                - img "Fixtec 750W Impact Drill" [ref=f9e79]
+                - generic [ref=f9e80]: Construction Materials
+              - link [ref=f9e83] [cursor=pointer]:
+                - /url: /shop/single/2
+                - heading "Fixtec 750W Impact Drill" [level=3] [ref=f9e84]
+            - generic [ref=f9e85]:
+              - link "Fixtec Angle Grinder 2000W Industrial & Workshop Equipment" [ref=f9e86] [cursor=pointer]:
+                - /url: /shop/single/3
+                - img "Fixtec Angle Grinder 2000W" [ref=f9e87]
+                - generic [ref=f9e88]: Industrial & Workshop Equipment
+              - link [ref=f9e91] [cursor=pointer]:
+                - /url: /shop/single/3
+                - heading "Fixtec Angle Grinder 2000W" [level=3] [ref=f9e92]
+            - generic [ref=f9e93]:
+              - link "Fixtec Combination Spanner Set Mechanical Hand Tools" [ref=f9e94] [cursor=pointer]:
+                - /url: /shop/single/4
+                - img "Fixtec Combination Spanner Set" [ref=f9e95]
+                - generic [ref=f9e96]: Mechanical Hand Tools
+              - link [ref=f9e99] [cursor=pointer]:
+                - /url: /shop/single/4
+                - heading "Fixtec Combination Spanner Set" [level=3] [ref=f9e100]
+            - generic [ref=f9e101]:
+              - link "Fixtec Rotary Hammer 1050W Construction Materials" [ref=f9e102] [cursor=pointer]:
+                - /url: /shop/single/5
+                - img "Fixtec Rotary Hammer 1050W" [ref=f9e103]
+                - generic [ref=f9e104]: Construction Materials
+              - link [ref=f9e107] [cursor=pointer]:
+                - /url: /shop/single/5
+                - heading "Fixtec Rotary Hammer 1050W" [level=3] [ref=f9e108]
+            - generic [ref=f9e109]:
+              - link "Fixtec Jig Saw 800W Industrial & Workshop Equipment" [ref=f9e110] [cursor=pointer]:
+                - /url: /shop/single/6
+                - img "Fixtec Jig Saw 800W" [ref=f9e111]
+                - generic [ref=f9e112]: Industrial & Workshop Equipment
+              - link [ref=f9e115] [cursor=pointer]:
+                - /url: /shop/single/6
+                - heading "Fixtec Jig Saw 800W" [level=3] [ref=f9e116]
+            - generic [ref=f9e117]:
+              - link "Fixtec Digital Multimeter Mechanical Hand Tools" [ref=f9e118] [cursor=pointer]:
+                - /url: /shop/single/7
+                - img "Fixtec Digital Multimeter" [ref=f9e119]
+                - generic [ref=f9e120]: Mechanical Hand Tools
+              - link [ref=f9e123] [cursor=pointer]:
+                - /url: /shop/single/7
+                - heading "Fixtec Digital Multimeter" [level=3] [ref=f9e124]
+            - generic [ref=f9e125]:
+              - link "Fixtec Circular Saw 1500W Industrial & Workshop Equipment" [ref=f9e126] [cursor=pointer]:
+                - /url: /shop/single/8
+                - img "Fixtec Circular Saw 1500W" [ref=f9e127]
+                - generic [ref=f9e128]: Industrial & Workshop Equipment
+              - link [ref=f9e131] [cursor=pointer]:
+                - /url: /shop/single/8
+                - heading "Fixtec Circular Saw 1500W" [level=3] [ref=f9e132]
+    - contentinfo [ref=f9e133]:
+      - generic [ref=f9e135]:
+        - generic [ref=f9e136]:
+          - img "Lalo Fixtec" [ref=f9e137]
+          - heading "Lalo Fixtec" [level=4] [ref=f9e138]
+          - generic [ref=f9e139]:
+            - link "Sengatera, In Front of Addis Ababa University, Addis Ababa" [ref=f9e140] [cursor=pointer]:
+              - /url: https://maps.app.goo.gl/qdBiXLuEoQXwryer6
+            - link "+251 52 83 83 83" [ref=f9e145] [cursor=pointer]:
+              - /url: tel:+25152838383
+            - link "+2519 12 72 70 00" [ref=f9e149] [cursor=pointer]:
+              - /url: tel:+2519 12 72 70 003
+            - link "fixtec@mohammedlaloie.com" [ref=f9e153] [cursor=pointer]:
+              - /url: mailto:fixtec@mohammedlaloie.com
+        - generic [ref=f9e158]:
+          - heading "Quick Links" [level=4] [ref=f9e159]
+          - list [ref=f9e160]:
+            - listitem [ref=f9e161]:
+              - link "Home" [ref=f9e162] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f9e163]:
+              - link "About Us" [ref=f9e164] [cursor=pointer]:
+                - /url: /about-us
+            - listitem [ref=f9e165]:
+              - link "Products and Solutions" [ref=f9e166] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f9e167]:
+              - link "Industries" [ref=f9e168] [cursor=pointer]:
+                - /url: /industries
+            - listitem [ref=f9e169]:
+              - link "New Arrivals" [ref=f9e170] [cursor=pointer]:
+                - /url: /new-arrival
+            - listitem [ref=f9e171]:
+              - link "Orders" [ref=f9e172] [cursor=pointer]:
+                - /url: /orders
+            - listitem [ref=f9e173]:
+              - link "Contact Us" [ref=f9e174] [cursor=pointer]:
+                - /url: /contact-us
+        - generic [ref=f9e175]:
+          - heading "Location" [level=4] [ref=f9e176]
+          - iframe [ref=f9e181]
+        - generic [ref=f9e182]:
+          - paragraph [ref=f9e183]: Follow us on social media
+          - generic [ref=f9e184]:
+            - link "LinkedIn" [ref=f9e185] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/lalobakerysolution/
+            - link "Instagram" [ref=f9e190] [cursor=pointer]:
+              - /url: https://www.instagram.com/Fix@202016_lalo-instrgram
+            - link "TikTok" [ref=f9e194] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@fixtechlalo
+            - link "Telegram" [ref=f9e197] [cursor=pointer]:
+              - /url: https://t.me/fixtectool
+        - paragraph [ref=f9e202]: © 2026 Lalo Fixtec. All rights reserved.
+    - button [ref=f9e203]

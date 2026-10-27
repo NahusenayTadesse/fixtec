@@ -1,0 +1,340 @@
+- generic [ref=f7e2]:
+  - region "Notifications alt+T"
+  - generic [ref=f7e3]:
+    - banner [ref=f7e4]:
+      - generic [ref=f7e5]:
+        - link [ref=f7e7] [cursor=pointer]:
+          - /url: /
+          - img "Lalo Fixtec" [ref=f7e8]
+        - navigation [ref=f7e9]:
+          - link "Home" [ref=f7e10] [cursor=pointer]:
+            - /url: /
+          - link "Products and Services" [ref=f7e11] [cursor=pointer]:
+            - /url: /shop
+          - link "About Us" [ref=f7e12] [cursor=pointer]:
+            - /url: /about-us
+          - link "Contact Us" [ref=f7e13] [cursor=pointer]:
+            - /url: /contact-us
+          - link "Orders" [ref=f7e14] [cursor=pointer]:
+            - /url: /orders
+        - generic [ref=f7e16]:
+          - button "Download App" [ref=f7e17]
+          - generic [ref=f7e19]:
+            - link "Sign In" [ref=f7e20] [cursor=pointer]:
+              - /url: /login
+            - link "Sign Up" [ref=f7e21] [cursor=pointer]:
+              - /url: /signup
+          - button "Language" [ref=f7e22]: አማርኛ
+          - button "Toggle theme" [ref=f7e23]
+    - generic [ref=f7e25]:
+      - generic [ref=f7e34]:
+        - generic [ref=f7e35]:
+          - generic [ref=f7e36]:
+            - generic [ref=f7e37]: Supply Chain Excellence
+            - heading "FIXTEC Strategic Partners" [level=1] [ref=f7e40]:
+              - generic [ref=f7e41]: FIXTEC
+              - generic [ref=f7e43]: FIXTEC
+              - generic [ref=f7e44]: Strategic Partners
+          - generic [ref=f7e45]:
+            - paragraph [ref=f7e46]: Professional-grade mechanical tools and bulk supply solutions for infrastructure, industrial, and distribution operations.
+            - generic [ref=f7e47]:
+              - paragraph [ref=f7e48]: Our Core Mandate
+              - paragraph [ref=f7e49]: We do not simply sell tools. We secure supply chains, reduce procurement risk, and support operational continuity.
+          - generic [ref=f7e50]:
+            - link "Products" [ref=f7e51] [cursor=pointer]:
+              - /url: /shop
+            - link "Request Corporate Profile" [ref=f7e52] [cursor=pointer]:
+              - /url: /contact-us
+        - generic [ref=f7e53]:
+          - generic [ref=f7e61]:
+            - paragraph [ref=f7e62]: 0.0%
+            - paragraph [ref=f7e63]: Supply Reliability
+          - generic [ref=f7e78]:
+            - paragraph [ref=f7e79]: 0+
+            - paragraph [ref=f7e80]: Products
+          - generic [ref=f7e88]:
+            - paragraph [ref=f7e89]: 0+
+            - paragraph [ref=f7e90]: Customers
+      - generic [ref=f7e91]:
+        - button "1" [ref=f7e92]
+        - button "2" [ref=f7e94]
+        - button "3" [ref=f7e95]
+        - button "4" [ref=f7e96]
+    - generic [ref=f7e102]:
+      - generic [ref=f7e103]:
+        - heading "Corporate Overview" [level=2] [ref=f7e104]
+        - paragraph [ref=f7e105]: Fixtec operates under Lalo Import and Export, a diversified group with established import channels and cross-sector distribution expertise.
+      - generic [ref=f7e106]:
+        - generic [ref=f7e108]:
+          - heading "Specialized Sectors" [level=3] [ref=f7e109]
+          - list [ref=f7e110]:
+            - listitem [ref=f7e111]: Large Construction Contractors
+            - listitem [ref=f7e113]: Infrastructure Development
+            - listitem [ref=f7e115]: Industrial Manufacturing
+            - listitem [ref=f7e117]: Engineering & Maintenance
+            - listitem [ref=f7e119]: Government & Institutional
+            - listitem [ref=f7e121]: National Hardware Distribution
+        - generic [ref=f7e124]:
+          - generic [ref=f7e126]:
+            - heading "Reliability" [level=4] [ref=f7e131]
+            - paragraph [ref=f7e132]: Consistency in bulk procurement and fulfillment.
+          - generic [ref=f7e134]:
+            - heading "Operational Continuity" [level=4] [ref=f7e138]
+            - paragraph [ref=f7e139]: Reducing downtime through secure supply chains.
+          - generic [ref=f7e141]:
+            - heading "Volume Capacity" [level=4] [ref=f7e147]
+            - paragraph [ref=f7e148]: Tailored logistics for large-scale infrastructure.
+          - generic [ref=f7e150]:
+            - heading "Structured Supply" [level=4] [ref=f7e154]
+            - paragraph [ref=f7e155]: Managed solutions for industrial facilities.
+    - generic [ref=f7e157]:
+      - generic [ref=f7e158]:
+        - generic [ref=f7e159]:
+          - heading "Our Products" [level=3] [ref=f7e160]
+          - paragraph [ref=f7e161]: Professional-grade tools and supplies, ready for your next project.
+        - link "View all products" [ref=f7e162] [cursor=pointer]:
+          - /url: /shop
+      - region [ref=f7e163]:
+        - generic [ref=f7e165]:
+          - group [ref=f7e166]:
+            - generic [ref=f7e167]:
+              - link "Fixtec Circular Saw 1500W Industrial & Workshop Equipment" [ref=f7e168] [cursor=pointer]:
+                - /url: /shop/single/8
+                - img "Fixtec Circular Saw 1500W" [ref=f7e169]
+                - generic [ref=f7e170]: Industrial & Workshop Equipment
+              - link [ref=f7e173] [cursor=pointer]:
+                - /url: /shop/single/8
+                - heading "Fixtec Circular Saw 1500W" [level=3] [ref=f7e174]
+          - group [ref=f7e175]:
+            - generic [ref=f7e176]:
+              - link "Fixtec Digital Multimeter Mechanical Hand Tools" [ref=f7e177] [cursor=pointer]:
+                - /url: /shop/single/7
+                - img "Fixtec Digital Multimeter" [ref=f7e178]
+                - generic [ref=f7e179]: Mechanical Hand Tools
+              - link [ref=f7e182] [cursor=pointer]:
+                - /url: /shop/single/7
+                - heading "Fixtec Digital Multimeter" [level=3] [ref=f7e183]
+          - group [ref=f7e184]:
+            - generic [ref=f7e185]:
+              - link "Fixtec Jig Saw 800W Industrial & Workshop Equipment" [ref=f7e186] [cursor=pointer]:
+                - /url: /shop/single/6
+                - img "Fixtec Jig Saw 800W" [ref=f7e187]
+                - generic [ref=f7e188]: Industrial & Workshop Equipment
+              - link [ref=f7e191] [cursor=pointer]:
+                - /url: /shop/single/6
+                - heading "Fixtec Jig Saw 800W" [level=3] [ref=f7e192]
+          - group [ref=f7e193]:
+            - generic [ref=f7e194]:
+              - link "Fixtec Rotary Hammer 1050W Construction Materials" [ref=f7e195] [cursor=pointer]:
+                - /url: /shop/single/5
+                - img "Fixtec Rotary Hammer 1050W" [ref=f7e196]
+                - generic [ref=f7e197]: Construction Materials
+              - link [ref=f7e200] [cursor=pointer]:
+                - /url: /shop/single/5
+                - heading "Fixtec Rotary Hammer 1050W" [level=3] [ref=f7e201]
+          - group [ref=f7e202]:
+            - generic [ref=f7e203]:
+              - link "Fixtec Combination Spanner Set Mechanical Hand Tools" [ref=f7e204] [cursor=pointer]:
+                - /url: /shop/single/4
+                - img "Fixtec Combination Spanner Set" [ref=f7e205]
+                - generic [ref=f7e206]: Mechanical Hand Tools
+              - link [ref=f7e209] [cursor=pointer]:
+                - /url: /shop/single/4
+                - heading "Fixtec Combination Spanner Set" [level=3] [ref=f7e210]
+          - group [ref=f7e211]:
+            - generic [ref=f7e212]:
+              - link "Fixtec Angle Grinder 2000W Industrial & Workshop Equipment" [ref=f7e213] [cursor=pointer]:
+                - /url: /shop/single/3
+                - img "Fixtec Angle Grinder 2000W" [ref=f7e214]
+                - generic [ref=f7e215]: Industrial & Workshop Equipment
+              - link [ref=f7e218] [cursor=pointer]:
+                - /url: /shop/single/3
+                - heading "Fixtec Angle Grinder 2000W" [level=3] [ref=f7e219]
+          - group [ref=f7e220]:
+            - generic [ref=f7e221]:
+              - link "Fixtec 750W Impact Drill Construction Materials" [ref=f7e222] [cursor=pointer]:
+                - /url: /shop/single/2
+                - img "Fixtec 750W Impact Drill" [ref=f7e223]
+                - generic [ref=f7e224]: Construction Materials
+              - link [ref=f7e227] [cursor=pointer]:
+                - /url: /shop/single/2
+                - heading "Fixtec 750W Impact Drill" [level=3] [ref=f7e228]
+          - group [ref=f7e229]:
+            - generic [ref=f7e230]:
+              - link "Fixtec 20V Cordless Drill Industrial & Workshop Equipment" [ref=f7e231] [cursor=pointer]:
+                - /url: /shop/single/1
+                - img "Fixtec 20V Cordless Drill" [ref=f7e232]
+                - generic [ref=f7e233]: Industrial & Workshop Equipment
+              - link [ref=f7e236] [cursor=pointer]:
+                - /url: /shop/single/1
+                - heading "Fixtec 20V Cordless Drill" [level=3] [ref=f7e237]
+        - button "Previous slide" [ref=f7e238]
+        - button "Next slide" [ref=f7e240]
+    - generic [ref=f7e245]:
+      - generic [ref=f7e246]:
+        - heading "Our Subsidiaries and Sister Companies" [level=3] [ref=f7e247]
+        - paragraph [ref=f7e248]: Our procurement expertise is reinforced by a diverse and robust network of synergistic operations, ensuring unparalleled logistical agility and market knowledge.
+      - generic [ref=f7e249]:
+        - generic [ref=f7e250]:
+          - generic [ref=f7e251]: LAL_EXP
+          - generic [ref=f7e256]:
+            - paragraph [ref=f7e257]: Lalo Coffee Exports
+            - paragraph [ref=f7e258]: Global commodity supply chain coordination and international logistics management.
+        - generic [ref=f7e259]:
+          - generic [ref=f7e260]: LAL_LAU
+          - generic [ref=f7e267]:
+            - paragraph [ref=f7e268]: Lalo Laundry
+            - paragraph [ref=f7e269]: Commercial-scale linen and textile services for major hospitality and industrial clients.
+        - generic [ref=f7e270]:
+          - generic [ref=f7e271]: LAL_BAK
+          - generic [ref=f7e277]:
+            - paragraph [ref=f7e278]: Lalo Bakery Solutions
+            - paragraph [ref=f7e279]: Advanced commercial equipment, ingredients, and operational workflows for high-volume bakeries.
+        - generic [ref=f7e280]:
+          - generic [ref=f7e281]: LAL_BAK
+          - generic [ref=f7e290]:
+            - paragraph [ref=f7e291]: Lalo Bakery
+            - paragraph [ref=f7e292]: A bakery experience focused on handcrafted pastries, expertly brewed coffee, and high-quality ingredients sourced with care.
+        - generic [ref=f7e293]:
+          - generic [ref=f7e294]: LAL_CAF
+          - generic [ref=f7e300]:
+            - paragraph [ref=f7e301]: Lalo Cafe
+            - paragraph [ref=f7e302]: Curated beverage and food services integrated within corporate and commercial environments.
+        - generic [ref=f7e303]:
+          - generic [ref=f7e304]: LAL_APT
+          - generic [ref=f7e310]:
+            - paragraph [ref=f7e311]: Lalo Apartments
+            - paragraph [ref=f7e312]: Comprehensive residential property management services encompassing leasing, maintenance, and daily administrative operations.
+        - generic [ref=f7e313]:
+          - generic [ref=f7e314]: FAH_GEN
+          - generic [ref=f7e320]:
+            - paragraph [ref=f7e321]: Fahem General Trading
+            - paragraph [ref=f7e322]: Diversified international trade operations across key industrial and material sectors.
+    - generic [ref=f7e324]:
+      - generic [ref=f7e325]:
+        - heading "Our Trusted Partners" [level=3] [ref=f7e326]
+        - paragraph [ref=f7e327]: We collaborate with forward-thinking organizations to deliver world-class solutions. Our network of partners ensures we stay at the cutting edge of innovation and reliability.
+      - region [ref=f7e328]:
+        - generic [ref=f7e330]:
+          - group [ref=f7e331]:
+            - generic [ref=f7e332]:
+              - img "Partner Logo"
+          - group [ref=f7e333]:
+            - generic [ref=f7e334]:
+              - img "Partner Logo"
+          - group [ref=f7e335]:
+            - generic [ref=f7e336]:
+              - img "Partner Logo"
+          - group [ref=f7e337]:
+            - generic [ref=f7e338]:
+              - img "Partner Logo"
+          - group [ref=f7e339]:
+            - generic [ref=f7e340]:
+              - img "Partner Logo"
+          - group [ref=f7e341]:
+            - generic [ref=f7e342]:
+              - img "Partner Logo"
+          - group [ref=f7e343]:
+            - generic [ref=f7e344]:
+              - img "Partner Logo"
+          - group [ref=f7e345]:
+            - generic [ref=f7e346]:
+              - img "Partner Logo"
+          - group [ref=f7e347]:
+            - generic [ref=f7e348]:
+              - img "Partner Logo"
+          - group [ref=f7e349]:
+            - generic [ref=f7e350]:
+              - img "Partner Logo"
+          - group [ref=f7e351]:
+            - generic [ref=f7e352]:
+              - img "Partner Logo"
+          - group [ref=f7e353]:
+            - generic [ref=f7e354]:
+              - img "Partner Logo"
+          - group [ref=f7e355]:
+            - generic [ref=f7e356]:
+              - img "Partner Logo"
+        - button "Previous slide" [ref=f7e357]
+        - button "Next slide" [ref=f7e359]
+    - generic [ref=f7e362]:
+      - generic [ref=f7e363]:
+        - heading "WHY PARTNER WITH FIXTEC" [level=1] [ref=f7e364]
+        - paragraph [ref=f7e365]: Our goal is to support cost control without compromising operational reliability.
+      - generic [ref=f7e366]:
+        - heading [level=3] [ref=f7e368]:
+          - button [ref=f7e369]:
+            - heading "Scalable Bulk Supply Capacity" [level=3] [ref=f7e376]
+        - heading [level=3] [ref=f7e378]:
+          - button [ref=f7e379]:
+            - heading "Integrated Supply Chain Management" [level=3] [ref=f7e386]
+        - heading [level=3] [ref=f7e388]:
+          - button [ref=f7e389]:
+            - heading "Multi-Industry Network Strength" [level=3] [ref=f7e397]
+        - heading [level=3] [ref=f7e399]:
+          - button [ref=f7e400]:
+            - heading "Structured Contractor Support" [level=3] [ref=f7e408]
+        - heading [level=3] [ref=f7e410]:
+          - button [ref=f7e411]:
+            - heading "Compliance & Quality Assurance" [level=3] [ref=f7e417]
+        - heading [level=3] [ref=f7e419]:
+          - button [ref=f7e420]:
+            - heading "Competitive Commercial Terms" [level=3] [ref=f7e428]
+      - generic [ref=f7e429]:
+        - paragraph [ref=f7e430]: Ready to elevate your professional-grade mechanical tools?
+        - link "Get Started Today" [ref=f7e431] [cursor=pointer]:
+          - /url: /contact-us
+    - contentinfo [ref=f7e432]:
+      - generic [ref=f7e434]:
+        - generic [ref=f7e435]:
+          - img "Lalo Fixtec" [ref=f7e436]
+          - heading "Lalo Fixtec" [level=4] [ref=f7e437]
+          - generic [ref=f7e438]:
+            - link "Sengatera, In Front of Addis Ababa University, Addis Ababa" [ref=f7e439] [cursor=pointer]:
+              - /url: https://maps.app.goo.gl/qdBiXLuEoQXwryer6
+            - link "+251 52 83 83 83" [ref=f7e444] [cursor=pointer]:
+              - /url: tel:+25152838383
+            - link "+2519 12 72 70 00" [ref=f7e448] [cursor=pointer]:
+              - /url: tel:+2519 12 72 70 003
+            - link "fixtec@mohammedlaloie.com" [ref=f7e452] [cursor=pointer]:
+              - /url: mailto:fixtec@mohammedlaloie.com
+        - generic [ref=f7e457]:
+          - heading "Quick Links" [level=4] [ref=f7e458]
+          - list [ref=f7e459]:
+            - listitem [ref=f7e460]:
+              - link "Home" [ref=f7e461] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f7e462]:
+              - link "About Us" [ref=f7e463] [cursor=pointer]:
+                - /url: /about-us
+            - listitem [ref=f7e464]:
+              - link "Products and Solutions" [ref=f7e465] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f7e466]:
+              - link "Industries" [ref=f7e467] [cursor=pointer]:
+                - /url: /industries
+            - listitem [ref=f7e468]:
+              - link "New Arrivals" [ref=f7e469] [cursor=pointer]:
+                - /url: /new-arrival
+            - listitem [ref=f7e470]:
+              - link "Orders" [ref=f7e471] [cursor=pointer]:
+                - /url: /orders
+            - listitem [ref=f7e472]:
+              - link "Contact Us" [ref=f7e473] [cursor=pointer]:
+                - /url: /contact-us
+        - generic [ref=f7e474]:
+          - heading "Location" [level=4] [ref=f7e475]
+          - iframe [ref=f7e480]
+        - generic [ref=f7e481]:
+          - paragraph [ref=f7e482]: Follow us on social media
+          - generic [ref=f7e483]:
+            - link "LinkedIn" [ref=f7e484] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/lalobakerysolution/
+            - link "Instagram" [ref=f7e489] [cursor=pointer]:
+              - /url: https://www.instagram.com/Fix@202016_lalo-instrgram
+            - link "TikTok" [ref=f7e493] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@fixtechlalo
+            - link "Telegram" [ref=f7e496] [cursor=pointer]:
+              - /url: https://t.me/fixtectool
+        - paragraph [ref=f7e501]: © 2026 Lalo Fixtec. All rights reserved.
+    - button [ref=f7e502]

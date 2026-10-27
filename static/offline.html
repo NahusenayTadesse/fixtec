@@ -1,54 +1,121 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Offline</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            color: #222;
-            text-align: center;
-            padding: 3rem 1rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #64748b;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-        }
-        .retry-btn {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .retry-btn:hover {
-            background: #1e40af;
-        }
-    </style>
-</head>
-<body>
-    <div class="icon">🔌</div>
-    <h1>You’re Offline</h1>
-    <p>It looks like you lost connection.<br>Please check your network and try again.</p>
-    <button class="retry-btn" onclick="location.reload()">Retry</button>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Offline · Lalo Fixtec</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+		<meta name="theme-color" content="#2596be" />
+		<link rel="icon" href="/icons/icon-192.png" type="image/png" />
+		<style>
+			:root {
+				--bg: #f8fafc;
+				--card: #ffffff;
+				--text: #0f172a;
+				--muted: #64748b;
+				--primary: #2596be;
+				--border: #e2e8f0;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #0b1220;
+					--card: #111a2e;
+					--text: #e2e8f0;
+					--muted: #94a3b8;
+					--border: #1e293b;
+				}
+			}
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				margin: 0;
+				min-height: 100vh;
+				display: grid;
+				place-items: center;
+				padding: 1.5rem;
+				font-family:
+					system-ui,
+					-apple-system,
+					'Segoe UI',
+					'Noto Sans Ethiopic',
+					sans-serif;
+				background: radial-gradient(circle at top, rgba(37, 150, 190, 0.15), transparent 60%), var(--bg);
+				color: var(--text);
+			}
+			.card {
+				width: 100%;
+				max-width: 26rem;
+				padding: 2rem 1.5rem;
+				text-align: center;
+				background: var(--card);
+				border: 1px solid var(--border);
+				border-radius: 1.25rem;
+				box-shadow: 0 20px 50px -20px rgba(15, 23, 42, 0.25);
+			}
+			img {
+				width: 160px;
+				height: auto;
+				margin-bottom: 1.5rem;
+			}
+			.pulse {
+				width: 0.75rem;
+				height: 0.75rem;
+				border-radius: 999px;
+				background: #f59e0b;
+				display: inline-block;
+				margin-right: 0.5rem;
+				animation: pulse 1.6s infinite;
+			}
+			@keyframes pulse {
+				50% {
+					opacity: 0.3;
+				}
+			}
+			h1 {
+				font-size: 1.5rem;
+				margin: 0 0 0.5rem;
+			}
+			p {
+				color: var(--muted);
+				line-height: 1.55;
+				margin: 0 0 1.5rem;
+			}
+			.am {
+				font-size: 0.95rem;
+			}
+			button {
+				background: var(--primary);
+				color: #fff;
+				border: 0;
+				padding: 0.75rem 2rem;
+				border-radius: 999px;
+				font-size: 1rem;
+				font-weight: 600;
+				cursor: pointer;
+				box-shadow: 0 0 24px -6px var(--primary);
+			}
+			button:hover {
+				filter: brightness(1.08);
+			}
+		</style>
+	</head>
+	<body>
+		<main class="card">
+			<img src="/logo.webp" alt="Lalo Fixtec" width="160" height="63" />
+			<h1><span class="pulse" aria-hidden="true"></span>You're offline</h1>
+			<p>
+				This page isn't saved on your device yet. Pages you've already visited still open. We'll
+				reload as soon as you're back online.
+			</p>
+			<p class="am" lang="am">
+				ከኢንተርኔት ውጭ ነዎት። ይህ ገጽ ገና በመሣሪያዎ ላይ አልተቀመጠም። ኢንተርኔት ሲመለስ ገጹ በራሱ ይታደሳል።
+			</p>
+			<button type="button" onclick="location.reload()">Try again · እንደገና ይሞክሩ</button>
+		</main>
+		<script>
+			window.addEventListener('online', function () {
+				location.reload();
+			});
+		</script>
+	</body>
 </html>

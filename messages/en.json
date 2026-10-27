@@ -645,5 +645,22 @@
 	"home_products_title": "Our",
 	"home_products_title_highlight": "Products",
 	"home_products_text": "Professional-grade tools and supplies, ready for your next project.",
-	"home_products_view_all": "View all products"
+	"home_products_view_all": "View all products",
+	"pwa_install": "Download App",
+	"pwa_installed": "Lalo Fixtec was installed. Open it from your home screen.",
+	"pwa_install_title": "Install Lalo Fixtec",
+	"pwa_install_desc": "Get the app on your device — no app store needed.",
+	"pwa_ios_step1": "Tap the Share button in Safari's toolbar",
+	"pwa_ios_step2": "Choose \"Add to Home Screen\"",
+	"pwa_ios_step3": "Tap \"Add\" in the top corner",
+	"pwa_android_step1": "Open your browser's menu",
+	"pwa_android_step2": "Tap \"Install app\" or \"Add to Home screen\"",
+	"pwa_desktop_step1": "Click the install icon in the address bar, or open the browser menu",
+	"pwa_desktop_step2": "Choose \"Install Lalo Fixtec\"",
+	"pwa_benefit_fast": "Opens instantly, full screen",
+	"pwa_benefit_offline": "Pages you've visited still open when you're offline",
+	"pwa_benefit_home": "One tap from your home screen, with shortcuts to Shop and Orders",
+	"pwa_got_it": "Got it",
+	"pwa_offline": "You're offline. Pages you've visited are still available.",
+	"pwa_back_online": "You're back online."
 }

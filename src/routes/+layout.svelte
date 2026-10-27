@@ -15,15 +15,8 @@
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
 	import { toast } from 'svelte-sonner';
 
-	async function notifyBrowser(title: string, body: string) {
-		if (!('Notification' in window)) return; // Safari iOS etc.
-		if (Notification.permission === 'granted') {
-			new Notification(title, { body, icon: '/logo.png' });
-		} else if (Notification.permission !== 'denied') {
-			const perm = await Notification.requestPermission();
-			if (perm === 'granted') new Notification(title, { body, icon: '/logo.png' });
-		}
-	}
+	import { notify, pwa } from '$lib/pwa.svelte';
+
 	import { setCart } from '$lib/hooks/cart.svelte'; // Adjust path
 	import Cart from '$lib/components/floating-cart/cart.svelte';
 	import Header from '$lib/components/header.svelte';
@@ -47,22 +40,34 @@
 		if (!$flash) return;
 		if (page.data.flash?.type === 'success') toast.success($flash.message);
 		if (page.data.flash?.type === 'error') toast.error($flash?.message);
-		if (Notification.permission === 'granted') {
-			notifyBrowser(
-				page.data.flash?.type === 'success'
-					? m.notify_success()
-					: page.data.flash?.type === 'error'
-						? m.notify_error()
-						: m.notify_message(),
-				$flash.message
-			);
-		}
+		// No-op unless notifications were allowed.
+		notify(
+			page.data.flash?.type === 'success'
+				? m.notify_success()
+				: page.data.flash?.type === 'error'
+					? m.notify_error()
+					: m.notify_message(),
+			$flash.message
+		);
 		$flash = undefined;
+	});
+
+	$effect(() => pwa.start());
+
+	/* Say so when the connection drops or comes back, but not on first load. */
+	let wasOnline: boolean | undefined;
+	$effect(() => {
+		const online = pwa.online;
+		if (wasOnline !== undefined && online !== wasOnline) {
+			if (online) toast.success(m.pwa_back_online());
+			else toast.warning(m.pwa_offline(), { duration: 6000 });
+		}
+		wasOnline = online;
 	});
 </script>
 
 <svelte:head>
-	<link rel="icon" href="/logo512.png" />
+	<link rel="icon" href="/icons/icon-192.png" type="image/png" />
 </svelte:head>
 <ModeWatcher />
 

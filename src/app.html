@@ -3,11 +3,23 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="manifest" href="/manifest.json" />
+		<meta name="theme-color" content="#2596be" />
+		<meta name="description" content="Lalo Fixtec — tools and equipment, ordered online and delivered." />
+		<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Lalo Fixtec" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<!-- Scroll reveals hide their elements only once this has run; see `$lib/reveal`. -->
 		<script>
 			document.documentElement.classList.add('js');
+			// Chrome may offer installation before the app hydrates; keep the event for `$lib/pwa`.
+			window.addEventListener('beforeinstallprompt', function (e) {
+				e.preventDefault();
+				window.__installPrompt = e;
+			});
 		</script>
 		%sveltekit.head%
 	</head>

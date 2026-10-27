@@ -4,6 +4,7 @@
 	import DarkMode from '@nahu/admin-kit/components/shell/DarkMode.svelte';
 	import AvatarSettings from './AvatarSettings.svelte';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
+	import InstallApp from './InstallApp.svelte';
 
 	import { Sheet, SheetContent, SheetTrigger } from '@nahu/admin-kit/components/ui/sheet/index.js';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
@@ -78,8 +79,10 @@
 				</Button>
 			{/each}
 		</nav>
-		<div class="flex flex-row gap-4">
+		<div class="flex flex-row items-center gap-2 lg:gap-4">
+			<InstallApp variant="icon" class="lg:hidden" />
 			<div class="hidden flex-row items-center justify-end lg:flex">
+				<InstallApp />
 				<div class="m-2">
 					{#if data === ''}
 						<!-- Search and Auth -->
