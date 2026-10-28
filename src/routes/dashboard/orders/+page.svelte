@@ -7,6 +7,7 @@
 	import Statuses from '@nahu/admin-kit/components/Table/statuses.svelte';
 	import Edit from './edit.svelte';
 	import Delete from './delete.svelte';
+	import DeliveryCell from './delivery-cell.svelte';
 	import OrderFormFields from './order-form-fields.svelte';
 	import OrderItems from '$lib/components/order-items.svelte';
 	import Copy from '@nahu/admin-kit/Copy.svelte';
@@ -87,7 +88,9 @@
 					image: row.original.recieptLink,
 					data: data?.editForm,
 					icon: false,
-					status: row.original.status ?? 'pending'
+					status: row.original.status ?? 'pending',
+					paymentConfirmed: row.original.paymentStatus === 'paid',
+					paidOnline: row.original.paidOnline
 				});
 			}
 		},
@@ -207,6 +210,17 @@
 			cell: ({ row }) => renderComponent(Statuses, { status: row.original.status })
 		},
 		{
+			accessorKey: 'deliveryStatus',
+			header: 'Delivery',
+			sortable: false,
+			cell: ({ row }) =>
+				renderComponent(DeliveryCell, {
+					orderId: row.original.id,
+					orderStatus: row.original.status,
+					deliveryStatus: row.original.deliveryStatus
+				})
+		},
+		{
 			accessorKey: 'edit',
 			header: 'Edit',
 			sortable: false,
@@ -227,7 +241,9 @@
 					image: row.original.recieptLink,
 					data: data?.editForm,
 					icon: true,
-					status: row.original.status ?? 'pending'
+					status: row.original.status ?? 'pending',
+					paymentConfirmed: row.original.paymentStatus === 'paid',
+					paidOnline: row.original.paidOnline
 				});
 			}
 		},
@@ -317,8 +333,8 @@
 					/>
 
 					<p class="text-xs text-muted-foreground">
-						To mark an order delivered, save it first and use Edit — that is where the payment
-						method, receipt and stock adjustment are handled.
+						Save the order, then confirm its payment under Edit — or queue it for cash on delivery
+						from the Delivery column. It is dispatched and delivered from the Deliveries page.
 					</p>
 				</form>
 			</DialogComp>

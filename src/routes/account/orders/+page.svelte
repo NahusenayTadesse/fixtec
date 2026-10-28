@@ -3,6 +3,7 @@
 	// Svelte 5 Runes
 	import { enhance } from '$app/forms';
 	import { Button } from '@nahu/admin-kit/components/ui/button/index.js';
+	import DeliveryTimeline from './delivery-timeline.svelte';
 
 	let { data, form } = $props();
 	let pendingOrders = $derived(data.pendingOrders || []);
@@ -29,8 +30,18 @@
 		</p>
 	</header>
 
-	{#if form?.message}
-		<p class="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+	{#if form && 'received' in form}
+		<p
+			class="rounded-md border border-green-600/25 bg-green-600/10 p-3 text-sm text-green-700 dark:text-green-400"
+		>
+			{m.track_received_done()}
+		</p>
+	{/if}
+
+	{#if form && 'message' in form && form.message}
+		<p
+			class="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+		>
 			{form.message}
 		</p>
 	{/if}
@@ -100,7 +111,7 @@
 							<p class="font-mono text-xl font-bold text-foreground">
 								{m.amount_etb({ amount: order.orderTotal.toFixed(2) })}
 							</p>
-							{#if !order.paid && !order.receiptSent}
+							{#if order.status === 'pending' && !order.paid && !order.receiptSent}
 								<form
 									method="POST"
 									action="?/pay"
@@ -123,13 +134,11 @@
 					</div>
 
 					<div class="border-b border-border bg-card p-6">
-						<div
-							class="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center md:gap-4"
-						>
-							<div
-								class="absolute top-[18px] right-4 left-4 z-0 hidden h-0.5 bg-muted md:block"
-							></div>
-						</div>
+						<DeliveryTimeline
+							orderId={order.id}
+							createdAt={order.createdAt}
+							delivery={order.delivery}
+						/>
 					</div>
 
 					<div class="bg-muted/10 p-6">
@@ -149,7 +158,9 @@
 											{m.track_qty_line({ qty: item.quantity, price: item?.price })}
 										</p>
 									</div>
-									<span class="font-mono font-medium text-foreground">{m.amount_etb({ amount: item?.total })}</span>
+									<span class="font-mono font-medium text-foreground"
+										>{m.amount_etb({ amount: item?.total })}</span
+									>
 								</li>
 							{/each}
 						</ul>

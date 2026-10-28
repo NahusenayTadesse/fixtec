@@ -7,6 +7,7 @@ import {
 	LayoutDashboard,
 	ListOrdered,
 	Mail,
+	MapPin,
 	Plus,
 	Sheet,
 	Star,
@@ -21,6 +22,7 @@ export const NAVIGATION: NavItem[] = [
 	{ title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
 	{ title: 'Customers', url: '/dashboard/customers', icon: Users },
 	{ title: 'Orders', url: '/dashboard/orders', icon: ListOrdered },
+	{ title: 'Deliveries', url: '/dashboard/deliveries', icon: Truck },
 	{
 		title: 'Products',
 		url: '/dashboard/products',
@@ -32,7 +34,7 @@ export const NAVIGATION: NavItem[] = [
 			{ title: 'Add Supplier', url: '/dashboard/products/suppliers/add-suppliers', icon: Plus }
 		]
 	},
-	{ title: 'Delivery Address', url: '/dashboard/delivery-address', icon: Truck },
+	{ title: 'Delivery Address', url: '/dashboard/delivery-address', icon: MapPin },
 	{ title: 'Bank Accounts', url: '/dashboard/bank-accounts', icon: Landmark },
 	{ title: 'Messages', url: '/dashboard/messages', icon: Mail },
 	{ title: 'Partner Logos', url: '/dashboard/logos', icon: Building2 },
@@ -54,7 +56,8 @@ export const NAVIGATION: NavItem[] = [
 export const SEARCH_EXTRA: SearchEntry[] = [
 	{ label: 'Product Categories', url: '/dashboard/products/categories' },
 	{ label: 'Add Roles', url: '/dashboard/admin-panel/roles/add-roles' },
-	{ label: 'Add Users', url: '/dashboard/admin-panel/users/add-users' }
+	{ label: 'Add Users', url: '/dashboard/admin-panel/users/add-users' },
+	{ label: 'Drivers', url: '/dashboard/deliveries/drivers' }
 ];
 
 /** Where each kind of record's page lives, so table cells can link to it. */

@@ -10,12 +10,6 @@ import {
 	parseTableQuery,
 	serverTable
 } from '$lib/server/table';
-import {
-	sendEmail,
-	customerDeliveredTemplate,
-	adminDeliveredTemplate,
-	ADMIN_EMAIL
-} from '$lib/server/email';
 
 import { add, edit } from './schema';
 import { db } from '$lib/server/db';
@@ -28,10 +22,18 @@ import {
 	transactions,
 	paymentMethods,
 	placeNames,
-	freeDelivery
+	freeDelivery,
+	deliveries
 } from '$lib/server/db/schema';
 import { resolveDeliveryFee } from '$lib/server/delivery';
 import { StockError, stockTarget, syncOrderStock } from '$lib/server/inventory';
+import {
+	cancelOrderDelivery,
+	DeliveryError,
+	orderHoldsStock,
+	queueDelivery,
+	syncCashToCollect
+} from '$lib/server/deliveries';
 import { PICKUP_LABEL } from '$lib/delivery';
 import { idSchema } from '$lib/server/crud';
 import { addCustomer } from '$lib/ZodSchema';
@@ -160,13 +162,17 @@ export const load: PageServerLoad = async ({ url }) => {
 			paymentMethodName: paymentMethods.name,
 			paymentStatus: transactions.paymentStatus,
 			recieptLink: transactions.recieptLink,
+			paidOnline: sql<boolean>`${transactions.settledTxnRef} IS NOT NULL`.mapWith(Boolean),
 			status: orders.status,
+			deliveryId: deliveries.id,
+			deliveryStatus: deliveries.status,
 			createdAt: sql<string>`DATE_FORMAT(${orders.createdAt}, '%Y-%m-%d')`
 		})
 		.from(orders)
 		.leftJoin(customers, eq(orders.customerId, customers.id))
 		.leftJoin(transactions, eq(orders.transactionId, transactions.id))
 		.leftJoin(paymentMethods, eq(transactions.paymentMethodId, paymentMethods.id))
+		.leftJoin(deliveries, eq(deliveries.orderId, orders.id))
 		.where(whereClause)
 		.orderBy(
 			...(orderBy(query, {
@@ -179,9 +185,7 @@ export const load: PageServerLoad = async ({ url }) => {
 				paymentStatus: transactions.paymentStatus,
 				createdAt: orders.createdAt,
 				status: orders.status
-			}) ?? [
-				desc(orders.createdAt)
-			]),
+			}) ?? [desc(orders.createdAt)]),
 			desc(orders.id)
 		)
 		.limit(query.limit)
@@ -323,9 +327,9 @@ export const actions: Actions = {
 			id,
 			selectedProducts,
 			customer,
-			status,
 			reciept,
 			paymentMethod,
+			paymentConfirmed,
 			address,
 			deliveryAddress
 		} = form.data;
@@ -357,11 +361,11 @@ export const actions: Actions = {
 			.where(eq(orders.id, id))
 			.then((rows) => Boolean(rows[0]?.settled));
 
-		if (status === 'delivered' && !paymentMethod && !paidOnline) {
-			setError(form, 'paymentMethod', 'Payment Method is required for Delivered Orders');
+		if (paymentConfirmed && !paymentMethod && !paidOnline) {
+			setError(form, 'paymentMethod', 'Choose how the order was paid');
 			return message(
 				form,
-				{ type: 'error', text: 'Payment Method is required for Delivered Orders' },
+				{ type: 'error', text: 'Choose how the order was paid before confirming the payment' },
 				{ status: 400 }
 			);
 		}
@@ -379,10 +383,21 @@ export const actions: Actions = {
 				return message(form, { type: 'error', text: 'Order not found' }, { status: 404 });
 			}
 
+			// Delivering happens on the deliveries page, where the driver, the time and
+			// who handed it over are recorded; reopening a delivered order does too.
+			// Here a delivered order keeps its status whatever the form says.
 			const wasDelivered = existingOrder.status === 'delivered';
-			const isDelivered = status === 'delivered';
-			const becameDelivered = !wasDelivered && isDelivered;
-			const leftDelivered = wasDelivered && !isDelivered;
+			if (form.data.status === 'delivered' && !wasDelivered) {
+				return message(
+					form,
+					{
+						type: 'error',
+						text: 'Orders are marked delivered from the Deliveries page, where the driver and hand-over are recorded.'
+					},
+					{ status: 400 }
+				);
+			}
+			const status = wasDelivered ? 'delivered' : form.data.status;
 
 			// Written to disk before the transaction so a slow upload doesn't hold a
 			// connection open. An empty file input means "keep the existing receipt".
@@ -392,12 +407,10 @@ export const actions: Actions = {
 			await db.transaction(async (tx) => {
 				let transactionId = existingOrder.transactionId ?? undefined;
 
-				// The payment record used to be written only when a receipt file was
-				// uploaded, so a cash order marked delivered lost its payment method, and
-				// nothing ever set `paymentStatus` — every payment total read 0.
-				// A delivered order always carries a payment method (checked above), so it
-				// counts as paid; taking it back out of delivered makes it pending again.
-				// `amount` includes the delivery fee: it is what the customer paid.
+				// Paid when staff confirm it — the bank transfer checked, the cash counted —
+				// and pending otherwise. Confirming it is what puts the order in the
+				// delivery queue. `amount` includes the delivery fee: it is what the
+				// customer paid.
 				// An order paid online keeps its payment exactly as Chapa settled it —
 				// recomputing it here flipped a paid order back to pending the moment
 				// staff edited anything before delivery.
@@ -405,7 +418,7 @@ export const actions: Actions = {
 					? { ...(recieptLink ? { recieptLink } : {}) }
 					: {
 							amount: total.toFixed(2),
-							paymentStatus: isDelivered ? ('paid' as const) : ('pending' as const),
+							paymentStatus: paymentConfirmed ? ('paid' as const) : ('pending' as const),
 							...(paymentMethod ? { paymentMethodId: paymentMethod } : {}),
 							...(recieptLink ? { recieptLink } : {})
 						};
@@ -430,7 +443,6 @@ export const actions: Actions = {
 						customerId: customer,
 						status,
 						address: address || null,
-						deliveredAt: becameDelivered ? sql`NOW()` : isDelivered ? undefined : null,
 						deliveryAddress: deliveryAddress || null,
 						fee,
 						...(transactionId ? { transactionId } : {}),
@@ -447,50 +459,29 @@ export const actions: Actions = {
 					}))
 				);
 
-				// A delivered order holds its items out of stock; any other status holds
-				// none. The order's batch allocations record what it holds now, so this
-				// one call covers delivering, un-delivering, and editing the items of an
-				// order that stays delivered.
-				const reason = becameDelivered
-					? `Order #${id} delivered`
-					: leftDelivered
-						? `Order #${id} un-delivered`
-						: `Order #${id} items changed`;
+				const actor = { userId: locals?.user?.id };
+				if (status === 'cancelled') await cancelOrderDelivery(tx, id, actor);
 
+				// An order holds its items out of stock from dispatch on — on the truck or
+				// delivered — and none before. The batch allocations record what it holds,
+				// so this keeps an edit to the items of an order already out in step.
 				await syncOrderStock(
 					tx,
 					id,
-					isDelivered ? stockTarget(lineItems) : new Map(),
-					{ reason, transactionId },
+					(await orderHoldsStock(tx, id)) ? stockTarget(lineItems) : new Map(),
+					{ reason: `Order #${id} items changed`, transactionId },
 					locals?.user?.id
 				);
-			});
 
-			if (becameDelivered) {
-				const customerInfo = await db
-					.select({ name: customers.name, email: customers.email })
-					.from(customers)
-					.where(eq(customers.id, customer))
-					.then((rows) => rows[0]);
-
-				const emailItems = toEmailItems(lineItems);
-
-				if (customerInfo?.email) {
-					const mail = customerDeliveredTemplate(id, emailItems, total);
-					sendEmail(customerInfo.email, mail.subject, mail.html).catch((err) =>
-						console.error('Email Error (Customer):', err)
-					);
+				if (status === 'pending' && (paymentConfirmed || paidOnline)) {
+					await queueDelivery(tx, id, actor);
 				}
-
-				const adminMail = adminDeliveredTemplate(id, emailItems, total);
-				sendEmail(ADMIN_EMAIL, adminMail.subject, adminMail.html).catch((err) =>
-					console.error('Email Error (Admin):', err)
-				);
-			}
+				await syncCashToCollect(tx, id);
+			});
 
 			return message(form, { type: 'success', text: 'Order Successfully Updated' });
 		} catch (err) {
-			if (err instanceof StockError) {
+			if (err instanceof StockError || err instanceof DeliveryError) {
 				return message(form, { type: 'error', text: err.message }, { status: 400 });
 			}
 			console.error('Failed to update order:', err);
@@ -631,14 +622,4 @@ function sumLineItems(lineItems: Array<{ quantity: number; price: string }>): nu
 		0
 	);
 	return cents / 100;
-}
-
-function toEmailItems(lineItems: StaffLineItem[]) {
-	return lineItems.map((item) => ({
-		product: item.productId,
-		name: item.productName ?? undefined,
-		quantity: item.quantity,
-		amount: item.amount,
-		price: Number(item.price)
-	}));
 }

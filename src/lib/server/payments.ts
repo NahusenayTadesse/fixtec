@@ -22,6 +22,7 @@ import {
 	transactions,
 	user
 } from '$lib/server/db/schema';
+import { queueDelivery } from '$lib/server/deliveries';
 import { initializeChapaTransaction, newTxRef, verifyChapaTransaction } from '$lib/server/chapa';
 import {
 	ADMIN_EMAIL,
@@ -314,6 +315,12 @@ export async function settleOnlinePayment(txRef: string): Promise<SettlementOutc
 		if (settledBy && settledBy !== txRef) reportDoublePayment(orderId, txRef, settledBy, verification.amount);
 		return { status: 'paid', orderId, amount: verification.amount, alreadySettled: true };
 	}
+
+	// Paid, so it goes in the delivery queue. A failure here mustn't undo the
+	// payment: staff can still queue it by hand from the deliveries page.
+	await db
+		.transaction((tx) => queueDelivery(tx, orderId, {}))
+		.catch((err) => console.error(`Could not queue order #${orderId} for delivery:`, err));
 
 	const email = await db
 		.select({ email: customerEmail })

@@ -71,6 +71,13 @@
       "when": 1793119290079,
       "tag": "0009_amharic_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1793141907195,
+      "tag": "0010_deliveries",
+      "breakpoints": true
     }
   ]
 }
